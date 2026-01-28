@@ -3,8 +3,6 @@ Labor Supply-Demand Gap Explorer
 ================================
 Interactive dashboard for exploring projected labor gaps by occupation and geography,
 with policy scenario modeling.
-
-Deploy to Streamlit Cloud or run locally with: streamlit run app.py
 """
 
 import streamlit as st
@@ -22,7 +20,175 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Data path (relative for deployment)
+# Custom CSS for slicker design
+st.markdown("""
+<style>
+    /* Main background */
+    .stApp {
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+
+    /* Header styling */
+    .main-header {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+        padding: 2rem 2rem 1.5rem 2rem;
+        border-radius: 0 0 20px 20px;
+        margin: -1rem -1rem 2rem -1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .main-header h1 {
+        color: white;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+
+    .main-header p {
+        color: rgba(255,255,255,0.85);
+        font-size: 1.1rem;
+    }
+
+    /* Metric cards */
+    .metric-container {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.04);
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .metric-container:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        line-height: 1.2;
+    }
+
+    .metric-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 0.3rem;
+        font-weight: 500;
+    }
+
+    .metric-delta {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-top: 0.2rem;
+    }
+
+    .metric-delta.positive { color: #dc2626; }
+    .metric-delta.negative { color: #16a34a; }
+
+    /* Chart cards */
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.04);
+        margin-bottom: 1rem;
+    }
+
+    .chart-card h3 {
+        color: #1e3a5f;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    /* Policy impact banner */
+    .policy-banner {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border: 1px solid #a7f3d0;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .policy-banner-text {
+        color: #065f46;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    /* Sidebar styling */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1e3a5f 0%, #2d5a87 100%);
+    }
+
+    section[data-testid="stSidebar"] .stMarkdown {
+        color: white;
+    }
+
+    section[data-testid="stSidebar"] label {
+        color: rgba(255,255,255,0.9) !important;
+        font-weight: 500;
+    }
+
+    section[data-testid="stSidebar"] .stSelectbox > div > div {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background: #1e3a5f;
+        color: white;
+    }
+
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+
+    /* Divider */
+    .custom-divider {
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+        margin: 1.5rem 0;
+    }
+
+    /* Info boxes */
+    .info-box {
+        background: #f0f9ff;
+        border-left: 4px solid #0ea5e9;
+        padding: 1rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+    }
+
+    .info-box p {
+        color: #0c4a6e;
+        margin: 0;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Data path
 DATA_DIR = Path(__file__).parent / "data"
 
 # ============================================================================
@@ -32,7 +198,6 @@ DATA_DIR = Path(__file__).parent / "data"
 @st.cache_data
 def load_gap_data():
     """Load the gap projections data."""
-    # Try CZ-level first, fall back to state-level
     cz_file = DATA_DIR / "gap_projections_cz.csv"
     state_file = DATA_DIR / "gap_projections_state.csv"
 
@@ -41,7 +206,7 @@ def load_gap_data():
     elif state_file.exists():
         return pd.read_csv(state_file)
     else:
-        st.error("Gap data not found. Please ensure data files are in the 'data' folder.")
+        st.error("Gap data not found.")
         return None
 
 
@@ -52,8 +217,7 @@ def get_occupation_list(df):
         'total_emp': 'sum',
         'stock_gap': 'sum'
     }).reset_index()
-    occ_summary = occ_summary.sort_values('total_emp', ascending=False)
-    return occ_summary
+    return occ_summary.sort_values('total_emp', ascending=False)
 
 
 @st.cache_data
@@ -62,7 +226,7 @@ def get_state_list(df):
     return sorted(df['state_abbr'].dropna().unique())
 
 
-# Target occupations for quick selection
+# Target occupations
 TARGET_OCCUPATIONS = {
     3130: "Registered Nurses",
     3600: "Home Health Aides",
@@ -70,38 +234,31 @@ TARGET_OCCUPATIONS = {
     7315: "HVAC Mechanics",
     6440: "Plumbers/Pipefitters",
     8140: "Welders",
-    9130: "Truck Drivers (Heavy)",
+    9130: "Truck Drivers",
     5120: "Bookkeeping Clerks",
 }
 
 
 # ============================================================================
-# POLICY SCENARIO CALCULATIONS
+# POLICY CALCULATIONS
 # ============================================================================
 
 def apply_policy_scenario(df, training_mult, retirement_delay, retention_improve):
-    """
-    Apply policy scenario adjustments to the gap data.
-    """
+    """Apply policy scenario adjustments."""
     result = df.copy()
 
-    # Adjust training inflows
     result['adj_training_inflows'] = result['annual_training_inflows'].fillna(0) * training_mult
 
-    # Estimate base annual exits from employment
-    base_exit_rate = 0.05  # 5% annual turnover estimate
+    base_exit_rate = 0.05
     result['est_annual_exits'] = result['total_emp'] * base_exit_rate
 
-    # Adjust exits based on retirement delay
     exit_reduction = min(retirement_delay * 0.15, 0.5)
     retirement_share = 0.4
     result['adj_annual_exits'] = result['est_annual_exits'] * (1 - exit_reduction * retirement_share)
 
-    # Adjust for retention improvement
     transfer_share = 0.4
     result['adj_annual_exits'] = result['adj_annual_exits'] * (1 - retention_improve * transfer_share)
 
-    # Recalculate supply projection
     horizon = 5
     other_inflows = result['total_emp'] * 0.02
 
@@ -110,7 +267,6 @@ def apply_policy_scenario(df, training_mult, retirement_delay, retention_improve
         (result['adj_training_inflows'] + other_inflows - result['adj_annual_exits']) * horizon
     ).clip(lower=0)
 
-    # Recalculate gap
     result['adj_stock_gap'] = result['emp_projected'] - result['adj_supply_projected']
     result['adj_gap_pct'] = result['adj_stock_gap'] / result['emp_projected']
 
@@ -118,11 +274,11 @@ def apply_policy_scenario(df, training_mult, retirement_delay, retention_improve
 
 
 # ============================================================================
-# VISUALIZATION FUNCTIONS
+# VISUALIZATIONS
 # ============================================================================
 
-def create_supply_demand_bar(data, title="Supply vs Demand"):
-    """Create the main supply-demand comparison bar chart."""
+def create_supply_demand_chart(data, title=""):
+    """Create modern supply-demand comparison."""
     total_demand = data['emp_projected'].sum()
     total_supply = data['supply_projected'].sum()
     total_gap = data['stock_gap'].sum()
@@ -131,45 +287,70 @@ def create_supply_demand_bar(data, title="Supply vs Demand"):
 
     fig.add_trace(go.Bar(
         name='Projected Demand',
-        x=['5-Year Projection'],
+        x=[''],
         y=[total_demand],
-        marker_color='#EF553B',
+        marker_color='#ef4444',
+        marker_line_width=0,
+        width=0.35,
         text=[f'{total_demand/1e6:.2f}M'],
-        textposition='outside'
+        textposition='outside',
+        textfont=dict(size=14, color='#ef4444', family='Arial Black')
     ))
 
     fig.add_trace(go.Bar(
         name='Projected Supply',
-        x=['5-Year Projection'],
+        x=[''],
         y=[total_supply],
-        marker_color='#636EFA',
+        marker_color='#3b82f6',
+        marker_line_width=0,
+        width=0.35,
         text=[f'{total_supply/1e6:.2f}M'],
-        textposition='outside'
+        textposition='outside',
+        textfont=dict(size=14, color='#3b82f6', family='Arial Black')
     ))
 
     gap_pct = total_gap / total_demand * 100
-    gap_text = f"Gap: {total_gap/1e6:.2f}M ({gap_pct:+.1f}%)"
-
-    fig.add_annotation(
-        x=0.5, y=max(total_demand, total_supply) * 1.15,
-        text=f"<b>{gap_text}</b>",
-        showarrow=False,
-        font=dict(size=16, color='#EF553B' if total_gap > 0 else '#00CC96')
-    )
 
     fig.update_layout(
-        title=title,
         barmode='group',
-        yaxis_title='Workers',
+        bargap=0.3,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter, sans-serif'),
         showlegend=True,
-        height=400
+        legend=dict(
+            orientation='h',
+            yanchor='bottom',
+            y=1.02,
+            xanchor='center',
+            x=0.5,
+            font=dict(size=12)
+        ),
+        margin=dict(t=60, b=40, l=60, r=40),
+        height=380,
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(0,0,0,0.05)',
+            title='',
+            tickformat=',.0f'
+        ),
+        xaxis=dict(showticklabels=False),
+        annotations=[
+            dict(
+                x=0.5, y=1.15,
+                xref='paper', yref='paper',
+                text=f"<b>Gap: {total_gap/1e6:.2f}M workers ({gap_pct:.1f}%)</b>",
+                showarrow=False,
+                font=dict(size=16, color='#ef4444')
+            )
+        ]
     )
 
     return fig
 
 
-def create_gap_waterfall(data):
-    """Create waterfall chart showing gap components."""
+def create_waterfall_chart(data):
+    """Create gap decomposition waterfall."""
     current_emp = data['total_emp'].sum()
     projected_demand = data['emp_projected'].sum()
     projected_supply = data['supply_projected'].sum()
@@ -179,31 +360,36 @@ def create_gap_waterfall(data):
     growth = projected_demand - current_emp
 
     fig = go.Figure(go.Waterfall(
-        name="Gap Components",
         orientation="v",
         measure=["absolute", "relative", "relative", "relative", "total"],
-        x=["Current<br>Workforce", "Demand<br>Growth", "Workforce<br>Exits", "Training<br>Inflows", "Net Gap"],
+        x=["Current<br>Workforce", "Demand<br>Growth", "Workforce<br>Exits", "Training<br>Inflows", "Gap"],
         y=[current_emp, growth, -exits, training_inflows, 0],
         textposition="outside",
         text=[f"{current_emp/1e6:.1f}M", f"+{growth/1e6:.1f}M", f"-{exits/1e6:.1f}M",
-              f"+{training_inflows/1e6:.1f}M", f"{(projected_demand-projected_supply)/1e6:.1f}M"],
-        connector={"line": {"color": "rgb(63, 63, 63)"}},
-        decreasing={"marker": {"color": "#EF553B"}},
-        increasing={"marker": {"color": "#00CC96"}},
-        totals={"marker": {"color": "#FFA15A"}}
+              f"+{training_inflows/1e6:.2f}M", f"{(projected_demand-projected_supply)/1e6:.1f}M"],
+        textfont=dict(size=11, family='Arial'),
+        connector={"line": {"color": "#94a3b8", "width": 1}},
+        decreasing={"marker": {"color": "#ef4444", "line": {"width": 0}}},
+        increasing={"marker": {"color": "#22c55e", "line": {"width": 0}}},
+        totals={"marker": {"color": "#f59e0b", "line": {"width": 0}}}
     ))
 
     fig.update_layout(
-        title="Gap Decomposition (5-Year)",
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter, sans-serif'),
+        margin=dict(t=40, b=40, l=40, r=40),
+        height=380,
         showlegend=False,
-        height=400
+        yaxis=dict(showgrid=True, gridcolor='rgba(0,0,0,0.05)', title=''),
+        xaxis=dict(tickfont=dict(size=10))
     )
 
     return fig
 
 
-def create_state_map(data, title="Gap by State"):
-    """Create choropleth map of gaps by state."""
+def create_state_map(data, title=""):
+    """Create choropleth map."""
     state_data = data.groupby('state_abbr').agg({
         'total_emp': 'sum',
         'emp_projected': 'sum',
@@ -218,29 +404,40 @@ def create_state_map(data, title="Gap by State"):
         locations='state_abbr',
         locationmode='USA-states',
         color='gap_pct',
-        color_continuous_scale='RdYlGn_r',
+        color_continuous_scale=[
+            [0, '#22c55e'],
+            [0.3, '#fbbf24'],
+            [0.5, '#f97316'],
+            [1, '#dc2626']
+        ],
         range_color=[0, 40],
         scope='usa',
-        labels={'gap_pct': 'Gap %'},
-        hover_data={
-            'state_abbr': True,
-            'total_emp': ':,.0f',
-            'stock_gap': ':,.0f',
-            'gap_pct': ':.1f'
-        }
+        labels={'gap_pct': 'Gap %'}
     )
 
     fig.update_layout(
-        title=title,
-        geo=dict(bgcolor='rgba(0,0,0,0)'),
-        height=500
+        geo=dict(
+            bgcolor='rgba(0,0,0,0)',
+            lakecolor='rgba(0,0,0,0)',
+            landcolor='#f1f5f9',
+            showlakes=False
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        margin=dict(t=20, b=20, l=20, r=20),
+        height=420,
+        coloraxis_colorbar=dict(
+            title='Gap %',
+            ticksuffix='%',
+            len=0.6,
+            thickness=15
+        )
     )
 
     return fig
 
 
-def create_occupation_comparison(data, top_n=10):
-    """Create horizontal bar chart comparing gaps across occupations."""
+def create_occupation_bars(data, top_n=12):
+    """Create horizontal bar chart for occupations."""
     occ_data = data.groupby(['occ2010', 'occ_group']).agg({
         'total_emp': 'sum',
         'stock_gap': 'sum',
@@ -249,96 +446,131 @@ def create_occupation_comparison(data, top_n=10):
 
     occ_data['gap_pct'] = occ_data['stock_gap'] / occ_data['emp_projected'] * 100
     occ_data = occ_data.nlargest(top_n, 'stock_gap')
+    occ_data = occ_data.sort_values('stock_gap', ascending=True)
 
-    fig = px.bar(
-        occ_data,
-        y='occ_group',
-        x='stock_gap',
-        orientation='h',
-        color='gap_pct',
-        color_continuous_scale='RdYlGn_r',
-        labels={'stock_gap': 'Gap (Workers)', 'occ_group': 'Occupation', 'gap_pct': 'Gap %'}
-    )
-
-    fig.update_layout(
-        title=f"Top {top_n} Occupations by Shortage",
-        yaxis={'categoryorder': 'total ascending'},
-        height=400
-    )
-
-    return fig
-
-
-def create_policy_comparison(baseline_data, scenario_data, title="Policy Impact"):
-    """Compare baseline and scenario gaps."""
-    baseline_gap = baseline_data['stock_gap'].sum()
-    scenario_gap = scenario_data['adj_stock_gap'].sum()
-    reduction = baseline_gap - scenario_gap
+    # Truncate long names
+    occ_data['occ_short'] = occ_data['occ_group'].apply(lambda x: x[:28] + '...' if len(x) > 30 else x)
 
     fig = go.Figure()
 
     fig.add_trace(go.Bar(
-        name='Baseline Gap',
-        x=['Gap Comparison'],
-        y=[baseline_gap],
-        marker_color='#EF553B',
-        text=[f'{baseline_gap/1e6:.2f}M'],
-        textposition='outside'
+        y=occ_data['occ_short'],
+        x=occ_data['stock_gap'],
+        orientation='h',
+        marker=dict(
+            color=occ_data['gap_pct'],
+            colorscale=[
+                [0, '#fbbf24'],
+                [0.5, '#f97316'],
+                [1, '#dc2626']
+            ],
+            line=dict(width=0)
+        ),
+        text=[f'{v/1e6:.1f}M' for v in occ_data['stock_gap']],
+        textposition='outside',
+        textfont=dict(size=10)
     ))
-
-    fig.add_trace(go.Bar(
-        name='With Policy',
-        x=['Gap Comparison'],
-        y=[scenario_gap],
-        marker_color='#00CC96',
-        text=[f'{scenario_gap/1e6:.2f}M'],
-        textposition='outside'
-    ))
-
-    fig.add_annotation(
-        x=0.5, y=max(baseline_gap, scenario_gap) * 1.15,
-        text=f"<b>Reduction: {reduction/1e6:.2f}M ({reduction/baseline_gap*100:.1f}%)</b>",
-        showarrow=False,
-        font=dict(size=14, color='#00CC96')
-    )
 
     fig.update_layout(
-        title=title,
-        barmode='group',
-        yaxis_title='Workers',
-        height=350
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter, sans-serif'),
+        margin=dict(t=20, b=40, l=10, r=60),
+        height=400,
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(0,0,0,0.05)',
+            title='Gap (Workers)'
+        ),
+        yaxis=dict(
+            title='',
+            tickfont=dict(size=11)
+        ),
+        showlegend=False
     )
 
     return fig
 
 
-def create_training_adequacy_gauge(data):
-    """Create gauge showing training adequacy."""
-    total_openings = data['annual_total_openings'].sum()
-    total_training = data['annual_training_inflows'].fillna(0).sum()
-    adequacy = total_training / total_openings * 100 if total_openings > 0 else 0
-
+def create_gauge(value, title="Training Adequacy"):
+    """Create a modern gauge chart."""
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=adequacy,
-        title={'text': "Training Adequacy", 'font': {'size': 16}},
-        number={'suffix': '%', 'font': {'size': 24}},
+        value=value,
+        number={'suffix': '%', 'font': {'size': 32, 'color': '#1e3a5f'}},
         gauge={
-            'axis': {'range': [0, 100], 'tickwidth': 1},
-            'bar': {'color': "#636EFA"},
-            'bgcolor': "white",
-            'borderwidth': 2,
-            'bordercolor': "gray",
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': '#94a3b8'},
+            'bar': {'color': '#3b82f6', 'thickness': 0.7},
+            'bgcolor': '#f1f5f9',
+            'borderwidth': 0,
             'steps': [
-                {'range': [0, 25], 'color': '#EF553B'},
-                {'range': [25, 50], 'color': '#FFA15A'},
-                {'range': [50, 75], 'color': '#FECB52'},
-                {'range': [75, 100], 'color': '#00CC96'}
+                {'range': [0, 25], 'color': '#fee2e2'},
+                {'range': [25, 50], 'color': '#fef3c7'},
+                {'range': [50, 75], 'color': '#fef9c3'},
+                {'range': [75, 100], 'color': '#dcfce7'}
             ]
         }
     ))
 
-    fig.update_layout(height=250)
+    fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter, sans-serif'),
+        height=200,
+        margin=dict(t=30, b=10, l=30, r=30)
+    )
+
+    return fig
+
+
+def create_policy_comparison(baseline_gap, scenario_gap):
+    """Create policy impact comparison chart."""
+    reduction = baseline_gap - scenario_gap
+    reduction_pct = reduction / baseline_gap * 100
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=['Baseline', 'With Policy'],
+        y=[baseline_gap, scenario_gap],
+        marker_color=['#94a3b8', '#22c55e'],
+        marker_line_width=0,
+        text=[f'{baseline_gap/1e6:.2f}M', f'{scenario_gap/1e6:.2f}M'],
+        textposition='outside',
+        textfont=dict(size=14, family='Arial Black'),
+        width=0.5
+    ))
+
+    fig.add_annotation(
+        x=1, y=scenario_gap,
+        ax=0, ay=baseline_gap,
+        xref='x', yref='y',
+        axref='x', ayref='y',
+        showarrow=True,
+        arrowhead=2,
+        arrowsize=1.5,
+        arrowwidth=2,
+        arrowcolor='#22c55e'
+    )
+
+    fig.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter, sans-serif'),
+        margin=dict(t=60, b=40, l=60, r=40),
+        height=320,
+        showlegend=False,
+        yaxis=dict(showgrid=True, gridcolor='rgba(0,0,0,0.05)', title=''),
+        annotations=[
+            dict(
+                x=0.5, y=1.12,
+                xref='paper', yref='paper',
+                text=f"<b>↓ {reduction/1e6:.2f}M reduction ({reduction_pct:.0f}%)</b>",
+                showarrow=False,
+                font=dict(size=15, color='#16a34a')
+            )
+        ]
+    )
+
     return fig
 
 
@@ -347,174 +579,244 @@ def create_training_adequacy_gauge(data):
 # ============================================================================
 
 def main():
-    # Header
-    st.title("📊 Labor Supply-Demand Gap Explorer")
+    # Custom header
     st.markdown("""
-    Explore projected labor shortages by occupation and geography,
-    and see how policy interventions could close the gap.
-    """)
+    <div class="main-header">
+        <h1>📊 Labor Supply-Demand Gap Explorer</h1>
+        <p>Explore projected labor shortages and model policy interventions</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Load data
     gap_data = load_gap_data()
-
     if gap_data is None:
         st.stop()
 
-    # Sidebar - Filters
-    st.sidebar.header("🔍 Filters")
+    # Sidebar
+    with st.sidebar:
+        st.markdown("### 🔍 Filters")
+        st.markdown("---")
 
-    # Occupation selection
-    st.sidebar.subheader("Occupation")
-    use_target = st.sidebar.checkbox("Show target occupations only", value=True)
+        # Occupation
+        st.markdown("**Occupation**")
+        use_target = st.checkbox("Target occupations only", value=True)
 
-    if use_target:
-        occ_options = {v: k for k, v in TARGET_OCCUPATIONS.items()}
-        selected_occ_name = st.sidebar.selectbox(
-            "Select occupation",
-            options=list(occ_options.keys()),
-            index=0
+        if use_target:
+            occ_options = {v: k for k, v in TARGET_OCCUPATIONS.items()}
+            selected_occ_name = st.selectbox(
+                "Select",
+                options=list(occ_options.keys()),
+                index=0,
+                label_visibility="collapsed"
+            )
+            selected_occ = occ_options[selected_occ_name]
+        else:
+            occ_list = get_occupation_list(gap_data)
+            occ_options = {f"{row['occ_group']}": row['occ2010'] for _, row in occ_list.head(50).iterrows()}
+            selected_occ_name = st.selectbox("Select", options=list(occ_options.keys()), label_visibility="collapsed")
+            selected_occ = occ_options[selected_occ_name]
+
+        st.markdown("")
+        st.markdown("**Geography**")
+        state_list = ['All States'] + get_state_list(gap_data)
+        selected_state = st.selectbox("Select state", state_list, label_visibility="collapsed")
+
+        st.markdown("---")
+        st.markdown("### 🎛️ Policy Levers")
+        st.markdown("")
+
+        training_mult = st.slider(
+            "Training Expansion",
+            min_value=1.0, max_value=3.0, value=1.0, step=0.1,
+            format="%.1fx"
         )
-        selected_occ = occ_options[selected_occ_name]
-    else:
-        occ_list = get_occupation_list(gap_data)
-        occ_options = {f"{row['occ_group']} ({row['occ2010']})": row['occ2010']
-                       for _, row in occ_list.iterrows()}
-        selected_occ_name = st.sidebar.selectbox(
-            "Select occupation",
-            options=list(occ_options.keys())
-        )
-        selected_occ = occ_options[selected_occ_name]
 
-    # State selection
-    st.sidebar.subheader("Geography")
-    state_list = ['All States'] + get_state_list(gap_data)
-    selected_state = st.sidebar.selectbox("Select state", state_list)
+        retirement_delay = st.slider(
+            "Retirement Delay",
+            min_value=0, max_value=5, value=0,
+            format="%d years"
+        )
+
+        retention_improve = st.slider(
+            "Retention Improvement",
+            min_value=0.0, max_value=0.3, value=0.0, step=0.05,
+            format="%.0f%%"
+        )
+
+        st.markdown("---")
+        st.caption("Data: ACS, IPEDS, BLS")
 
     # Filter data
     filtered_data = gap_data[gap_data['occ2010'] == selected_occ].copy()
     if selected_state != 'All States':
         filtered_data = filtered_data[filtered_data['state_abbr'] == selected_state]
 
-    # Sidebar - Policy Levers
-    st.sidebar.header("🎛️ Policy Levers")
-    st.sidebar.markdown("Adjust these to see policy impact:")
+    # Apply policy
+    scenario_data = apply_policy_scenario(filtered_data, training_mult, retirement_delay, retention_improve)
+    policy_active = (training_mult != 1.0 or retirement_delay > 0 or retention_improve > 0)
 
-    training_mult = st.sidebar.slider(
-        "Training Expansion",
-        min_value=1.0, max_value=3.0, value=1.0, step=0.1,
-        help="Multiplier for training program completions"
-    )
-
-    retirement_delay = st.sidebar.slider(
-        "Retirement Delay (years)",
-        min_value=0, max_value=5, value=0,
-        help="Average years workers delay retirement"
-    )
-
-    retention_improve = st.sidebar.slider(
-        "Retention Improvement",
-        min_value=0.0, max_value=0.3, value=0.0, step=0.05,
-        help="Fraction improvement in job retention"
-    )
-
-    # Apply policy scenario
-    scenario_data = apply_policy_scenario(
-        filtered_data, training_mult, retirement_delay, retention_improve
-    )
-
-    # Key metrics
-    col1, col2, col3, col4 = st.columns(4)
-
+    # Calculate metrics
     total_emp = filtered_data['total_emp'].sum()
     total_demand = filtered_data['emp_projected'].sum()
     total_supply = filtered_data['supply_projected'].sum()
     total_gap = filtered_data['stock_gap'].sum()
     gap_pct = total_gap / total_demand * 100 if total_demand > 0 else 0
 
-    with col1:
-        st.metric("Current Employment", f"{total_emp/1e6:.2f}M")
-    with col2:
-        st.metric("5-Year Demand", f"{total_demand/1e6:.2f}M")
-    with col3:
-        st.metric("5-Year Supply", f"{total_supply/1e6:.2f}M")
-    with col4:
-        st.metric("Gap", f"{total_gap/1e6:.2f}M", f"{gap_pct:+.1f}%", delta_color="inverse")
+    # Metrics row
+    cols = st.columns(4)
+
+    metrics = [
+        ("Current Employment", f"{total_emp/1e6:.2f}M", None),
+        ("5-Year Demand", f"{total_demand/1e6:.2f}M", None),
+        ("5-Year Supply", f"{total_supply/1e6:.2f}M", None),
+        ("Shortage Gap", f"{total_gap/1e6:.2f}M", f"+{gap_pct:.1f}%")
+    ]
+
+    for col, (label, value, delta) in zip(cols, metrics):
+        with col:
+            delta_html = f'<div class="metric-delta positive">{delta}</div>' if delta else ''
+            st.markdown(f"""
+            <div class="metric-container">
+                <div class="metric-value">{value}</div>
+                <div class="metric-label">{label}</div>
+                {delta_html}
+            </div>
+            """, unsafe_allow_html=True)
 
     # Policy impact banner
-    policy_adjusted = (training_mult != 1.0 or retirement_delay > 0 or retention_improve > 0)
-
-    if policy_adjusted:
-        st.markdown("---")
+    if policy_active:
         new_gap = scenario_data['adj_stock_gap'].sum()
         reduction = total_gap - new_gap
-        st.success(f"📈 **Policy Impact**: Gap reduced from {total_gap/1e6:.2f}M to {new_gap/1e6:.2f}M "
-                   f"(**-{reduction/1e6:.2f}M, {reduction/total_gap*100:.1f}% reduction**)")
+        st.markdown(f"""
+        <div class="policy-banner">
+            <span class="policy-banner-text">
+                📈 Policy Impact: Gap reduced from {total_gap/1e6:.2f}M to {new_gap/1e6:.2f}M
+                — <b>{reduction/1e6:.2f}M fewer workers short ({reduction/total_gap*100:.0f}% reduction)</b>
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
     # Tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "🗺️ Geography", "📈 Occupations", "🔧 Policy Analysis"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "🗺️ Geography", "📈 Compare", "🔧 Policy"])
 
     with tab1:
         col1, col2 = st.columns(2)
-        with col1:
-            st.plotly_chart(
-                create_supply_demand_bar(filtered_data, title=f"Supply vs Demand: {selected_occ_name}"),
-                use_container_width=True
-            )
-        with col2:
-            st.plotly_chart(create_gap_waterfall(filtered_data), use_container_width=True)
 
-        st.plotly_chart(create_training_adequacy_gauge(filtered_data), use_container_width=True)
+        with col1:
+            st.markdown(f"""
+            <div class="chart-card">
+                <h3>Supply vs Demand — {selected_occ_name}</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            st.plotly_chart(create_supply_demand_chart(filtered_data), use_container_width=True)
+
+        with col2:
+            st.markdown("""
+            <div class="chart-card">
+                <h3>Gap Decomposition (5-Year)</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            st.plotly_chart(create_waterfall_chart(filtered_data), use_container_width=True)
+
+        # Training adequacy
+        total_openings = filtered_data['annual_total_openings'].sum()
+        total_training = filtered_data['annual_training_inflows'].fillna(0).sum()
+        adequacy = total_training / total_openings * 100 if total_openings > 0 else 0
+
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            st.markdown("""
+            <div class="chart-card" style="text-align: center;">
+                <h3>Training Adequacy</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            st.plotly_chart(create_gauge(adequacy), use_container_width=True)
+            st.caption("Training completions as % of annual job openings")
 
     with tab2:
         if selected_state == 'All States':
-            st.plotly_chart(
-                create_state_map(filtered_data, title=f"Gap by State: {selected_occ_name}"),
-                use_container_width=True
-            )
+            st.markdown(f"""
+            <div class="chart-card">
+                <h3>Gap by State — {selected_occ_name}</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            st.plotly_chart(create_state_map(filtered_data), use_container_width=True)
 
-            st.subheader("State Details")
+            # State table
+            st.markdown("""
+            <div class="chart-card">
+                <h3>State Details</h3>
+            </div>
+            """, unsafe_allow_html=True)
+
             state_summary = filtered_data.groupby('state_abbr').agg({
                 'total_emp': 'sum', 'stock_gap': 'sum', 'emp_projected': 'sum'
             }).reset_index()
             state_summary['gap_pct'] = state_summary['stock_gap'] / state_summary['emp_projected'] * 100
             state_summary = state_summary.sort_values('stock_gap', ascending=False)
-            state_summary.columns = ['State', 'Current Emp', 'Gap', 'Projected Demand', 'Gap %']
-            st.dataframe(state_summary.style.format({
-                'Current Emp': '{:,.0f}', 'Gap': '{:,.0f}',
-                'Projected Demand': '{:,.0f}', 'Gap %': '{:.1f}%'
-            }), use_container_width=True)
+            state_summary.columns = ['State', 'Current Emp', 'Gap', 'Demand', 'Gap %']
+
+            st.dataframe(
+                state_summary.head(15).style.format({
+                    'Current Emp': '{:,.0f}',
+                    'Gap': '{:,.0f}',
+                    'Demand': '{:,.0f}',
+                    'Gap %': '{:.1f}%'
+                }).background_gradient(subset=['Gap %'], cmap='OrRd'),
+                use_container_width=True,
+                hide_index=True
+            )
         else:
-            st.info(f"Showing data for {selected_state}")
-            st.dataframe(filtered_data[['total_emp', 'emp_projected', 'supply_projected', 'stock_gap']].describe())
+            st.markdown(f"""
+            <div class="info-box">
+                <p>Showing detailed data for <b>{selected_state}</b>. Select "All States" to see the map view.</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+            st.dataframe(
+                filtered_data[['total_emp', 'emp_projected', 'supply_projected', 'stock_gap']].describe(),
+                use_container_width=True
+            )
 
     with tab3:
-        st.subheader("Top Shortage Occupations")
+        st.markdown("""
+        <div class="chart-card">
+            <h3>Top Shortage Occupations</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
         all_occ_data = gap_data.copy()
         if selected_state != 'All States':
             all_occ_data = all_occ_data[all_occ_data['state_abbr'] == selected_state]
-        st.plotly_chart(create_occupation_comparison(all_occ_data, top_n=15), use_container_width=True)
+
+        st.plotly_chart(create_occupation_bars(all_occ_data, top_n=12), use_container_width=True)
 
     with tab4:
-        st.subheader("🔧 Policy Scenario Analysis")
         st.markdown("""
-        Adjust the policy levers in the sidebar to model different interventions:
-        - **Training Expansion**: Increasing community college and vocational program capacity
-        - **Retirement Delay**: Policies that encourage later retirement
-        - **Retention Improvement**: Better wages/conditions reducing occupation exits
-        """)
+        <div class="chart-card">
+            <h3>Policy Scenario Analysis</h3>
+        </div>
+        """, unsafe_allow_html=True)
 
-        if policy_adjusted:
+        st.markdown("""
+        <div class="info-box">
+            <p>Adjust the <b>Policy Levers</b> in the sidebar to model different interventions and see their impact on the labor gap.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if policy_active:
             col1, col2 = st.columns(2)
+
+            baseline_gap = filtered_data['stock_gap'].sum()
+            new_gap = scenario_data['adj_stock_gap'].sum()
+
             with col1:
-                st.plotly_chart(
-                    create_policy_comparison(filtered_data, scenario_data, title="Gap Reduction from Policy"),
-                    use_container_width=True
-                )
+                st.plotly_chart(create_policy_comparison(baseline_gap, new_gap), use_container_width=True)
+
             with col2:
-                baseline_gap = filtered_data['stock_gap'].sum()
-                st.markdown("### Policy Contribution")
+                st.markdown("### Policy Breakdown")
 
                 t_only = apply_policy_scenario(filtered_data, training_mult, 0, 0)
                 r_only = apply_policy_scenario(filtered_data, 1.0, retirement_delay, 0)
@@ -524,20 +826,31 @@ def main():
                 r_impact = baseline_gap - r_only['adj_stock_gap'].sum()
                 ret_impact = baseline_gap - ret_only['adj_stock_gap'].sum()
 
-                st.markdown(f"""
-                | Policy | Gap Reduction |
-                |--------|--------------|
-                | Training ({training_mult:.1f}x) | {t_impact/1e6:.2f}M ({t_impact/baseline_gap*100:.1f}%) |
-                | Retirement (+{retirement_delay} yrs) | {r_impact/1e6:.2f}M ({r_impact/baseline_gap*100:.1f}%) |
-                | Retention (+{retention_improve*100:.0f}%) | {ret_impact/1e6:.2f}M ({ret_impact/baseline_gap*100:.1f}%) |
-                """)
-        else:
-            st.info("👈 Adjust the policy levers in the sidebar to see scenario analysis.")
+                policy_df = pd.DataFrame({
+                    'Policy': [
+                        f'Training ({training_mult:.1f}x)',
+                        f'Retirement (+{retirement_delay} yrs)',
+                        f'Retention (+{int(retention_improve*100)}%)'
+                    ],
+                    'Gap Reduction': [
+                        f'{t_impact/1e6:.2f}M',
+                        f'{r_impact/1e6:.2f}M',
+                        f'{ret_impact/1e6:.2f}M'
+                    ],
+                    'Impact %': [
+                        f'{t_impact/baseline_gap*100:.1f}%',
+                        f'{r_impact/baseline_gap*100:.1f}%',
+                        f'{ret_impact/baseline_gap*100:.1f}%'
+                    ]
+                })
 
-    # Footer
-    st.markdown("---")
-    st.caption("Data sources: ACS, IPEDS, BLS Employment Projections. "
-               "Note: Training data includes community college completions only.")
+                st.dataframe(policy_df, use_container_width=True, hide_index=True)
+        else:
+            st.markdown("""
+            <div style="text-align: center; padding: 3rem; color: #64748b;">
+                <p style="font-size: 1.2rem;">👈 Adjust the policy levers in the sidebar to see scenario analysis</p>
+            </div>
+            """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
