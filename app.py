@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Page config
 st.set_page_config(
-    page_title="Labor Gap Explorer",
+    page_title="Labor Shortage Explorer",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -584,8 +584,8 @@ def main():
     # Header
     st.markdown("""
     <div class="header-card">
-        <h1>Labor Supply-Demand Gap Explorer</h1>
-        <p>Explore projected labor shortages and model policy interventions</p>
+        <h1>Labor Shortage Explorer</h1>
+        <p>Explore projected labor shortages by occupation and model policy interventions</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -598,7 +598,7 @@ def main():
     with st.sidebar:
         st.markdown("### Filters")
 
-        use_target = st.checkbox("Target occupations only", value=True)
+        use_target = st.checkbox("Key shortage occupations only", value=True)
 
         if use_target:
             occ_options = {v: k for k, v in TARGET_OCCUPATIONS.items()}
