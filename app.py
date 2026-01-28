@@ -306,6 +306,7 @@ def create_supply_demand_chart(data):
     """Create clean supply-demand comparison."""
     total_demand = data['emp_projected'].sum()
     total_supply = data['supply_projected'].sum()
+    max_val = max(total_demand, total_supply)
 
     fig = go.Figure()
 
@@ -317,7 +318,8 @@ def create_supply_demand_chart(data):
         width=0.3,
         text=[f'{total_demand/1e6:.1f}M'],
         textposition='outside',
-        textfont=dict(size=16, color='#ef4444', family='Inter')
+        textfont=dict(size=16, color='#ef4444', family='Inter'),
+        cliponaxis=False
     ))
 
     fig.add_trace(go.Bar(
@@ -328,7 +330,8 @@ def create_supply_demand_chart(data):
         width=0.3,
         text=[f'{total_supply/1e6:.1f}M'],
         textposition='outside',
-        textfont=dict(size=16, color='#3b82f6', family='Inter')
+        textfont=dict(size=16, color='#3b82f6', family='Inter'),
+        cliponaxis=False
     ))
 
     fig.update_layout(
@@ -353,7 +356,8 @@ def create_supply_demand_chart(data):
             gridcolor='#f1f5f9',
             title='',
             tickformat=',.0f',
-            zeroline=False
+            zeroline=False,
+            range=[0, max_val * 1.15]
         ),
         xaxis=dict(showticklabels=False)
     )
@@ -372,6 +376,9 @@ def create_waterfall_chart(data):
     growth = projected_demand - current_emp
     gap = projected_demand - projected_supply
 
+    # Calculate max height for y-axis range
+    max_height = current_emp + growth
+
     fig = go.Figure(go.Waterfall(
         orientation="v",
         measure=["absolute", "relative", "relative", "relative", "total"],
@@ -384,7 +391,8 @@ def create_waterfall_chart(data):
         connector={"line": {"color": "#e2e8f0", "width": 1}},
         decreasing={"marker": {"color": "#ef4444"}},
         increasing={"marker": {"color": "#22c55e"}},
-        totals={"marker": {"color": "#f59e0b"}}
+        totals={"marker": {"color": "#f59e0b"}},
+        cliponaxis=False
     ))
 
     fig.update_layout(
@@ -394,7 +402,13 @@ def create_waterfall_chart(data):
         margin=dict(t=60, b=30, l=50, r=30),
         height=380,
         showlegend=False,
-        yaxis=dict(showgrid=True, gridcolor='#f1f5f9', title='', zeroline=False),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='#f1f5f9',
+            title='',
+            zeroline=False,
+            range=[0, max_height * 1.15]
+        ),
         xaxis=dict(tickfont=dict(size=12, color='#475569'))
     )
 
