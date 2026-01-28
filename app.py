@@ -653,11 +653,26 @@ def main():
     scenario_data = apply_policy_scenario(filtered_data, training_mult, retirement_delay, retention_improve)
     policy_active = (training_mult != 1.0 or retirement_delay > 0 or retention_improve > 0)
 
-    # Calculate metrics
+    # Calculate metrics - use policy-adjusted values when active
     total_emp = filtered_data['total_emp'].sum()
     total_demand = filtered_data['emp_projected'].sum()
-    total_supply = filtered_data['supply_projected'].sum()
-    total_gap = filtered_data['stock_gap'].sum()
+
+    # Baseline values
+    baseline_supply = filtered_data['supply_projected'].sum()
+    baseline_gap = filtered_data['stock_gap'].sum()
+
+    # Use adjusted values when policy is active
+    if policy_active:
+        total_supply = scenario_data['adj_supply_projected'].sum()
+        total_gap = scenario_data['adj_stock_gap'].sum()
+        supply_change = total_supply - baseline_supply
+        gap_change = total_gap - baseline_gap
+    else:
+        total_supply = baseline_supply
+        total_gap = baseline_gap
+        supply_change = 0
+        gap_change = 0
+
     gap_pct = total_gap / total_demand * 100 if total_demand > 0 else 0
 
     # Metrics row
@@ -680,33 +695,35 @@ def main():
         """, unsafe_allow_html=True)
 
     with col3:
+        supply_delta = f'<div class="metric-delta" style="color: #16a34a;">+{supply_change/1e6:.2f}M from policy</div>' if policy_active and supply_change > 0 else ''
         st.markdown(f"""
         <div class="metric-card">
             <div class="metric-label">5-Year Supply</div>
             <div class="metric-value">{total_supply/1e6:.2f}M</div>
+            {supply_delta}
         </div>
         """, unsafe_allow_html=True)
 
     with col4:
+        gap_delta = f'<div class="metric-delta" style="color: #16a34a;">{gap_change/1e6:.2f}M from policy</div>' if policy_active else f'<div class="metric-delta">+{gap_pct:.1f}% of demand</div>'
+        gap_color = '#16a34a' if policy_active else '#dc2626'
         st.markdown(f"""
         <div class="metric-card">
             <div class="metric-label">Shortage Gap</div>
-            <div class="metric-value highlight">{total_gap/1e6:.2f}M</div>
-            <div class="metric-delta">+{gap_pct:.1f}% of demand</div>
+            <div class="metric-value" style="color: {gap_color};">{total_gap/1e6:.2f}M</div>
+            {gap_delta}
         </div>
         """, unsafe_allow_html=True)
 
-    # Policy impact banner
+    # Policy summary banner
     if policy_active:
-        new_gap = scenario_data['adj_stock_gap'].sum()
-        reduction = total_gap - new_gap
-        reduction_pct = reduction / total_gap * 100 if total_gap > 0 else 0
+        reduction = baseline_gap - total_gap
+        reduction_pct = reduction / baseline_gap * 100 if baseline_gap > 0 else 0
         st.markdown(f"""
         <div class="policy-banner">
             <span class="policy-banner-icon">📉</span>
             <span class="policy-banner-text">
-                Policy Impact: Gap reduced to <strong>{new_gap/1e6:.2f}M</strong>
-                — {reduction/1e6:.2f}M fewer workers short ({reduction_pct:.0f}% reduction)
+                Policy reduces gap by <strong>{reduction/1e6:.2f}M workers</strong> ({reduction_pct:.0f}% reduction from baseline of {baseline_gap/1e6:.2f}M)
             </span>
         </div>
         """, unsafe_allow_html=True)
