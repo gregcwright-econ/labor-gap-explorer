@@ -171,26 +171,41 @@ st.markdown("""
         color: #15803d;
     }
 
-    /* Tab styling */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 0;
+    /* Radio button as tabs styling */
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stRadio"]) {
         background: white;
         border-radius: 10px;
         padding: 4px;
         border: 1px solid #e2e8f0;
+        margin-bottom: 1rem;
     }
 
-    .stTabs [data-baseweb="tab"] {
+    div[data-testid="stRadio"] > div {
+        gap: 0 !important;
+    }
+
+    div[data-testid="stRadio"] label {
+        background: transparent;
         border-radius: 8px;
-        padding: 0.5rem 1.25rem;
-        font-weight: 500;
-        font-size: 0.875rem;
-        color: #64748b;
+        padding: 0.5rem 1.25rem !important;
+        font-weight: 500 !important;
+        font-size: 0.875rem !important;
+        color: #64748b !important;
+        border: none !important;
+        margin: 0 !important;
     }
 
-    .stTabs [aria-selected="true"] {
+    div[data-testid="stRadio"] label[data-checked="true"] {
         background: #0f172a !important;
         color: white !important;
+    }
+
+    div[data-testid="stRadio"] label:hover {
+        background: #f1f5f9;
+    }
+
+    div[data-testid="stRadio"] label[data-checked="true"]:hover {
+        background: #0f172a !important;
     }
 
     /* Hide Streamlit elements */
@@ -739,10 +754,19 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-    # Tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Geography", "Compare", "Policy"])
+    # View selector (using radio instead of tabs for persistence)
+    if 'selected_view' not in st.session_state:
+        st.session_state.selected_view = "Overview"
 
-    with tab1:
+    selected_view = st.radio(
+        "View",
+        ["Overview", "Geography", "Compare", "Policy"],
+        horizontal=True,
+        key="view_selector",
+        label_visibility="collapsed"
+    )
+
+    if selected_view == "Overview":
         col1, col2 = st.columns(2)
 
         with col1:
@@ -776,7 +800,7 @@ def main():
             st.plotly_chart(create_gauge(adequacy), use_container_width=True)
             st.caption("Training completions as % of annual job openings")
 
-    with tab2:
+    elif selected_view == "Geography":
         if selected_state == 'All States':
             st.markdown(f"""
             <div class="chart-container">
@@ -814,7 +838,7 @@ def main():
                 use_container_width=True
             )
 
-    with tab3:
+    elif selected_view == "Compare":
         st.markdown("""
         <div class="chart-container">
             <div class="chart-title">Top Shortage Occupations</div>
@@ -827,7 +851,7 @@ def main():
 
         st.plotly_chart(create_occupation_bars(all_occ_data, top_n=10), use_container_width=True)
 
-    with tab4:
+    elif selected_view == "Policy":
         st.markdown("""
         <div class="chart-container">
             <div class="chart-title">Policy Scenario Analysis</div>
@@ -839,53 +863,50 @@ def main():
         pcol1, pcol2, pcol3 = st.columns(3)
 
         with pcol1:
-            new_training = st.slider(
+            st.session_state.training_mult = st.slider(
                 "Training Expansion",
                 min_value=1.0, max_value=3.0,
                 value=st.session_state.training_mult,
                 step=0.1,
                 format="%.1fx",
-                help="Multiply training program completions",
-                key="training_slider"
+                help="Multiply training program completions"
             )
-            if new_training != st.session_state.training_mult:
-                st.session_state.training_mult = new_training
-                st.rerun()
 
         with pcol2:
-            new_retirement = st.slider(
+            st.session_state.retirement_delay = st.slider(
                 "Retirement Delay",
                 min_value=0, max_value=5,
                 value=st.session_state.retirement_delay,
                 format="%d years",
-                help="Average years workers delay retirement",
-                key="retirement_slider"
+                help="Average years workers delay retirement"
             )
-            if new_retirement != st.session_state.retirement_delay:
-                st.session_state.retirement_delay = new_retirement
-                st.rerun()
 
         with pcol3:
-            new_retention = st.slider(
+            st.session_state.retention_improve = st.slider(
                 "Retention Improvement",
                 min_value=0.0, max_value=0.3,
                 value=st.session_state.retention_improve,
                 step=0.05,
                 format="%.0f%%",
-                help="Reduction in occupation transfers",
-                key="retention_slider"
+                help="Reduction in occupation transfers"
             )
-            if new_retention != st.session_state.retention_improve:
-                st.session_state.retention_improve = new_retention
-                st.rerun()
 
         st.markdown("---")
 
-        if policy_active:
+        # Recalculate with current slider values
+        current_training = st.session_state.training_mult
+        current_retirement = st.session_state.retirement_delay
+        current_retention = st.session_state.retention_improve
+        policy_is_active = (current_training != 1.0 or current_retirement > 0 or current_retention > 0)
+
+        if policy_is_active:
+            # Recalculate scenario with current values
+            current_scenario = apply_policy_scenario(filtered_data, current_training, current_retirement, current_retention)
+
             col1, col2 = st.columns(2)
 
             baseline_gap = filtered_data['stock_gap'].sum()
-            new_gap = scenario_data['adj_stock_gap'].sum()
+            new_gap = current_scenario['adj_stock_gap'].sum()
 
             with col1:
                 st.plotly_chart(create_policy_comparison(baseline_gap, new_gap), use_container_width=True)
@@ -893,9 +914,9 @@ def main():
             with col2:
                 st.markdown("#### Policy Breakdown")
 
-                t_only = apply_policy_scenario(filtered_data, training_mult, 0, 0)
-                r_only = apply_policy_scenario(filtered_data, 1.0, retirement_delay, 0)
-                ret_only = apply_policy_scenario(filtered_data, 1.0, 0, retention_improve)
+                t_only = apply_policy_scenario(filtered_data, current_training, 0, 0)
+                r_only = apply_policy_scenario(filtered_data, 1.0, current_retirement, 0)
+                ret_only = apply_policy_scenario(filtered_data, 1.0, 0, current_retention)
 
                 t_impact = baseline_gap - t_only['adj_stock_gap'].sum()
                 r_impact = baseline_gap - r_only['adj_stock_gap'].sum()
@@ -903,9 +924,9 @@ def main():
 
                 policy_df = pd.DataFrame({
                     'Policy': [
-                        f'Training ({training_mult:.1f}x)',
-                        f'Retirement (+{retirement_delay} yrs)',
-                        f'Retention (+{int(retention_improve*100)}%)'
+                        f'Training ({current_training:.1f}x)',
+                        f'Retirement (+{current_retirement} yrs)',
+                        f'Retention (+{int(current_retention*100)}%)'
                     ],
                     'Gap Reduction': [
                         f'{t_impact/1e6:.2f}M',
