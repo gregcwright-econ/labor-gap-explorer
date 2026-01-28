@@ -742,8 +742,13 @@ def main():
         """, unsafe_allow_html=True)
 
     with col4:
-        gap_delta = f'<div class="metric-delta" style="color: #16a34a;">{gap_change/1e6:.2f}M from policy</div>' if policy_active else f'<div class="metric-delta">+{gap_pct:.1f}% of demand</div>'
-        gap_color = '#16a34a' if policy_active else '#dc2626'
+        # Show policy impact if active
+        if policy_active:
+            gap_delta = f'<div class="metric-delta" style="color: #16a34a;">{gap_change/1e6:.2f}M from policy</div>'
+        else:
+            gap_delta = f'<div class="metric-delta">+{gap_pct:.1f}% of demand</div>'
+        # Only green if surplus (gap <= 0), otherwise red
+        gap_color = '#16a34a' if total_gap <= 0 else '#dc2626'
         st.markdown(f"""
         <div class="metric-card">
             <div class="metric-label">Shortage Gap</div>
