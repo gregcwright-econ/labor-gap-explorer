@@ -188,8 +188,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Data path
-DATA_DIR = Path(__file__).parent / "data"
+# Data path - handle both local and cloud deployment
+try:
+    DATA_DIR = Path(__file__).parent / "data"
+except NameError:
+    DATA_DIR = Path(".") / "data"
+
+if not DATA_DIR.exists():
+    DATA_DIR = Path(".") / "data"
 
 # ============================================================================
 # DATA LOADING
