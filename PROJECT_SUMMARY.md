@@ -1,4 +1,4 @@
-# Labor Supply-Demand Gap Project Summary
+# Labor Shortage Explorer - Project Summary
 
 **Created:** January 2026
 **Live App:** https://labor-gap-explorer.streamlit.app
@@ -8,7 +8,7 @@
 
 ## Project Overview
 
-This project builds an interactive tool for exploring projected labor shortages by occupation and geography, with policy scenario modeling. It shifts the focus from documenting current shortages to a forward-looking supply/demand gap framework.
+An interactive tool for exploring projected labor shortages by occupation and geography, with policy scenario modeling. The app shows 5-year supply/demand gaps and lets users model the impact of policy interventions.
 
 ### Core Concept
 
@@ -22,56 +22,37 @@ Where:
 
 ---
 
-## What Was Built
+## App Features
 
-### Data Pipeline
+### Sidebar Controls
 
-| Script | Purpose | Output |
-|--------|---------|--------|
-| `download_bls_oes.py` | Download current employment from BLS OES | `oes_employment_state.csv` |
-| `download_state_projections.py` | Get state/national growth projections | `occupation_growth_rates.csv` |
-| `build_demand_projections.py` | Project 5-year demand by occupation × CZ | `demand_projections_cz.csv` |
-| `build_supply_projections.py` | Project 5-year supply by occupation × CZ | `supply_projections_cz.csv` |
-| `calculate_gap.py` | Combine into gap estimates with policy scenarios | `gap_projections_cz.csv` |
+**Filters:**
+- Occupation selector (8 key shortage occupations or browse all ~400)
+- Geography filter (All States or specific state)
 
-### Interactive Dashboard
+**Policy Scenarios:**
+- Training Expansion (1-3x multiplier)
+- Retirement Delay (0-5 years)
+- Retention Improvement (0-30%)
 
-| File | Purpose |
-|------|---------|
-| `labor-gap-app/app.py` | Streamlit dashboard (deployed) |
-| `gap_explorer.html` | Standalone HTML/JS version (no server needed) |
+### Main Dashboard
 
-### Features
+**Key Metrics (update in real-time with policy changes):**
+- Current Employment
+- 5-Year Projected Demand
+- 5-Year Projected Supply
+- Shortage Gap (red unless surplus, then green)
 
-1. **Occupation selector** - Target occupations (nurses, electricians, truck drivers, etc.)
-2. **State filter** - National or state-specific views
-3. **Key metrics** - Current employment, 5-year demand, supply, and gap
-4. **Visualizations**:
-   - Supply vs demand bar chart
-   - Gap decomposition waterfall
-   - State choropleth map
-   - Top shortage occupations comparison
-   - Training adequacy gauge
-5. **Policy scenario modeling**:
-   - Training expansion (1-3x multiplier)
-   - Retirement delay (0-5 years)
-   - Retention improvement (0-30%)
+**Views:**
+1. **Overview** - Supply vs demand bar chart, gap decomposition waterfall, training adequacy gauge
+2. **Geography** - State choropleth map with dynamic color scaling, state details table
+3. **Compare** - Top 10 shortage occupations bar chart
+
+**Policy Impact Banner** - Shows gap reduction when policy levers are adjusted
 
 ---
 
-## Data Sources
-
-| Data | Source | Geographic Level |
-|------|--------|------------------|
-| Current employment | ACS via IPUMS (your existing data) | Commuting Zone |
-| Age distributions | ACS (replacement_ratios_cz.csv) | Commuting Zone |
-| Training completions | IPEDS (training_capacity_cz.csv) | Commuting Zone |
-| Growth projections | BLS Employment Projections 2024-2034 | National (applied to states) |
-| Separation rates | BLS methodology | Occupation |
-
----
-
-## Target Occupations
+## Key Shortage Occupations
 
 | OCC Code | Occupation | 5-Year Gap | Key Issue |
 |----------|------------|------------|-----------|
@@ -83,6 +64,47 @@ Where:
 | 8140 | Welders | 533K | Manufacturing demand |
 | 9130 | Truck Drivers | 4.2M | Aging, CDL requirements |
 | 5120 | Bookkeeping Clerks | 1.2M | Automation offset |
+
+---
+
+## Data Pipeline
+
+| Script | Purpose | Output |
+|--------|---------|--------|
+| `download_bls_oes.py` | Download current employment from BLS OES | `oes_employment_state.csv` |
+| `download_state_projections.py` | Get state/national growth projections | `occupation_growth_rates.csv` |
+| `build_demand_projections.py` | Project 5-year demand by occupation × CZ | `demand_projections_cz.csv` |
+| `build_supply_projections.py` | Project 5-year supply by occupation × CZ | `supply_projections_cz.csv` |
+| `calculate_gap.py` | Combine into gap estimates with policy scenarios | `gap_projections_cz.csv` |
+
+---
+
+## Data Sources
+
+| Data | Source | Geographic Level |
+|------|--------|------------------|
+| Current employment | ACS via IPUMS | Commuting Zone |
+| Age distributions | ACS (replacement_ratios_cz.csv) | Commuting Zone |
+| Training completions | IPEDS (training_capacity_cz.csv) | Commuting Zone |
+| Growth projections | BLS Employment Projections 2024-2034 | National (applied to states) |
+| Separation rates | BLS methodology | Occupation |
+
+---
+
+## Technical Implementation
+
+### Stack
+- **Frontend:** Streamlit
+- **Visualization:** Plotly
+- **Data:** Pandas, NumPy
+- **Deployment:** Streamlit Cloud (auto-deploys from GitHub)
+
+### Key Design Decisions
+- Policy sliders in sidebar for easy access
+- Metrics update in real-time when policy levers change
+- Dynamic color scaling on map to show variation within actual data range
+- Radio button view selector (persists selection on rerun)
+- Clean, modern UI with Inter font and subtle styling
 
 ---
 
@@ -133,68 +155,50 @@ The current training data only captures **community college completions**. Missi
 
 ## Possible Next Steps
 
-### 1. Data Improvements
+### Data Improvements
+- [ ] Add apprenticeship data from RAPIDS (apprenticeship.gov)
+- [ ] Add 4-year nursing programs from IPEDS
+- [ ] Get actual state projections from Projections Central
+- [ ] Integrate Lightcast job postings for real-time demand signals
+- [ ] Add wage data alongside gaps
 
-- [ ] **Add apprenticeship data** - Download from RAPIDS (apprenticeship.gov) for electricians, plumbers, HVAC
-- [ ] **Add 4-year nursing programs** - IPEDS data for BSN completions
-- [ ] **Get actual state projections** - Download from Projections Central for each state
-- [ ] **Integrate Lightcast data** - Job postings for real-time demand signals
-- [ ] **Add wage data** - Show wage trends alongside gaps
+### Model Calibration
+- [ ] Calibrate exit rates using BLS separations data
+- [ ] Calibrate training-to-employment rates
+- [ ] Add wage elasticity modeling
+- [ ] Validate against historical data
 
-### 2. Model Calibration
+### App Enhancements
+- [ ] Download/export filtered data as CSV
+- [ ] Time series of gap projections
+- [ ] Demographic breakdowns (age, race, gender)
+- [ ] Mobile optimization
 
-- [ ] **Calibrate exit rates** - Use BLS separations data to validate
-- [ ] **Calibrate training-to-employment rates** - Compare completions to actual job placements
-- [ ] **Add wage elasticity** - Model how wage increases affect supply
-- [ ] **Validate against historical data** - Backtest projections against actual outcomes
-
-### 3. App Enhancements
-
-- [ ] **Add more visualizations**:
-  - Time series of gap projections
-  - Comparison across metros within a state
-  - Demographic breakdowns (age, race, gender)
-- [ ] **Download/export features** - Let users download filtered data as CSV
-- [ ] **Custom scenarios** - Let users input specific policy numbers
-- [ ] **Printable reports** - Generate PDF summaries for specific occupation × state
-- [ ] **Mobile optimization** - Improve layout for phone/tablet viewing
-
-### 4. Deployment Enhancements
-
-- [ ] **Custom domain** - Point labor-gap.theipdhub.com to the app
-- [ ] **Add authentication** - Restrict access if needed
-- [ ] **Embed in website** - Add iframe to theipdhub.com
-- [ ] **API endpoint** - Expose data via REST API for other tools
-
-### 5. Research Extensions
-
-- [ ] **Immigration exposure layer** - Add immigrant workforce share analysis
-- [ ] **Regional competitiveness** - Compare training capacity across regions
-- [ ] **Scenario comparison** - Side-by-side comparison of multiple policy packages
-- [ ] **Cost-benefit analysis** - Estimate cost per gap-worker reduced for each policy
+### Deployment
+- [ ] Custom domain (labor-gap.theipdhub.com)
+- [ ] Embed in theipdhub.com via iframe
+- [ ] API endpoint for other tools
 
 ---
 
-## File Locations
+## File Structure
 
 ```
 /Users/gregorywright/Library/CloudStorage/Dropbox/Projects/Bahar/
 ├── labor-gap-app/                    # Deployed Streamlit app
-│   ├── app.py
-│   ├── requirements.txt
+│   ├── app.py                        # Main application
+│   ├── requirements.txt              # Python dependencies
+│   ├── PROJECT_SUMMARY.md            # This file
+│   ├── README.md                     # GitHub readme
 │   ├── data/
-│   │   ├── gap_projections_cz.csv
-│   │   └── gap_projections_state.csv
-│   └── .streamlit/config.toml
-├── gap_explorer.html                 # Standalone HTML version
+│   │   ├── gap_projections_cz.csv    # Main data file
+│   │   └── gap_projections_state.csv # State-level summary
+│   └── .streamlit/config.toml        # Streamlit config
 ├── build_demand_projections.py       # Demand projection pipeline
 ├── build_supply_projections.py       # Supply projection pipeline
 ├── calculate_gap.py                  # Gap calculation + scenarios
-├── download_bls_oes.py               # BLS data download
-├── download_state_projections.py     # State projections download
-├── replacement_ratios_cz.csv         # Your existing supply-side data
-├── training_capacity_cz.csv          # Your existing training data
-└── regional_labor_shortage_data_summary.md  # Original methodology doc
+├── replacement_ratios_cz.csv         # Supply-side data
+└── training_capacity_cz.csv          # Training data
 ```
 
 ---
@@ -217,7 +221,7 @@ python3 calculate_gap.py
 
 ---
 
-## Contact / Resources
+## Resources
 
 - **Streamlit Cloud Dashboard:** https://share.streamlit.io
 - **BLS Employment Projections:** https://www.bls.gov/emp/
@@ -226,4 +230,4 @@ python3 calculate_gap.py
 
 ---
 
-*Last updated: January 26, 2026*
+*Last updated: January 27, 2026*
