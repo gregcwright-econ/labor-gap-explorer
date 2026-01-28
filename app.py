@@ -764,14 +764,14 @@ def main():
             state_summary = state_summary.sort_values('stock_gap', ascending=False)
             state_summary.columns = ['State', 'Current Emp', 'Gap', 'Demand', 'Gap %']
 
-            styled_df = state_summary.head(15).style.format({
-                'Current Emp': '{:,.0f}',
-                'Gap': '{:,.0f}',
-                'Demand': '{:,.0f}',
-                'Gap %': '{:.1f}%'
-            }).background_gradient(subset=['Gap %'], cmap='OrRd').hide(axis='index')
+            # Format the display columns
+            display_df = state_summary.head(15).copy()
+            display_df['Current Emp'] = display_df['Current Emp'].apply(lambda x: f'{x:,.0f}')
+            display_df['Gap'] = display_df['Gap'].apply(lambda x: f'{x:,.0f}')
+            display_df['Demand'] = display_df['Demand'].apply(lambda x: f'{x:,.0f}')
+            display_df['Gap %'] = display_df['Gap %'].apply(lambda x: f'{x:.1f}%')
 
-            st.dataframe(styled_df, use_container_width=True)
+            st.dataframe(display_df, use_container_width=True, hide_index=True)
         else:
             st.markdown(f"""
             <div class="info-box">
