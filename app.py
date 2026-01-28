@@ -555,6 +555,7 @@ def create_policy_comparison(baseline_gap, scenario_gap):
     """Create policy impact comparison chart."""
     reduction = baseline_gap - scenario_gap
     reduction_pct = reduction / baseline_gap * 100 if baseline_gap > 0 else 0
+    max_val = max(baseline_gap, scenario_gap)
 
     fig = go.Figure()
 
@@ -565,7 +566,8 @@ def create_policy_comparison(baseline_gap, scenario_gap):
         text=[f'{baseline_gap/1e6:.2f}M', f'{scenario_gap/1e6:.2f}M'],
         textposition='outside',
         textfont=dict(size=14, family='Inter'),
-        width=0.5
+        width=0.5,
+        cliponaxis=False
     ))
 
     fig.update_layout(
@@ -575,7 +577,13 @@ def create_policy_comparison(baseline_gap, scenario_gap):
         margin=dict(t=60, b=40, l=50, r=40),
         height=320,
         showlegend=False,
-        yaxis=dict(showgrid=True, gridcolor='#f1f5f9', title='', zeroline=False),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='#f1f5f9',
+            title='',
+            zeroline=False,
+            range=[0, max_val * 1.15]
+        ),
         annotations=[
             dict(
                 x=0.5, y=1.1,
@@ -609,6 +617,14 @@ def main():
         st.stop()
 
     # Sidebar
+    # Initialize session state for policy values
+    if 'training_mult' not in st.session_state:
+        st.session_state.training_mult = 1.0
+    if 'retirement_delay' not in st.session_state:
+        st.session_state.retirement_delay = 0
+    if 'retention_improve' not in st.session_state:
+        st.session_state.retention_improve = 0.0
+
     with st.sidebar:
         st.markdown("### Filters")
 
@@ -632,31 +648,12 @@ def main():
         selected_state = st.selectbox("Geography", state_list)
 
         st.markdown("---")
-        st.markdown("### Policy Levers")
-
-        training_mult = st.slider(
-            "Training Expansion",
-            min_value=1.0, max_value=3.0, value=1.0, step=0.1,
-            format="%.1fx",
-            help="Multiply training program completions"
-        )
-
-        retirement_delay = st.slider(
-            "Retirement Delay",
-            min_value=0, max_value=5, value=0,
-            format="%d years",
-            help="Average years workers delay retirement"
-        )
-
-        retention_improve = st.slider(
-            "Retention Improvement",
-            min_value=0.0, max_value=0.3, value=0.0, step=0.05,
-            format="%.0f%%",
-            help="Reduction in occupation transfers"
-        )
-
-        st.markdown("---")
         st.markdown('<p class="data-source">Data: ACS, IPEDS, BLS Projections</p>', unsafe_allow_html=True)
+
+    # Get policy values from session state
+    training_mult = st.session_state.training_mult
+    retirement_delay = st.session_state.retirement_delay
+    retention_improve = st.session_state.retention_improve
 
     # Filter data
     filtered_data = gap_data[gap_data['occ2010'] == selected_occ].copy()
@@ -837,6 +834,53 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
+        # Policy sliders in the Policy tab
+        st.markdown("#### Adjust Policy Levers")
+        pcol1, pcol2, pcol3 = st.columns(3)
+
+        with pcol1:
+            new_training = st.slider(
+                "Training Expansion",
+                min_value=1.0, max_value=3.0,
+                value=st.session_state.training_mult,
+                step=0.1,
+                format="%.1fx",
+                help="Multiply training program completions",
+                key="training_slider"
+            )
+            if new_training != st.session_state.training_mult:
+                st.session_state.training_mult = new_training
+                st.rerun()
+
+        with pcol2:
+            new_retirement = st.slider(
+                "Retirement Delay",
+                min_value=0, max_value=5,
+                value=st.session_state.retirement_delay,
+                format="%d years",
+                help="Average years workers delay retirement",
+                key="retirement_slider"
+            )
+            if new_retirement != st.session_state.retirement_delay:
+                st.session_state.retirement_delay = new_retirement
+                st.rerun()
+
+        with pcol3:
+            new_retention = st.slider(
+                "Retention Improvement",
+                min_value=0.0, max_value=0.3,
+                value=st.session_state.retention_improve,
+                step=0.05,
+                format="%.0f%%",
+                help="Reduction in occupation transfers",
+                key="retention_slider"
+            )
+            if new_retention != st.session_state.retention_improve:
+                st.session_state.retention_improve = new_retention
+                st.rerun()
+
+        st.markdown("---")
+
         if policy_active:
             col1, col2 = st.columns(2)
 
@@ -877,11 +921,7 @@ def main():
 
                 st.dataframe(policy_df, use_container_width=True, hide_index=True)
         else:
-            st.markdown("""
-            <div style="text-align: center; padding: 3rem; color: #64748b;">
-                <p style="font-size: 1.1rem;">Adjust the policy levers in the sidebar to see scenario analysis</p>
-            </div>
-            """, unsafe_allow_html=True)
+            st.info("Adjust the sliders above to model policy interventions and see their impact on the shortage gap.")
 
 
 if __name__ == "__main__":
