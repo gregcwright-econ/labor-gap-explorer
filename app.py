@@ -632,14 +632,6 @@ def main():
         st.stop()
 
     # Sidebar
-    # Initialize session state for policy values
-    if 'training_mult' not in st.session_state:
-        st.session_state.training_mult = 1.0
-    if 'retirement_delay' not in st.session_state:
-        st.session_state.retirement_delay = 0
-    if 'retention_improve' not in st.session_state:
-        st.session_state.retention_improve = 0.0
-
     with st.sidebar:
         st.markdown("### Filters")
 
@@ -663,12 +655,31 @@ def main():
         selected_state = st.selectbox("Geography", state_list)
 
         st.markdown("---")
-        st.markdown('<p class="data-source">Data: ACS, IPEDS, BLS Projections</p>', unsafe_allow_html=True)
+        st.markdown("### Policy Scenarios")
 
-    # Get policy values from session state
-    training_mult = st.session_state.training_mult
-    retirement_delay = st.session_state.retirement_delay
-    retention_improve = st.session_state.retention_improve
+        training_mult = st.slider(
+            "Training Expansion",
+            min_value=1.0, max_value=3.0, value=1.0, step=0.1,
+            format="%.1fx",
+            help="Multiply training program completions"
+        )
+
+        retirement_delay = st.slider(
+            "Retirement Delay",
+            min_value=0, max_value=5, value=0,
+            format="%d years",
+            help="Average years workers delay retirement"
+        )
+
+        retention_improve = st.slider(
+            "Retention Improvement",
+            min_value=0.0, max_value=0.3, value=0.0, step=0.05,
+            format="%.0f%%",
+            help="Reduction in occupation transfers"
+        )
+
+        st.markdown("---")
+        st.markdown('<p class="data-source">Data: ACS, IPEDS, BLS Projections</p>', unsafe_allow_html=True)
 
     # Filter data
     filtered_data = gap_data[gap_data['occ2010'] == selected_occ].copy()
@@ -760,7 +771,7 @@ def main():
 
     selected_view = st.radio(
         "View",
-        ["Overview", "Geography", "Compare", "Policy"],
+        ["Overview", "Geography", "Compare"],
         horizontal=True,
         key="view_selector",
         label_visibility="collapsed"
@@ -850,99 +861,6 @@ def main():
             all_occ_data = all_occ_data[all_occ_data['state_abbr'] == selected_state]
 
         st.plotly_chart(create_occupation_bars(all_occ_data, top_n=10), use_container_width=True)
-
-    elif selected_view == "Policy":
-        st.markdown("""
-        <div class="chart-container">
-            <div class="chart-title">Policy Scenario Analysis</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Policy sliders in the Policy tab
-        st.markdown("#### Adjust Policy Levers")
-        pcol1, pcol2, pcol3 = st.columns(3)
-
-        with pcol1:
-            st.session_state.training_mult = st.slider(
-                "Training Expansion",
-                min_value=1.0, max_value=3.0,
-                value=st.session_state.training_mult,
-                step=0.1,
-                format="%.1fx",
-                help="Multiply training program completions"
-            )
-
-        with pcol2:
-            st.session_state.retirement_delay = st.slider(
-                "Retirement Delay",
-                min_value=0, max_value=5,
-                value=st.session_state.retirement_delay,
-                format="%d years",
-                help="Average years workers delay retirement"
-            )
-
-        with pcol3:
-            st.session_state.retention_improve = st.slider(
-                "Retention Improvement",
-                min_value=0.0, max_value=0.3,
-                value=st.session_state.retention_improve,
-                step=0.05,
-                format="%.0f%%",
-                help="Reduction in occupation transfers"
-            )
-
-        st.markdown("---")
-
-        # Recalculate with current slider values
-        current_training = st.session_state.training_mult
-        current_retirement = st.session_state.retirement_delay
-        current_retention = st.session_state.retention_improve
-        policy_is_active = (current_training != 1.0 or current_retirement > 0 or current_retention > 0)
-
-        if policy_is_active:
-            # Recalculate scenario with current values
-            current_scenario = apply_policy_scenario(filtered_data, current_training, current_retirement, current_retention)
-
-            col1, col2 = st.columns(2)
-
-            baseline_gap = filtered_data['stock_gap'].sum()
-            new_gap = current_scenario['adj_stock_gap'].sum()
-
-            with col1:
-                st.plotly_chart(create_policy_comparison(baseline_gap, new_gap), use_container_width=True)
-
-            with col2:
-                st.markdown("#### Policy Breakdown")
-
-                t_only = apply_policy_scenario(filtered_data, current_training, 0, 0)
-                r_only = apply_policy_scenario(filtered_data, 1.0, current_retirement, 0)
-                ret_only = apply_policy_scenario(filtered_data, 1.0, 0, current_retention)
-
-                t_impact = baseline_gap - t_only['adj_stock_gap'].sum()
-                r_impact = baseline_gap - r_only['adj_stock_gap'].sum()
-                ret_impact = baseline_gap - ret_only['adj_stock_gap'].sum()
-
-                policy_df = pd.DataFrame({
-                    'Policy': [
-                        f'Training ({current_training:.1f}x)',
-                        f'Retirement (+{current_retirement} yrs)',
-                        f'Retention (+{int(current_retention*100)}%)'
-                    ],
-                    'Gap Reduction': [
-                        f'{t_impact/1e6:.2f}M',
-                        f'{r_impact/1e6:.2f}M',
-                        f'{ret_impact/1e6:.2f}M'
-                    ],
-                    'Impact %': [
-                        f'{t_impact/baseline_gap*100:.1f}%' if baseline_gap > 0 else '0%',
-                        f'{r_impact/baseline_gap*100:.1f}%' if baseline_gap > 0 else '0%',
-                        f'{ret_impact/baseline_gap*100:.1f}%' if baseline_gap > 0 else '0%'
-                    ]
-                })
-
-                st.dataframe(policy_df, use_container_width=True, hide_index=True)
-        else:
-            st.info("Adjust the sliders above to model policy interventions and see their impact on the shortage gap.")
 
 
 if __name__ == "__main__":
