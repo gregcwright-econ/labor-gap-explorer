@@ -346,8 +346,8 @@ def create_supply_demand_chart(data):
             x=0.5,
             font=dict(size=13)
         ),
-        margin=dict(t=50, b=30, l=50, r=30),
-        height=350,
+        margin=dict(t=80, b=30, l=50, r=30),
+        height=380,
         yaxis=dict(
             showgrid=True,
             gridcolor='#f1f5f9',
@@ -391,8 +391,8 @@ def create_waterfall_chart(data):
         plot_bgcolor='white',
         paper_bgcolor='white',
         font=dict(family='Inter', color='#475569'),
-        margin=dict(t=30, b=30, l=50, r=30),
-        height=350,
+        margin=dict(t=60, b=30, l=50, r=30),
+        height=380,
         showlegend=False,
         yaxis=dict(showgrid=True, gridcolor='#f1f5f9', title='', zeroline=False),
         xaxis=dict(tickfont=dict(size=12, color='#475569'))
@@ -412,13 +412,21 @@ def create_state_map(data):
 
     state_data['gap_pct'] = state_data['stock_gap'] / state_data['emp_projected'] * 100
 
+    # Use dynamic range based on actual data to show variation
+    min_gap = state_data['gap_pct'].min()
+    max_gap = state_data['gap_pct'].max()
+    # Add small padding to range
+    range_padding = (max_gap - min_gap) * 0.1
+    color_min = max(0, min_gap - range_padding)
+    color_max = max_gap + range_padding
+
     fig = px.choropleth(
         state_data,
         locations='state_abbr',
         locationmode='USA-states',
         color='gap_pct',
         color_continuous_scale='YlOrRd',
-        range_color=[0, 35],
+        range_color=[color_min, color_max],
         scope='usa',
         labels={'gap_pct': 'Gap %'}
     )
