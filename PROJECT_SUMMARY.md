@@ -8,7 +8,7 @@
 
 ## Project Overview
 
-An interactive tool for exploring projected labor shortages by occupation and geography, with policy scenario modeling. The app shows 5-year supply/demand gaps and lets users model the impact of policy interventions.
+An interactive tool for exploring projected labor shortages by occupation and geography, with policy scenario modeling. The app shows 5-year supply/demand gaps, estimates implied wage pressure from shortages, and lets users model the impact of policy interventions.
 
 ### Core Concept
 
@@ -18,6 +18,8 @@ Gap = Projected Demand - Projected Supply
 Where:
 - Demand = Current Employment × Growth Rate + Replacement Needs (retirements + separations)
 - Supply = Current Workers - Exits + Training Inflows + Other Inflows
+
+Wage Pressure = Gap % / (Supply Elasticity - Demand Elasticity)
 ```
 
 ---
@@ -37,18 +39,45 @@ Where:
 
 ### Main Dashboard
 
-**Key Metrics (update in real-time with policy changes):**
+**Hero Section (two focal elements):**
+
+1. **Projected Shortage** - Large shortage number with visual bar chart showing demand vs supply
+2. **Implied Wage Pressure** - Estimated wage increase needed to clear the market, shown as vertical whisker chart with range (based on labor elasticity literature)
+
+**Secondary Metrics:**
 - Current Employment
 - 5-Year Projected Demand
 - 5-Year Projected Supply
-- Shortage Gap (red unless surplus, then green)
+- Gap as % of Demand
 
 **Views:**
-1. **Overview** - Supply vs demand bar chart, gap decomposition waterfall, training adequacy gauge
+1. **Overview** - Gap decomposition waterfall chart, training adequacy gauge
 2. **Geography** - State choropleth map with dynamic color scaling, state details table
 3. **Compare** - Top 10 shortage occupations bar chart
 
-**Policy Impact Banner** - Shows gap reduction when policy levers are adjusted
+**Policy Impact** - Shows gap reduction when policy levers are adjusted
+
+---
+
+## Wage Pressure Methodology
+
+The implied wage pressure estimates how much wages would need to rise to clear the labor shortage, based on labor market elasticities from the economics literature.
+
+**Formula:**
+```
+Wage Increase % = Gap as % of Employment / (Supply Elasticity - Demand Elasticity)
+```
+
+**Elasticity Ranges (from literature):**
+- Supply elasticity: 0.1 to 1.0 (labor supply response to wage changes)
+- Demand elasticity: -0.15 to -0.75 (labor demand response to wage changes)
+
+**Resulting Range:**
+- Conservative estimate: Gap% / 1.75 (high supply + high demand elasticity)
+- Central estimate: Gap% / 0.7 (moderate elasticities)
+- Upper estimate: Gap% / 0.25 (low elasticities)
+
+The visual shows this as a vertical whisker with the central estimate highlighted.
 
 ---
 
@@ -100,11 +129,13 @@ Where:
 - **Deployment:** Streamlit Cloud (auto-deploys from GitHub)
 
 ### Key Design Decisions
+- Hero layout with shortage and wage pressure as focal elements
 - Policy sliders in sidebar for easy access
 - Metrics update in real-time when policy levers change
+- Vertical whisker chart for wage pressure range visualization
 - Dynamic color scaling on map to show variation within actual data range
-- Radio button view selector (persists selection on rerun)
-- Clean, modern UI with Inter font and subtle styling
+- Clean, modern UI with Inter font and soft color palette
+- Rose/coral tones for shortage, amber tones for wage pressure
 
 ---
 
@@ -145,11 +176,11 @@ The current training data only captures **community college completions**. Missi
 - State projections applied uniformly within states
 - Commuting zone boundaries may not align with labor markets
 
-### Methodological Simplifications
+### Wage Pressure Limitations
 
-- Exit rates based on national averages, not local demographics
-- Policy lever impacts are estimated, not empirically calibrated
-- No wage elasticity modeling (how wage changes affect supply)
+- Elasticities are from general literature, not occupation-specific
+- Assumes market clearing through wages alone (ignores quality adjustments, automation)
+- Does not account for institutional wage constraints (minimum wage, union contracts)
 
 ---
 
@@ -160,12 +191,12 @@ The current training data only captures **community college completions**. Missi
 - [ ] Add 4-year nursing programs from IPEDS
 - [ ] Get actual state projections from Projections Central
 - [ ] Integrate Lightcast job postings for real-time demand signals
-- [ ] Add wage data alongside gaps
+- [ ] Add actual wage data alongside gaps
 
 ### Model Calibration
 - [ ] Calibrate exit rates using BLS separations data
 - [ ] Calibrate training-to-employment rates
-- [ ] Add wage elasticity modeling
+- [ ] Use occupation-specific elasticity estimates
 - [ ] Validate against historical data
 
 ### App Enhancements
@@ -230,4 +261,4 @@ python3 calculate_gap.py
 
 ---
 
-*Last updated: January 27, 2026*
+*Last updated: January 29, 2026*
