@@ -312,107 +312,81 @@ def create_shortage_visual(demand, supply, gap):
 
     # Supply bar
     fig.add_trace(go.Bar(
-        y=[''],
+        y=['Supply'],
         x=[supply],
         orientation='h',
         name='Supply',
         marker=dict(color='#3b82f6', cornerradius=4),
-        text=[f'Supply: {supply/1e6:.1f}M'],
-        textposition='inside',
-        textfont=dict(color='white', size=14, family='Inter'),
         hoverinfo='skip'
     ))
 
-    # Gap bar (stacked on top of supply)
-    if gap > 0:
-        fig.add_trace(go.Bar(
-            y=[''],
-            x=[gap],
-            orientation='h',
-            name='Shortage',
-            marker=dict(color='#e11d48', cornerradius=4),
-            text=[f'Gap: {gap/1e6:.1f}M'],
-            textposition='inside',
-            textfont=dict(color='white', size=14, family='Inter'),
-            hoverinfo='skip'
-        ))
+    # Demand bar
+    fig.add_trace(go.Bar(
+        y=['Demand'],
+        x=[demand],
+        orientation='h',
+        name='Demand',
+        marker=dict(color='#0f172a', cornerradius=4),
+        hoverinfo='skip'
+    ))
 
+    # Add text annotations
+    fig.add_annotation(x=supply, y='Supply', text=f'{supply/1e6:.1f}M',
+                       showarrow=False, xanchor='left', xshift=8,
+                       font=dict(size=13, color='#3b82f6', family='Inter'))
+    fig.add_annotation(x=demand, y='Demand', text=f'{demand/1e6:.1f}M',
+                       showarrow=False, xanchor='left', xshift=8,
+                       font=dict(size=13, color='#0f172a', family='Inter'))
+
+    max_val = max(demand, supply) * 1.25
     fig.update_layout(
-        barmode='stack',
+        barmode='group',
         plot_bgcolor='white',
         paper_bgcolor='white',
         font=dict(family='Inter'),
-        height=100,
-        margin=dict(t=10, b=10, l=10, r=10),
+        height=120,
+        margin=dict(t=10, b=10, l=70, r=80),
         showlegend=False,
-        xaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
-        yaxis=dict(showgrid=False, showticklabels=False),
+        xaxis=dict(showgrid=False, showticklabels=False, zeroline=False, range=[0, max_val]),
+        yaxis=dict(showgrid=False, tickfont=dict(size=12, color='#64748b')),
     )
-
-    # Add demand marker line
-    fig.add_vline(x=demand, line=dict(color='#0f172a', width=3, dash='solid'),
-                  annotation_text=f"Demand: {demand/1e6:.1f}M",
-                  annotation_position="top",
-                  annotation_font=dict(size=12, color='#0f172a'))
 
     return fig
 
 
 def create_wage_pressure_visual(wage_low, wage_mid, wage_high):
-    """Bullet chart style wage pressure range."""
+    """Simple bar chart showing wage pressure range."""
     fig = go.Figure()
 
-    # Background range bar (low to high)
+    # Three bars for low, mid, high
     fig.add_trace(go.Bar(
-        y=[''],
-        x=[wage_high],
-        orientation='h',
-        marker=dict(color='#fef3c7', cornerradius=4),
-        hoverinfo='skip',
-        showlegend=False
-    ))
-
-    # Mid-range highlight
-    fig.add_trace(go.Bar(
-        y=[''],
-        x=[wage_mid],
-        orientation='h',
-        marker=dict(color='#fbbf24', cornerradius=4),
-        hoverinfo='skip',
-        showlegend=False
-    ))
-
-    # Add markers for low, mid, high
-    fig.add_trace(go.Scatter(
-        x=[wage_low, wage_mid, wage_high],
-        y=['', '', ''],
-        mode='markers+text',
-        marker=dict(size=16, color=['#fbbf24', '#d97706', '#b45309'], symbol='diamond'),
+        x=['Low', 'Mid', 'High'],
+        y=[wage_low, wage_mid, wage_high],
+        marker=dict(color=['#fde68a', '#fbbf24', '#f59e0b'], cornerradius=4),
         text=[f'+{wage_low:.0f}%', f'+{wage_mid:.0f}%', f'+{wage_high:.0f}%'],
-        textposition=['bottom center', 'top center', 'bottom center'],
+        textposition='outside',
         textfont=dict(size=12, color='#92400e', family='Inter'),
         hoverinfo='skip',
-        showlegend=False
+        cliponaxis=False
     ))
 
-    max_x = max(wage_high * 1.1, 10)
+    max_y = wage_high * 1.25
     fig.update_layout(
-        barmode='overlay',
         plot_bgcolor='white',
         paper_bgcolor='white',
         font=dict(family='Inter'),
-        height=100,
+        height=140,
         margin=dict(t=30, b=30, l=10, r=10),
         showlegend=False,
-        xaxis=dict(
+        yaxis=dict(
             showgrid=True,
             gridcolor='#f1f5f9',
             zeroline=False,
-            range=[0, max_x],
+            range=[0, max_y],
             ticksuffix='%',
             tickfont=dict(size=10, color='#94a3b8')
         ),
-        yaxis=dict(showgrid=False, showticklabels=False),
+        xaxis=dict(tickfont=dict(size=11, color='#64748b')),
     )
 
     return fig
