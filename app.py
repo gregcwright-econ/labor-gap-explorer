@@ -306,6 +306,118 @@ def apply_policy_scenario(df, training_mult, retirement_delay, retention_improve
 # VISUALIZATIONS
 # ============================================================================
 
+def create_shortage_visual(demand, supply, gap):
+    """Visual showing demand vs supply with gap highlighted."""
+    fig = go.Figure()
+
+    # Supply bar
+    fig.add_trace(go.Bar(
+        y=[''],
+        x=[supply],
+        orientation='h',
+        name='Supply',
+        marker=dict(color='#3b82f6', cornerradius=4),
+        text=[f'Supply: {supply/1e6:.1f}M'],
+        textposition='inside',
+        textfont=dict(color='white', size=14, family='Inter'),
+        hoverinfo='skip'
+    ))
+
+    # Gap bar (stacked on top of supply)
+    if gap > 0:
+        fig.add_trace(go.Bar(
+            y=[''],
+            x=[gap],
+            orientation='h',
+            name='Shortage',
+            marker=dict(color='#e11d48', cornerradius=4),
+            text=[f'Gap: {gap/1e6:.1f}M'],
+            textposition='inside',
+            textfont=dict(color='white', size=14, family='Inter'),
+            hoverinfo='skip'
+        ))
+
+    fig.update_layout(
+        barmode='stack',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(family='Inter'),
+        height=100,
+        margin=dict(t=10, b=10, l=10, r=10),
+        showlegend=False,
+        xaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
+        yaxis=dict(showgrid=False, showticklabels=False),
+    )
+
+    # Add demand marker line
+    fig.add_vline(x=demand, line=dict(color='#0f172a', width=3, dash='solid'),
+                  annotation_text=f"Demand: {demand/1e6:.1f}M",
+                  annotation_position="top",
+                  annotation_font=dict(size=12, color='#0f172a'))
+
+    return fig
+
+
+def create_wage_pressure_visual(wage_low, wage_mid, wage_high):
+    """Bullet chart style wage pressure range."""
+    fig = go.Figure()
+
+    # Background range bar (low to high)
+    fig.add_trace(go.Bar(
+        y=[''],
+        x=[wage_high],
+        orientation='h',
+        marker=dict(color='#fef3c7', cornerradius=4),
+        hoverinfo='skip',
+        showlegend=False
+    ))
+
+    # Mid-range highlight
+    fig.add_trace(go.Bar(
+        y=[''],
+        x=[wage_mid],
+        orientation='h',
+        marker=dict(color='#fbbf24', cornerradius=4),
+        hoverinfo='skip',
+        showlegend=False
+    ))
+
+    # Add markers for low, mid, high
+    fig.add_trace(go.Scatter(
+        x=[wage_low, wage_mid, wage_high],
+        y=['', '', ''],
+        mode='markers+text',
+        marker=dict(size=16, color=['#fbbf24', '#d97706', '#b45309'], symbol='diamond'),
+        text=[f'+{wage_low:.0f}%', f'+{wage_mid:.0f}%', f'+{wage_high:.0f}%'],
+        textposition=['bottom center', 'top center', 'bottom center'],
+        textfont=dict(size=12, color='#92400e', family='Inter'),
+        hoverinfo='skip',
+        showlegend=False
+    ))
+
+    max_x = max(wage_high * 1.1, 10)
+    fig.update_layout(
+        barmode='overlay',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(family='Inter'),
+        height=100,
+        margin=dict(t=30, b=30, l=10, r=10),
+        showlegend=False,
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='#f1f5f9',
+            zeroline=False,
+            range=[0, max_x],
+            ticksuffix='%',
+            tickfont=dict(size=10, color='#94a3b8')
+        ),
+        yaxis=dict(showgrid=False, showticklabels=False),
+    )
+
+    return fig
+
+
 def create_gap_breakdown_chart(current_emp, growth, exits, training, gap):
     """Simple horizontal breakdown."""
     fig = go.Figure()
@@ -476,40 +588,44 @@ def main():
     col1, col2 = st.columns(2)
 
     with col1:
-        card_class = "surplus" if total_gap <= 0 else "shortage"
         gap_label = "Projected Surplus" if total_gap <= 0 else "Projected Shortage"
         gap_display = abs(total_gap)
-
-        policy_note = ""
-        if policy_active:
-            reduction = baseline_gap - total_gap
-            policy_note = f'<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(0,0,0,0.1); font-size:0.8rem;">With policy: {reduction/1e6:+.2f}M improvement from baseline</div>'
+        gap_color = "#10b981" if total_gap <= 0 else "#e11d48"
 
         st.markdown(f"""
-        <div class="hero-card {card_class}">
-            <div class="hero-label">{gap_label}</div>
-            <div class="hero-value">{gap_display/1e6:.1f}M</div>
-            <div class="hero-subtext">workers over next 5 years for {selected_occ_name}</div>
-            {policy_note}
+        <div class="chart-card">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.5rem;">
+                <div class="chart-title" style="margin:0; padding:0; border:none;">{gap_label}</div>
+                <div style="font-size:2rem; font-weight:700; color:{gap_color};">{gap_display/1e6:.1f}M</div>
+            </div>
+            <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.75rem;">{selected_occ_name} • 5-year projection</div>
         </div>
         """, unsafe_allow_html=True)
+        st.plotly_chart(create_shortage_visual(total_demand, total_supply, total_gap), use_container_width=True, config={'displayModeBar': False})
+
+        if policy_active:
+            reduction = baseline_gap - total_gap
+            st.markdown(f'<div style="font-size:0.8rem; color:#059669; margin-top:-1rem;">Policy impact: {reduction/1e6:+.2f}M improvement</div>', unsafe_allow_html=True)
 
     with col2:
         if total_gap > 0:
             st.markdown(f"""
-            <div class="hero-card wage">
-                <div class="hero-label">Implied Wage Pressure</div>
-                <div class="hero-value">+{wage_mid:.0f}%</div>
-                <div class="hero-subtext">estimated wage increase to clear market</div>
-                <div class="hero-note">Range: +{wage_low:.0f}% to +{wage_high:.0f}% based on elasticity assumptions (supply: 0.1–1.0, demand: -0.15 to -0.75)</div>
+            <div class="chart-card">
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.5rem;">
+                    <div class="chart-title" style="margin:0; padding:0; border:none;">Implied Wage Pressure</div>
+                    <div style="font-size:2rem; font-weight:700; color:#d97706;">+{wage_mid:.0f}%</div>
+                </div>
+                <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.75rem;">Estimated increase to clear market</div>
             </div>
             """, unsafe_allow_html=True)
+            st.plotly_chart(create_wage_pressure_visual(wage_low, wage_mid, wage_high), use_container_width=True, config={'displayModeBar': False})
+            st.markdown('<div style="font-size:0.7rem; color:#94a3b8; margin-top:-1rem;">Based on labor elasticities from literature</div>', unsafe_allow_html=True)
         else:
             st.markdown(f"""
-            <div class="hero-card surplus">
-                <div class="hero-label">Wage Pressure</div>
-                <div class="hero-value">None</div>
-                <div class="hero-subtext">No shortage-driven wage pressure</div>
+            <div class="chart-card">
+                <div class="chart-title">Wage Pressure</div>
+                <div style="font-size:2rem; font-weight:700; color:#10b981;">None</div>
+                <div style="font-size:0.8rem; color:#64748b;">No shortage-driven wage pressure</div>
             </div>
             """, unsafe_allow_html=True)
 
