@@ -520,27 +520,15 @@ def main():
 
     gap_pct_demand = total_gap / total_demand * 100 if total_demand > 0 else 0
 
-    st.markdown(f"""
-    <div class="secondary-row">
-        <div class="secondary-card">
-            <div class="secondary-label">Current Employment</div>
-            <div class="secondary-value">{total_emp/1e6:.2f}M</div>
-        </div>
-        <div class="secondary-card">
-            <div class="secondary-label">5-Year Demand</div>
-            <div class="secondary-value">{total_demand/1e6:.2f}M</div>
-        </div>
-        <div class="secondary-card">
-            <div class="secondary-label">5-Year Supply</div>
-            <div class="secondary-value">{total_supply/1e6:.2f}M</div>
-            {supply_delta_html}
-        </div>
-        <div class="secondary-card">
-            <div class="secondary-label">Gap as % of Demand</div>
-            <div class="secondary-value">{gap_pct_demand:.1f}%</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    m1, m2, m3, m4 = st.columns(4)
+    with m1:
+        st.markdown(f'<div class="secondary-card"><div class="secondary-label">Current Employment</div><div class="secondary-value">{total_emp/1e6:.2f}M</div></div>', unsafe_allow_html=True)
+    with m2:
+        st.markdown(f'<div class="secondary-card"><div class="secondary-label">5-Year Demand</div><div class="secondary-value">{total_demand/1e6:.2f}M</div></div>', unsafe_allow_html=True)
+    with m3:
+        st.markdown(f'<div class="secondary-card"><div class="secondary-label">5-Year Supply</div><div class="secondary-value">{total_supply/1e6:.2f}M</div>{supply_delta_html}</div>', unsafe_allow_html=True)
+    with m4:
+        st.markdown(f'<div class="secondary-card"><div class="secondary-label">Gap as % of Demand</div><div class="secondary-value">{gap_pct_demand:.1f}%</div></div>', unsafe_allow_html=True)
 
     # =========== DETAIL VIEWS ===========
     view = st.radio("", ["Breakdown", "Geography", "Compare"], horizontal=True, label_visibility="collapsed")
