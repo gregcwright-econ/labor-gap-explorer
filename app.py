@@ -514,6 +514,12 @@ def main():
             """, unsafe_allow_html=True)
 
     # =========== SECONDARY METRICS ===========
+    supply_delta_html = ""
+    if policy_active and total_supply > baseline_supply:
+        supply_delta_html = f'<div class="secondary-delta">+{(total_supply-baseline_supply)/1e6:.2f}M from policy</div>'
+
+    gap_pct_demand = total_gap / total_demand * 100 if total_demand > 0 else 0
+
     st.markdown(f"""
     <div class="secondary-row">
         <div class="secondary-card">
@@ -527,11 +533,11 @@ def main():
         <div class="secondary-card">
             <div class="secondary-label">5-Year Supply</div>
             <div class="secondary-value">{total_supply/1e6:.2f}M</div>
-            {'<div class="secondary-delta">+' + f'{(total_supply-baseline_supply)/1e6:.2f}M from policy</div>' if policy_active and total_supply > baseline_supply else ''}
+            {supply_delta_html}
         </div>
         <div class="secondary-card">
             <div class="secondary-label">Gap as % of Demand</div>
-            <div class="secondary-value">{total_gap/total_demand*100:.1f}%</div>
+            <div class="secondary-value">{gap_pct_demand:.1f}%</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
