@@ -712,6 +712,28 @@ def main():
 
     gap_pct = total_gap / total_demand * 100 if total_demand > 0 else 0
 
+    # Calculate implied wage pressure using elasticity ranges
+    # Gap as % of current employment
+    gap_pct_emp = (total_gap / total_emp * 100) if total_emp > 0 else 0
+
+    # Elasticity assumptions from literature
+    # Supply elasticity: how much supply increases when wages rise (0.1 to 1.0)
+    # Demand elasticity: how much demand decreases when wages rise (-0.15 to -0.75)
+    # Combined elasticity = supply_e - demand_e (since demand_e is negative)
+    elasticity_high = 1.75  # High responsiveness: 1.0 - (-0.75)
+    elasticity_mid = 0.7    # Mid: 0.3 - (-0.4)
+    elasticity_low = 0.25   # Low responsiveness: 0.1 - (-0.15)
+
+    # Wage increase needed to close gap = gap% / combined elasticity
+    if gap_pct_emp > 0:
+        wage_increase_low = gap_pct_emp / elasticity_high  # High elasticity = low wage increase
+        wage_increase_mid = gap_pct_emp / elasticity_mid
+        wage_increase_high = gap_pct_emp / elasticity_low  # Low elasticity = high wage increase
+    else:
+        wage_increase_low = 0
+        wage_increase_mid = 0
+        wage_increase_high = 0
+
     # Metrics row
     col1, col2, col3, col4 = st.columns(4)
 
@@ -754,6 +776,17 @@ def main():
             <div class="metric-label">Shortage Gap</div>
             <div class="metric-value" style="color: {gap_color};">{total_gap/1e6:.2f}M</div>
             {gap_delta}
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Wage pressure estimate
+    if total_gap > 0:
+        st.markdown(f"""
+        <div class="metric-card" style="margin-top: 1rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b;">
+            <div class="metric-label" style="color: #92400e;">Implied Wage Pressure</div>
+            <div class="metric-value" style="color: #b45309; font-size: 1.5rem;">+{wage_increase_low:.0f}% to +{wage_increase_high:.0f}%</div>
+            <div class="metric-delta" style="color: #a16207;">Mid estimate: +{wage_increase_mid:.0f}% wage increase to clear shortage</div>
+            <div style="font-size: 0.7rem; color: #a16207; margin-top: 0.5rem;">Based on labor supply elasticity (0.1–1.0) and demand elasticity (-0.15 to -0.75) from literature</div>
         </div>
         """, unsafe_allow_html=True)
 
