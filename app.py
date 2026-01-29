@@ -54,10 +54,7 @@ st.markdown("""
     .header h1 {
         font-size: 2.5rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #0f172a 0%, #3b82f6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #2563eb;
         margin: 0 0 0.5rem 0;
         letter-spacing: -0.03em;
     }
@@ -361,55 +358,52 @@ def create_shortage_visual(demand, supply, gap):
 
 
 def create_wage_pressure_visual(wage_low, wage_mid, wage_high):
-    """Vertical box and whisker style range indicator."""
+    """Vertical whisker with median marker and value to the side."""
     fig = go.Figure()
 
-    # Vertical whisker line (low to high)
+    # Vertical line (low to high)
     fig.add_trace(go.Scatter(
         x=[0.5, 0.5],
         y=[wage_low, wage_high],
         mode='lines',
-        line=dict(color='#fcd34d', width=4),
+        line=dict(color='#fbbf24', width=3),
         hoverinfo='skip',
         showlegend=False
     ))
 
-    # Box around interquartile-ish range
-    box_low = wage_low + (wage_mid - wage_low) * 0.3
-    box_high = wage_mid + (wage_high - wage_mid) * 0.7
-    fig.add_shape(
-        type="rect", x0=0.25, x1=0.75, y0=box_low, y1=box_high,
-        fillcolor="#fbbf24", line=dict(color="#f59e0b", width=2),
-        opacity=0.8
-    )
-
-    # Median line (highlighted)
-    fig.add_shape(
-        type="line", x0=0.2, x1=0.8, y0=wage_mid, y1=wage_mid,
-        line=dict(color="#b45309", width=4)
-    )
-
-    # End caps
-    fig.add_shape(type="line", x0=0.35, x1=0.65, y0=wage_low, y1=wage_low,
-                  line=dict(color="#f59e0b", width=3))
+    # Top whisker cap
     fig.add_shape(type="line", x0=0.35, x1=0.65, y0=wage_high, y1=wage_high,
-                  line=dict(color="#f59e0b", width=3))
+                  line=dict(color='#f59e0b', width=3))
 
-    # Labels
-    fig.add_annotation(x=0.5, y=wage_low, text=f'+{wage_low:.0f}%', showarrow=False,
-                       xshift=45, font=dict(size=11, color='#92400e'))
-    fig.add_annotation(x=0.5, y=wage_mid, text=f'<b>+{wage_mid:.0f}%</b>', showarrow=False,
-                       xshift=50, font=dict(size=15, color='#92400e'))
+    # Bottom whisker cap
+    fig.add_shape(type="line", x0=0.35, x1=0.65, y0=wage_low, y1=wage_low,
+                  line=dict(color='#f59e0b', width=3))
+
+    # Median marker (circle)
+    fig.add_trace(go.Scatter(
+        x=[0.5],
+        y=[wage_mid],
+        mode='markers',
+        marker=dict(size=16, color='#d97706', line=dict(color='#92400e', width=2)),
+        hoverinfo='skip',
+        showlegend=False
+    ))
+
+    # Labels to the right side
     fig.add_annotation(x=0.5, y=wage_high, text=f'+{wage_high:.0f}%', showarrow=False,
-                       xshift=45, font=dict(size=11, color='#92400e'))
+                       xanchor='left', xshift=25, font=dict(size=10, color='#94a3b8'))
+    fig.add_annotation(x=0.5, y=wage_mid, text=f'<b>+{wage_mid:.0f}%</b>', showarrow=False,
+                       xanchor='left', xshift=25, font=dict(size=14, color='#b45309'))
+    fig.add_annotation(x=0.5, y=wage_low, text=f'+{wage_low:.0f}%', showarrow=False,
+                       xanchor='left', xshift=25, font=dict(size=10, color='#94a3b8'))
 
-    max_y = wage_high * 1.1
+    max_y = wage_high * 1.15
     fig.update_layout(
         plot_bgcolor='white',
         paper_bgcolor='white',
         font=dict(family='Inter'),
         height=200,
-        margin=dict(t=20, b=20, l=20, r=70),
+        margin=dict(t=20, b=20, l=40, r=80),
         showlegend=False,
         yaxis=dict(
             showgrid=True, gridcolor='#f1f5f9', zeroline=False,
