@@ -48,22 +48,25 @@ st.markdown("""
     /* Header */
     .header {
         margin-bottom: 2rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
+        padding: 1.5rem 0;
     }
 
     .header h1 {
-        font-size: 2.25rem;
-        font-weight: 700;
-        color: #0f172a;
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #0f172a 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin: 0 0 0.5rem 0;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.03em;
     }
 
     .header p {
-        font-size: 1rem;
+        font-size: 1.1rem;
         color: #64748b;
         margin: 0;
+        font-weight: 400;
     }
 
     /* Hero cards for key metrics */
@@ -358,61 +361,63 @@ def create_shortage_visual(demand, supply, gap):
 
 
 def create_wage_pressure_visual(wage_low, wage_mid, wage_high):
-    """Range indicator with median marker."""
+    """Vertical box and whisker style range indicator."""
     fig = go.Figure()
 
-    # Horizontal range line (whisker)
+    # Vertical whisker line (low to high)
     fig.add_trace(go.Scatter(
-        x=[wage_low, wage_high],
-        y=[0.5, 0.5],
+        x=[0.5, 0.5],
+        y=[wage_low, wage_high],
         mode='lines',
-        line=dict(color='#fbbf24', width=8),
+        line=dict(color='#fcd34d', width=4),
         hoverinfo='skip',
         showlegend=False
     ))
+
+    # Box around interquartile-ish range
+    box_low = wage_low + (wage_mid - wage_low) * 0.3
+    box_high = wage_mid + (wage_high - wage_mid) * 0.7
+    fig.add_shape(
+        type="rect", x0=0.25, x1=0.75, y0=box_low, y1=box_high,
+        fillcolor="#fbbf24", line=dict(color="#f59e0b", width=2),
+        opacity=0.8
+    )
+
+    # Median line (highlighted)
+    fig.add_shape(
+        type="line", x0=0.2, x1=0.8, y0=wage_mid, y1=wage_mid,
+        line=dict(color="#b45309", width=4)
+    )
 
     # End caps
-    fig.add_trace(go.Scatter(
-        x=[wage_low, wage_high],
-        y=[0.5, 0.5],
-        mode='markers',
-        marker=dict(size=12, color='#f59e0b', symbol='line-ns', line=dict(width=3, color='#f59e0b')),
-        hoverinfo='skip',
-        showlegend=False
-    ))
-
-    # Median marker
-    fig.add_trace(go.Scatter(
-        x=[wage_mid],
-        y=[0.5],
-        mode='markers',
-        marker=dict(size=20, color='#d97706', symbol='diamond'),
-        hoverinfo='skip',
-        showlegend=False
-    ))
+    fig.add_shape(type="line", x0=0.35, x1=0.65, y0=wage_low, y1=wage_low,
+                  line=dict(color="#f59e0b", width=3))
+    fig.add_shape(type="line", x0=0.35, x1=0.65, y0=wage_high, y1=wage_high,
+                  line=dict(color="#f59e0b", width=3))
 
     # Labels
-    fig.add_annotation(x=wage_low, y=0.5, text=f'+{wage_low:.0f}%', showarrow=False,
-                       yshift=-20, font=dict(size=11, color='#92400e'))
-    fig.add_annotation(x=wage_mid, y=0.5, text=f'+{wage_mid:.0f}%', showarrow=False,
-                       yshift=25, font=dict(size=13, color='#b45309', family='Inter'))
-    fig.add_annotation(x=wage_high, y=0.5, text=f'+{wage_high:.0f}%', showarrow=False,
-                       yshift=-20, font=dict(size=11, color='#92400e'))
+    fig.add_annotation(x=0.5, y=wage_low, text=f'+{wage_low:.0f}%', showarrow=False,
+                       xshift=45, font=dict(size=11, color='#92400e'))
+    fig.add_annotation(x=0.5, y=wage_mid, text=f'<b>+{wage_mid:.0f}%</b>', showarrow=False,
+                       xshift=50, font=dict(size=15, color='#92400e'))
+    fig.add_annotation(x=0.5, y=wage_high, text=f'+{wage_high:.0f}%', showarrow=False,
+                       xshift=45, font=dict(size=11, color='#92400e'))
 
-    max_x = wage_high * 1.15
+    max_y = wage_high * 1.1
     fig.update_layout(
         plot_bgcolor='white',
         paper_bgcolor='white',
         font=dict(family='Inter'),
-        height=90,
-        margin=dict(t=35, b=35, l=20, r=20),
+        height=200,
+        margin=dict(t=20, b=20, l=20, r=70),
         showlegend=False,
-        xaxis=dict(
+        yaxis=dict(
             showgrid=True, gridcolor='#f1f5f9', zeroline=False,
-            range=[0, max_x], ticksuffix='%',
-            tickfont=dict(size=10, color='#94a3b8')
+            range=[0, max_y], ticksuffix='%',
+            tickfont=dict(size=10, color='#94a3b8'),
+            side='left'
         ),
-        yaxis=dict(showgrid=False, showticklabels=False, range=[0, 1]),
+        xaxis=dict(showgrid=False, showticklabels=False, range=[0, 1]),
     )
 
     return fig
@@ -611,11 +616,8 @@ def main():
         if total_gap > 0:
             st.markdown(f"""
             <div class="chart-card">
-                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.5rem;">
-                    <div class="chart-title" style="margin:0; padding:0; border:none;">Implied Wage Pressure</div>
-                    <div style="font-size:2rem; font-weight:700; color:#d97706;">+{wage_mid:.0f}%</div>
-                </div>
-                <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.75rem;">Estimated increase to clear market</div>
+                <div class="chart-title" style="margin:0 0 0.25rem 0; padding:0; border:none;">Implied Wage Pressure</div>
+                <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.5rem;">Estimated increase to clear market</div>
             </div>
             """, unsafe_allow_html=True)
             st.plotly_chart(create_wage_pressure_visual(wage_low, wage_mid, wage_high), use_container_width=True, config={'displayModeBar': False})
