@@ -580,22 +580,18 @@ def render_methods_tab():
     st.markdown("""
     <div class="header">
         <h1>Methodology</h1>
-        <p>How we calculate labor supply, demand, and shortage projections</p>
+        <p>How we project labor supply, demand, and market tightness</p>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("""
     ## Overview
 
-    This dashboard shows **relative labor market tightness** across US commuting zones by comparing:
-    - **Supply**: How many workers will be available in each occupation
-    - **Demand**: How many workers employers will need
+    This dashboard shows **relative labor market tightness** across US commuting zones by comparing projected supply and demand over 5 years.
 
-    **Gap = Projected Demand − Projected Supply**
+    The map uses **percentile-based coloring** to show which regions are relatively tighter or looser than average—useful for comparing across areas even when absolute differences are small.
 
-    A positive gap indicates a tight labor market; a negative gap indicates a loose market.
-
-    The map uses **percentile-based coloring** to show which regions are relatively tighter or looser than average, regardless of absolute gap sizes.
+    **Current national estimate: ~6% gap** (moderately tight market)
 
     ---
 
@@ -605,118 +601,99 @@ def render_methods_tab():
     |--------|----------|-------|
     | American Community Survey (ACS) | Current employment by age, occupation, geography | 2019-2023 (pooled) |
     | Bureau of Labor Statistics (BLS) | Employment projections, separation rates | 2024-2034 |
-    | BLS OEWS | Validation of occupation distributions | May 2024 |
+    | BLS OEWS | Wage data for validation | May 2024 |
+    | BLS LAUS | Unemployment rates for validation | Dec 2024 |
 
     ---
 
     ## Supply Projection Model
 
-    We project labor supply using a cohort-based model with BLS-calibrated exit rates.
+    We project labor supply using a demographic model calibrated to BLS separation rates.
 
-    ### Step 1: Current Employment by Age
+    ### Exit Rates by Age
 
-    We extract employment counts for 5 age bins from ACS microdata:
-    - 20-29, 30-44, 45-54, 55-64, 65+
+    Workers leave occupations through retirement, disability, family reasons, and occupation transfers:
 
-    ### Step 2: Exit Rate Calculation
+    | Age Group | Annual Exit Rate |
+    |-----------|------------------|
+    | 20-29 | 14.5% |
+    | 30-44 | 7.0% |
+    | 45-54 | 6.5% |
+    | 55-64 | 10.5% |
+    | 65+ | 29.5% |
 
-    Workers leave occupations through two channels:
+    Exit rates are adjusted by occupation (e.g., Food Prep: 1.35×, Healthcare Practitioners: 0.80×).
 
-    | Exit Type | Description | National Average |
-    |-----------|-------------|------------------|
-    | **Labor Force Exits** | Retirement, disability, family reasons | 4.7% annually |
-    | **Occupation Transfers** | Switch to different occupation | 6.4% annually |
-    | **Total Separations** | Sum of above | 11.1% annually |
+    ### Inflow Model: The "Revolving Door"
 
-    Exit rates vary by age (calibrated to BLS national data):
+    **Key insight**: High-turnover occupations have high exits AND high entries. A job with 15% annual exits also tends to have ~13% annual entries—workers constantly cycling in and out.
 
-    | Age Group | Labor Force Exit | Occupation Transfer | Total |
-    |-----------|------------------|---------------------|-------|
-    | 20-29 | 2.5% | 12.0% | 14.5% |
-    | 30-44 | 1.5% | 5.5% | 7.0% |
-    | 45-54 | 2.5% | 4.0% | 6.5% |
-    | 55-64 | 8.0% | 2.5% | 10.5% |
-    | 65+ | 28.0% | 1.5% | 29.5% |
+    We model this as:
+    ```
+    Annual Inflows = Annual Exits × 0.85
+    ```
 
-    Rates are adjusted by occupation using multipliers (high-turnover occupations like Food Prep: 1.35x; stable occupations like Healthcare Practitioners: 0.80x).
+    The 15% "demographic drag" represents the portion of exits not replaced due to:
+    - Aging workforce (retirements exceed young entrants)
+    - Skill mismatches
+    - Geographic frictions
 
-    ### Step 3: Inflow Calculation
+    This approach ensures high-turnover occupations don't appear artificially tight just because they have high exit rates.
 
-    New workers enter occupations through:
-
-    | Inflow Type | Rate | Description |
-    |-------------|------|-------------|
-    | **Immigration** | ~0.6% | Foreign-born workers arriving in US |
-    | **Domestic Migration** | ~2.8% | Interstate and intercounty movers |
-    | **Young Entrants** | ~5% | New labor force participants (ages 20-24) |
-    | **Occupation Transfers In** | ~6.4% | Workers switching FROM other occupations |
-    | **Labor Force Re-entrants** | ~0.6% | Workers returning after absence |
-
-    These rates are measured from ACS migration and demographic data (see Labor Entry Sources section below).
-
-    **Key insight**: High-turnover occupations have high exit rates AND high entry rates (they're "revolving doors"). We apply the same occupation multiplier to both exits and inflows.
-
-    ### Step 4: Supply Projection Formula
+    ### Supply Projection Formula
 
     ```
-    Supply(t+5) = Current Employment
-                  − (Annual Exits × 5)
-                  + (Annual Inflows × 5)
+    Projected Supply = Current Employment + (Annual Inflows − Annual Exits) × 5 years
     ```
 
     ---
 
     ## Demand Projection Model
 
-    Demand projections come from BLS 2024-2034 occupational employment projections, scaled to local geography using current employment shares.
-
-    ### BLS Methodology
+    Demand projections come from BLS 2024-2034 occupational employment projections.
 
     BLS projects employment using:
-    - Macroeconomic forecasts (GDP, productivity, demographics)
-    - Industry-occupation matrices
+    - Macroeconomic forecasts (GDP, productivity)
+    - Industry-occupation staffing patterns
     - Historical trends and expert judgment
 
-    ### Geographic Allocation
-
-    National BLS projections are allocated to commuting zones (CZs) proportional to current local employment in each occupation.
-
-    ---
-
-    ## Gap Calculation
-
-    ### Employment Base Reconciliation
-
-    ACS and BLS use different methodologies, resulting in different employment totals:
-    - ACS employment: ~638M (includes self-employed, gig workers)
-    - BLS employment: ~548M (payroll survey scope)
-
-    We scale supply projections to match the BLS employment base to ensure apples-to-apples comparison.
-
-    ### Final Gap
-
-    ```
-    Stock Gap = BLS Projected Employment − Scaled Supply Projection
-    ```
-
-    ### Tightness Percentile
-
-    Since absolute gaps are small nationally, we rank CZs by gap % and display **percentile-based coloring**:
-    - 0th percentile (blue) = Loosest labor market
-    - 50th percentile (yellow) = Average
-    - 100th percentile (red) = Tightest labor market
+    National projections are allocated to commuting zones proportional to current local employment shares.
 
     ---
 
     ## Wage Pressure Estimate
 
-    We estimate wage pressure using a simple labor market elasticity:
+    We estimate wage pressure using labor market elasticity:
 
     ```
-    Wage Pressure % = Gap % / 0.7
+    Wage Pressure % = Gap % ÷ 0.7
     ```
 
-    This assumes a labor supply elasticity of 0.7 (a 1% wage increase attracts 0.7% more workers).
+    This assumes a labor supply elasticity of 0.7—a 1% wage increase attracts 0.7% more workers. This is a rough estimate; actual wage responses vary by occupation and region.
+
+    ---
+
+    ## Model Validation
+
+    We validated our tightness measure against external labor market indicators.
+
+    ### Correlation with External Measures
+
+    | Comparison | Correlation | Interpretation |
+    |------------|-------------|----------------|
+    | State tightness vs. unemployment rate | −0.08 | Weak, correct direction |
+    | State tightness vs. mean wage | +0.42 | Moderate positive ✓ |
+    | Occupation tightness vs. mean wage | −0.04 | Essentially zero |
+
+    ### What This Means
+
+    - **Wage correlation validates**: Regions our model identifies as "tighter" do tend to have higher wages
+    - **Unemployment correlation is weak**: Our measure captures demographic trends but not all aspects of cyclical labor market conditions
+    - **Occupation correlation is neutral**: After calibration, we don't systematically over- or under-estimate tightness for high-wage vs. low-wage occupations
+
+    ### Limitations of Validation
+
+    Our model is forward-looking (5-year projections) while validation data is current. A tight market today may not stay tight, and vice versa.
 
     ---
 
@@ -724,84 +701,14 @@ def render_methods_tab():
 
     The dashboard allows you to model changes in immigration levels.
 
-    **Immigration Scenario Box**
+    When viewing a CZ detail:
+    1. **Current Immigration**: Annual inflow calculated from ACS data
+    2. **Adjustment Slider**: Change the number of immigrant workers per year
+    3. **Impact Calculation**: Shows effect on wage pressure
 
-    When viewing a CZ detail, you'll see:
-    1. **Current Immigration**: Annual immigration inflow (workers/year) calculated from ACS data
-    2. **Adjustment Slider**: Directly adjust the number of immigrant workers per year
-    3. **Impact Calculation**: Shows how the change affects the 5-year gap projection
-
-    The model calculates:
-    ```
-    Current immigration = (Workforce × Recent immigration %) / 2
-    Immigration change = New level − Current level
-    5-year gap reduction = Immigration change × 5 years
-    ```
-
-    Example: If a CZ currently receives 500 immigrant workers/year and you increase to 750:
-    - Immigration change: +250 workers/year
-    - 5-year supply increase: +1,250 workers
-    - Gap reduction: −1,250 (more supply = less shortage)
-
-    ---
-
-    ## Labor Entry Sources
-
-    We track where workers come from using ACS migration and birthplace data (2019-2023 pooled):
-
-    | Source | Measurement | National Average |
-    |--------|-------------|------------------|
-    | **Recent Immigration** | Foreign-born, arrived in past 2 years | ~0.6% of workforce |
-    | **Interstate Migration** | Moved from different state (1-year) | ~0.4% of workforce |
-    | **Intercounty Migration** | Moved from different county, same state | ~2.4% of workforce |
-    | **Young Workers (20-24)** | Proxy for new labor force entrants | ~9.6% of workforce |
-
-    These flows vary significantly by occupation:
-    - **Farming**: 2.7% recent immigration (highest)
-    - **Food Prep**: 25.6% young workers (highest turnover)
-    - **Computer/Math**: 1.2% recent immigration (tech sector)
-
-    ### Annual Flow Breakdown
-
-    In the CZ detail view, we show how total worker inflows break down:
-
-    | Component | Description |
-    |-----------|-------------|
-    | **Exits** | Workers leaving (retirements + transfers to other occupations) |
-    | **Domestic Inflows** | Interstate/intercounty movers + young entrants + re-entrants |
-    | **Immigration** | Foreign-born workers entering (adjustable via policy scenario) |
-    | **Net Flow** | Total inflows − exits |
-
-    The immigration component can be adjusted using the scenario slider to model policy changes.
-
-    ---
-
-    ## Occupation Groups
-
-    We aggregate 401 detailed ACS occupations into 22 SOC major groups for statistical reliability:
-
-    - Management
-    - Business and Financial Operations
-    - Computer and Mathematical
-    - Architecture and Engineering
-    - Life, Physical, and Social Science
-    - Community and Social Service
-    - Legal
-    - Education, Training, and Library
-    - Arts, Design, Entertainment, Sports, Media
-    - Healthcare Practitioners and Technical
-    - Healthcare Support
-    - Protective Service
-    - Food Preparation and Serving
-    - Building and Grounds Cleaning and Maintenance
-    - Personal Care and Service
-    - Sales and Related
-    - Office and Administrative Support
-    - Farming, Fishing, and Forestry
-    - Construction and Extraction
-    - Installation, Maintenance, and Repair
-    - Production
-    - Transportation and Material Moving
+    Example: Increasing immigration from 500 → 750 workers/year:
+    - 5-year additional supply: +1,250 workers
+    - Reduces wage pressure proportionally
 
     ---
 
@@ -810,77 +717,55 @@ def render_methods_tab():
     We use **commuting zones (CZs)** as the primary geographic unit:
     - 741 CZs covering the entire US
     - CZs are clusters of counties with strong commuting ties
-    - Better captures local labor markets than state boundaries
-
-    Counties are mapped to CZs for visualization.
+    - Better captures local labor markets than state or metro boundaries
 
     ---
 
-    ## Data Validation: ACS vs OEWS
+    ## Occupation Groups
 
-    We validated our ACS-based occupation distributions against BLS Occupational Employment and Wage Statistics (OEWS) May 2024 data.
+    We aggregate detailed occupations into 22 SOC major groups:
 
-    ### Comparison Results
+    Healthcare & Science: Healthcare Practitioners, Healthcare Support, Life/Physical/Social Science
 
-    | Metric | Value |
-    |--------|-------|
-    | Correlation of occupation shares | 0.848 |
-    | Mean absolute difference | 1.14 percentage points |
+    Business & Legal: Management, Business/Financial Operations, Legal
 
-    ### Key Differences Explained
+    Technical: Computer/Mathematical, Architecture/Engineering
 
-    | Occupation | ACS vs OEWS | Explanation |
-    |------------|-------------|-------------|
-    | **Management** | +5.8pp higher in ACS | ACS includes self-employed managers/owners; OEWS is payroll only |
-    | **Food Prep/Serving** | −3.9pp lower in ACS | High-turnover payroll jobs better captured by employer survey |
-    | **Healthcare Support** | −2.4pp lower in ACS | Same reason as Food Prep |
-    | **Transportation** | −2.3pp lower in ACS | Trucking/logistics payroll jobs |
+    Education & Arts: Education/Training/Library, Arts/Design/Entertainment/Sports/Media
 
-    ### Interpretation
+    Service: Food Preparation/Serving, Building/Grounds Maintenance, Personal Care, Protective Service, Community/Social Service
 
-    The high correlation (0.848) indicates our occupation distributions are reliable. The systematic differences reflect known methodological differences:
+    Sales & Office: Sales, Office/Administrative Support
 
-    - **ACS**: Household survey including self-employed, gig workers
-    - **OEWS**: Employer survey of payroll jobs only
-
-    These differences don't affect our analysis since we compare relative tightness across CZs using consistent ACS-based shares.
-
-    ---
-
-    ## Sample Size Analysis
-
-    Our ACS data pools 5 years (2019-2023) for statistical reliability at the CZ level.
-
-    | Metric | Value |
-    |--------|-------|
-    | Total CZ × occupation cells | 19,182 |
-    | Mean sample size per cell | 570 observations |
-    | Median sample size | 282 observations |
-    | Cells with n < 100 | 19.1% (higher uncertainty) |
-
-    Cells with fewer than 100 observations are flagged as having higher sampling error.
+    Trades & Production: Construction/Extraction, Installation/Maintenance/Repair, Production, Transportation/Material Moving, Farming/Fishing/Forestry
 
     ---
 
     ## Limitations
 
-    1. **Projection uncertainty**: 5-year forecasts have substantial uncertainty
-    2. **Local variation**: Some CZ-occupation cells have small sample sizes (see above)
-    3. **Structural changes**: Model may not capture rapid shifts (AI, pandemics)
-    4. **Wage response**: Actual wage changes depend on many factors beyond labor market tightness
+    1. **Projection uncertainty**: 5-year forecasts have substantial uncertainty; actual outcomes depend on economic conditions, policy changes, and technological shifts
+
+    2. **Inflow calibration**: The 15% "demographic drag" is a national average; it likely varies by occupation and region
+
+    3. **Training data gaps**: Our training pipeline data only includes community college completions, missing apprenticeships, 4-year programs, and employer training
+
+    4. **No vacancy data**: We project supply and demand but don't incorporate real-time job posting or vacancy data
+
+    5. **Wage elasticity**: The 0.7 elasticity is a rough estimate from labor economics literature; actual responses vary
 
     ---
 
     ## References
 
-    - BLS Occupational Separations: [bls.gov/emp/documentation/separations.htm](https://www.bls.gov/emp/documentation/separations.htm)
     - BLS Employment Projections: [bls.gov/emp/](https://www.bls.gov/emp/)
-    - BLS OEWS (Validation): [bls.gov/oes/](https://www.bls.gov/oes/)
+    - BLS Occupational Separations: [bls.gov/emp/documentation/separations.htm](https://www.bls.gov/emp/documentation/separations.htm)
+    - BLS OEWS: [bls.gov/oes/](https://www.bls.gov/oes/)
     - ACS PUMS: [census.gov/programs-surveys/acs/microdata.html](https://www.census.gov/programs-surveys/acs/microdata.html)
+    - David Dorn Commuting Zones: [ddorn.net/data.htm](https://www.ddorn.net/data.htm)
 
     ---
 
-    *Last updated: January 2026*
+    *Last updated: January 30, 2026*
     """)
 
 
