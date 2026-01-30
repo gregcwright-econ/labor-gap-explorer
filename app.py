@@ -1178,37 +1178,37 @@ def render_cz_detail(gap_data, selected_occ):
 
     with entry_col1:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center;">
-            <div style="color: #A0AEC0; font-size: 0.75rem; margin-bottom: 0.25rem;">Immigration</div>
-            <div style="color: #E2E8F0; font-size: 1.5rem; font-weight: 600;">{pct_immig:.1f}%</div>
-            <div style="color: #718096; font-size: 0.7rem;">nat'l avg: {nat_immig:.1f}%</div>
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Immigration</div>
+            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_immig:.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_immig:.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
     with entry_col2:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center;">
-            <div style="color: #A0AEC0; font-size: 0.75rem; margin-bottom: 0.25rem;">Interstate</div>
-            <div style="color: #E2E8F0; font-size: 1.5rem; font-weight: 600;">{pct_interstate:.1f}%</div>
-            <div style="color: #718096; font-size: 0.7rem;">nat'l avg: {nat_interstate:.1f}%</div>
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Interstate</div>
+            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_interstate:.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_interstate:.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
     with entry_col3:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center;">
-            <div style="color: #A0AEC0; font-size: 0.75rem; margin-bottom: 0.25rem;">Intercounty</div>
-            <div style="color: #E2E8F0; font-size: 1.5rem; font-weight: 600;">{pct_intercounty:.1f}%</div>
-            <div style="color: #718096; font-size: 0.7rem;">nat'l avg: {nat_intercounty:.1f}%</div>
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Intercounty</div>
+            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_intercounty:.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_intercounty:.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
     with entry_col4:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center;">
-            <div style="color: #A0AEC0; font-size: 0.75rem; margin-bottom: 0.25rem;">Young (20-24)</div>
-            <div style="color: #E2E8F0; font-size: 1.5rem; font-weight: 600;">{pct_young:.1f}%</div>
-            <div style="color: #718096; font-size: 0.7rem;">nat'l avg: {nat_young:.1f}%</div>
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Young (20-24)</div>
+            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_young:.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_young:.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
