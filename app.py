@@ -919,9 +919,8 @@ def render_explorer(gap_data, occ_summary, total_gap, total_emp):
 
         # All occupations option
         all_selected = st.session_state.selected_occ == "All Occupations"
-        gap_str = f"+{total_gap/1e6:.0f}M" if total_gap >= 0 else f"{total_gap/1e6:.0f}M"
         if st.button(
-            f"{'●' if all_selected else '○'} All Occupations  **{gap_str}**",
+            f"{'●' if all_selected else '○'} All Occupations",
             key="all_occ",
             use_container_width=True
         ):
@@ -931,18 +930,12 @@ def render_explorer(gap_data, occ_summary, total_gap, total_emp):
 
         # Hierarchical categories
         for category, occupations in OCC_CATEGORIES.items():
-            cat_occs = occ_summary[occ_summary['occ_group'].isin(occupations)]
-            cat_gap = cat_occs['stock_gap'].sum()
-            gap_str = f"+{cat_gap/1e6:.1f}M" if cat_gap >= 0 else f"{cat_gap/1e6:.1f}M"
-
-            with st.expander(f"{category}  **{gap_str}**"):
+            with st.expander(f"{category}"):
                 for occ in occupations:
                     occ_row = occ_summary[occ_summary['occ_group'] == occ]
                     if len(occ_row) > 0:
-                        occ_gap = occ_row['stock_gap'].values[0]
-                        gap_str = f"+{occ_gap/1e6:.1f}M" if occ_gap >= 0 else f"{occ_gap/1e6:.1f}M"
                         is_selected = st.session_state.selected_occ == occ
-                        short_name = occ[:25] + '...' if len(occ) > 25 else occ
+                        short_name = occ[:28] + '...' if len(occ) > 28 else occ
 
                         if st.button(
                             f"{'●' if is_selected else '○'} {short_name}",
@@ -952,8 +945,6 @@ def render_explorer(gap_data, occ_summary, total_gap, total_emp):
                             st.session_state.selected_occ = occ
                             st.session_state.selected_cz = None
                             st.rerun()
-
-                        st.caption(f"   {gap_str}")
 
         st.markdown("---")
         st.markdown('<p class="data-source">Data: ACS, IPEDS, BLS 2024-2034</p>', unsafe_allow_html=True)
@@ -1026,22 +1017,29 @@ def render_national_view(gap_data, selected_occ):
     total_emp = filtered['total_emp'].sum()
     total_gap = filtered['stock_gap'].sum()
     total_exits = filtered['annual_total_exits'].sum()
-    total_training = filtered['annual_training_inflows'].sum()
     gap_pct = total_gap / total_emp * 100 if total_emp > 0 else 0
     exit_rate = total_exits / total_emp * 100 if total_emp > 0 else 0
+    wage_pressure = gap_pct / 0.7
 
-    col1, col2, col3, col4, col5 = st.columns(5)
+    # Determine market condition
+    if gap_pct > 2:
+        market_status = "Tight"
+        status_color = "#F97316"  # Orange
+    elif gap_pct < -2:
+        market_status = "Loose"
+        status_color = "#3B82F6"  # Blue
+    else:
+        market_status = "Balanced"
+        status_color = "#10B981"  # Green
+
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("Employment", f"{total_emp/1e6:.1f}M")
     with col2:
-        tightness_label = "Tight" if total_gap > 0 else "Loose"
-        st.metric(f"Market: {tightness_label}", f"{abs(total_gap)/1e6:.1f}M gap")
+        st.metric("Market Condition", market_status)
     with col3:
-        st.metric("Gap %", f"{gap_pct:+.1f}%")
-    with col4:
         st.metric("Exit Rate", f"{exit_rate:.1f}%/yr")
-    with col5:
-        wage_pressure = gap_pct / 0.7
+    with col4:
         st.metric("Wage Pressure", f"{wage_pressure:+.1f}%")
 
 
@@ -1369,41 +1367,37 @@ def render_cz_detail(gap_data, selected_occ):
     # =========================================================================
     st.markdown("### 5-Year Projection")
 
-    metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+    # Determine market condition
+    if display_gap_pct > 2:
+        market_status = "Tight"
+    elif display_gap_pct < -2:
+        market_status = "Loose"
+    else:
+        market_status = "Balanced"
+
+    metric_col1, metric_col2, metric_col3 = st.columns(3)
 
     with metric_col1:
         st.metric("Current Employment", f"{total_emp:,.0f}")
 
     with metric_col2:
-        gap_delta_str = f"{-gap_change:+,.0f}" if policy_active else None
-        st.metric(
-            "Projected Gap",
-            f"{display_gap:+,.0f}",
-            delta=gap_delta_str,
-            delta_color="inverse"
-        )
+        st.metric("Projected Market", market_status)
 
     with metric_col3:
-        st.metric("Gap %", f"{display_gap_pct:+.1f}%")
-
-    with metric_col4:
-        st.metric("Wage Pressure", f"{display_wage_pressure:+.1f}%")
+        baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
+        wage_delta_str = f"{display_wage_pressure - baseline_wage:+.1f}%" if policy_active else None
+        st.metric("Wage Pressure", f"{display_wage_pressure:+.1f}%", delta=wage_delta_str, delta_color="inverse")
 
     # Impact summary
     if policy_active:
-        baseline_gap_pct = baseline_gap / total_emp * 100 if total_emp > 0 else 0
-        baseline_wage = baseline_gap_pct / 0.7
-        impact_direction = "reduces" if immigration_delta > 0 else "increases"
+        impact_direction = "eases" if immigration_delta > 0 else "tightens"
+        wage_change = display_wage_pressure - baseline_wage
         st.markdown(f"""
         <div style="background: #1A1D24; border-radius: 8px; padding: 0.75rem; margin-top: 0.5rem;
                     border-left: 3px solid {'#10B981' if immigration_delta > 0 else '#EF4444'};">
             <span style="color: #E0E0E0; font-size: 0.85rem;">
                 <strong>Impact:</strong> Changing immigration from {annual_immigration:,.0f} → {new_immigration:,.0f} workers/year
-                {impact_direction} the 5-year gap by <strong>{abs(gap_change):,.0f}</strong> workers
-            </span>
-            <br/>
-            <span style="color: #718096; font-size: 0.75rem;">
-                Baseline: Gap {baseline_gap:+,.0f} ({baseline_gap_pct:+.1f}%) · Wage Pressure {baseline_wage:+.1f}%
+                {impact_direction} the labor market by <strong>{abs(wage_change):.1f}%</strong> wage pressure
             </span>
         </div>
         """, unsafe_allow_html=True)
