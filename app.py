@@ -1317,32 +1317,24 @@ def render_cz_detail(gap_data, selected_occ):
     else:
         market_status = "Balanced"
 
-    metric_col1, metric_col2, metric_col3 = st.columns(3)
+    metric_col1, metric_col2 = st.columns(2)
 
     with metric_col1:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Current Employment</div>
-            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{total_emp:,.0f}</div>
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Projected Market</div>
+            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{market_status}</div>
         </div>
         """, unsafe_allow_html=True)
 
     with metric_col2:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Projected Market</div>
-            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{market_status}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with metric_col3:
         baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
         wage_baseline_text = f"baseline: {baseline_wage:+.1f}%" if policy_active else ""
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Wage Pressure</div>
-            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{display_wage_pressure:+.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.8rem;">{wage_baseline_text}</div>
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Wage Pressure</div>
+            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{display_wage_pressure:+.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">{wage_baseline_text}</div>
         </div>
         """, unsafe_allow_html=True)
 
