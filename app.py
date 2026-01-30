@@ -1329,35 +1329,36 @@ def render_cz_detail(gap_data, selected_occ):
     else:
         market_status = "Balanced"
 
-    # Row 1: Job Openings vs Workforce (the key comparison)
-    growth_col1, growth_col2 = st.columns(2)
+    # All three metrics in one row
+    baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
+    wage_baseline_text = f"baseline: {baseline_wage:+.1f}%" if policy_active else ""
 
-    with growth_col1:
+    proj_col1, proj_col2, proj_col3 = st.columns(3)
+
+    with proj_col1:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
             <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Growth in Job Openings</div>
-            <div style="color: {job_color}; font-size: 2.25rem; font-weight: 600;">{job_growth_pct:+.1f}%</div>
+            <div style="color: {job_color}; font-size: 2rem; font-weight: 600;">{job_growth_pct:+.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
-    with growth_col2:
+    with proj_col2:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
             <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Growth in Workforce</div>
-            <div style="color: {workforce_color}; font-size: 2.25rem; font-weight: 600;">{workforce_growth_pct:+.1f}%</div>
+            <div style="color: {workforce_color}; font-size: 2rem; font-weight: 600;">{workforce_growth_pct:+.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
-    # Row 2: Wage pressure outcome
-    baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
-    wage_baseline_text = f"baseline: {baseline_wage:+.1f}%" if policy_active else ""
-    st.markdown(f"""
-    <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748; max-width: 50%;">
-        <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Wage Pressure</div>
-        <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{display_wage_pressure:+.1f}%</div>
-        <div style="color: #A0AEC0; font-size: 0.85rem;">{wage_baseline_text}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    with proj_col3:
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Wage Pressure</div>
+            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{display_wage_pressure:+.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">{wage_baseline_text}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     # Impact summary
     if policy_active:
