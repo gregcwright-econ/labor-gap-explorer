@@ -924,7 +924,7 @@ def render_national_view(gap_data, selected_occ):
         market_status = "Balanced"
         status_color = "#10B981"  # Green
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
@@ -940,13 +940,6 @@ def render_national_view(gap_data, selected_occ):
         </div>
         """, unsafe_allow_html=True)
     with col3:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Exit Rate</div>
-            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{exit_rate:.1f}%/yr</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with col4:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
             <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Wage Pressure</div>
