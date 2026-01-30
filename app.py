@@ -1309,11 +1309,17 @@ def render_cz_detail(gap_data, selected_occ):
     # =========================================================================
     st.markdown("### 5-Year Projection")
 
-    # Calculate employment growth
+    # Calculate job openings growth (demand side)
     emp_projected = cz.get('emp_projected', total_emp) or total_emp
     emp_change = emp_projected - total_emp
-    emp_change_pct = (emp_change / total_emp * 100) if total_emp > 0 else 0
-    growth_color = "#48BB78" if emp_change >= 0 else "#F56565"
+    job_growth_pct = (emp_change / total_emp * 100) if total_emp > 0 else 0
+    job_color = "#48BB78" if job_growth_pct >= 0 else "#F56565"
+
+    # Calculate workforce growth (supply side) - net flow over 5 years
+    net_flow_annual = annual_other - annual_exits
+    workforce_change = net_flow_annual * 5
+    workforce_growth_pct = (workforce_change / total_emp * 100) if total_emp > 0 else 0
+    workforce_color = "#48BB78" if workforce_growth_pct >= 0 else "#F56565"
 
     # Determine market condition
     if display_gap_pct > 2:
@@ -1323,17 +1329,29 @@ def render_cz_detail(gap_data, selected_occ):
     else:
         market_status = "Balanced"
 
-    metric_col1, metric_col2, metric_col3 = st.columns(3)
+    # Row 1: Job Openings vs Workforce (the key comparison)
+    growth_col1, growth_col2 = st.columns(2)
 
-    with metric_col1:
+    with growth_col1:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Job Growth</div>
-            <div style="color: {growth_color}; font-size: 2rem; font-weight: 600;">{emp_change_pct:+.1f}%</div>
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Growth in Job Openings</div>
+            <div style="color: {job_color}; font-size: 2.25rem; font-weight: 600;">{job_growth_pct:+.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
-    with metric_col2:
+    with growth_col2:
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Growth in Workforce</div>
+            <div style="color: {workforce_color}; font-size: 2.25rem; font-weight: 600;">{workforce_growth_pct:+.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Row 2: Market outcome and wage pressure
+    outcome_col1, outcome_col2 = st.columns(2)
+
+    with outcome_col1:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
             <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Projected Market</div>
@@ -1341,7 +1359,7 @@ def render_cz_detail(gap_data, selected_occ):
         </div>
         """, unsafe_allow_html=True)
 
-    with metric_col3:
+    with outcome_col2:
         baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
         wage_baseline_text = f"baseline: {baseline_wage:+.1f}%" if policy_active else ""
         st.markdown(f"""
