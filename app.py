@@ -848,7 +848,7 @@ def render_explorer(gap_data, occ_summary, total_gap, total_emp):
     st.markdown(f"""
     <div class="header">
         <h1>Labor Market Tightness Explorer</h1>
-        <p>Click on any region to explore policy scenarios • Showing: {selected_occ}</p>
+        <p>Showing: {selected_occ}</p>
     </div>
     """, unsafe_allow_html=True)
 
