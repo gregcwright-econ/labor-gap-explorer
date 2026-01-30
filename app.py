@@ -645,9 +645,13 @@ def render_methods_tab():
 
     | Inflow Type | Rate | Description |
     |-------------|------|-------------|
-    | **New Labor Force Entrants** | ~5% | Graduates, immigrants entering workforce |
+    | **Immigration** | ~0.6% | Foreign-born workers arriving in US |
+    | **Domestic Migration** | ~2.8% | Interstate and intercounty movers |
+    | **Young Entrants** | ~5% | New labor force participants (ages 20-24) |
     | **Occupation Transfers In** | ~6.4% | Workers switching FROM other occupations |
     | **Labor Force Re-entrants** | ~0.6% | Workers returning after absence |
+
+    These rates are measured from ACS migration and demographic data (see Labor Entry Sources section below).
 
     **Key insight**: High-turnover occupations have high exit rates AND high entry rates (they're "revolving doors"). We apply the same occupation multiplier to both exits and inflows.
 
@@ -755,6 +759,19 @@ def render_methods_tab():
     - **Farming**: 2.7% recent immigration (highest)
     - **Food Prep**: 25.6% young workers (highest turnover)
     - **Computer/Math**: 1.2% recent immigration (tech sector)
+
+    ### Annual Flow Breakdown
+
+    In the CZ detail view, we show how total worker inflows break down:
+
+    | Component | Description |
+    |-----------|-------------|
+    | **Exits** | Workers leaving (retirements + transfers to other occupations) |
+    | **Domestic Inflows** | Interstate/intercounty movers + young entrants + re-entrants |
+    | **Immigration** | Foreign-born workers entering (adjustable via policy scenario) |
+    | **Net Flow** | Total inflows − exits |
+
+    The immigration component can be adjusted using the scenario slider to model policy changes.
 
     ---
 
