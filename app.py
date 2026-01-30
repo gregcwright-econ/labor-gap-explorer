@@ -1405,25 +1405,6 @@ def render_cz_detail(gap_data, selected_occ):
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Show impact if policy changed
-    if immigration_delta != 0:
-        supply_change_5yr = immigration_delta * 5
-        adj_gap = baseline_gap - supply_change_5yr
-        adj_gap_pct = adj_gap / total_emp * 100 if total_emp > 0 else 0
-        adj_wage_pressure = adj_gap_pct / 0.7
-        wage_change = adj_wage_pressure - baseline_wage
-
-        impact_direction = "eases" if immigration_delta > 0 else "tightens"
-        st.markdown(f"""
-        <div style="background: #1A1D24; border-radius: 8px; padding: 0.75rem; margin-top: 0.5rem;
-                    border-left: 3px solid {'#10B981' if immigration_delta > 0 else '#EF4444'};">
-            <span style="color: #E0E0E0; font-size: 0.85rem;">
-                <strong>Impact:</strong> Changing immigration from {annual_immigration:,.0f} → {new_immigration:,.0f} workers/year
-                {impact_direction} the labor market by <strong>{abs(wage_change):.1f}%</strong> wage pressure
-            </span>
-        </div>
-        """, unsafe_allow_html=True)
-
 
 if __name__ == "__main__":
     main()
