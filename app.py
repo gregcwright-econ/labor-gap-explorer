@@ -1248,14 +1248,14 @@ def render_cz_detail(gap_data, selected_occ):
     # =========================================================================
     st.markdown("### Workforce Flow Breakdown")
 
-    # Calculate annual inflows from percentages
+    # Calculate annual inflows from percentages (illustrative breakdown)
     interstate_inflows = total_emp * pct_interstate / 100
     intercounty_inflows = total_emp * pct_intercounty / 100
     young_entrant_inflows = total_emp * pct_young / 100
     display_immig = new_immigration if policy_active else annual_immigration
-    total_inflows = interstate_inflows + intercounty_inflows + young_entrant_inflows + display_immig
-    net_flow = total_inflows - annual_exits
-    flow_color = "#48BB78" if net_flow >= 0 else "#F56565"
+    # Net flow uses annual_other (from model) for consistency with Growth in Workforce
+    net_flow_display = annual_other - annual_exits
+    flow_color = "#48BB78" if net_flow_display >= 0 else "#F56565"
 
     flow_col1, flow_col2, flow_col3, flow_col4, flow_col5, flow_col6 = st.columns(6)
 
@@ -1303,7 +1303,7 @@ def render_cz_detail(gap_data, selected_occ):
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
             <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Net Flow</div>
-            <div style="color: {flow_color}; font-size: 1.25rem; font-weight: 600;">{net_flow:+,.0f}/yr</div>
+            <div style="color: {flow_color}; font-size: 1.25rem; font-weight: 600;">{net_flow_display:+,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
 
