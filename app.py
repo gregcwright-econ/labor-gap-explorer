@@ -1056,33 +1056,55 @@ def render_cz_detail(gap_data, selected_occ):
         st.session_state.selected_cz = None
         st.rerun()
 
-    # CZ header with mini-map
-    header_col1, header_col2 = st.columns([1, 2])
+    # Determine tightness label and color
+    if tightness_pct >= 67:
+        tightness_label = "Tight Market"
+        label_color = "#F56565"  # Red
+        label_desc = "Higher demographic pressure than most regions"
+    elif tightness_pct <= 33:
+        tightness_label = "Loose Market"
+        label_color = "#48BB78"  # Green
+        label_desc = "Lower demographic pressure than most regions"
+    else:
+        tightness_label = "Balanced Market"
+        label_color = "#ECC94B"  # Yellow
+        label_desc = "Moderate demographic pressure"
 
-    with header_col1:
+    state = cz.get('state_abbr', '')
+    cz_name = cz.get('cz_label', f'CZ {czone}')
+
+    # Big prominent header showing the key takeaway
+    st.markdown(f"""
+    <div style="background: linear-gradient(135deg, #1A1D24 0%, #2D3748 100%);
+                border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem;
+                border: 1px solid #4A5568;">
+        <div style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
+            <div style="text-align: center; min-width: 120px;">
+                <div style="font-size: 3.5rem; font-weight: 700; color: {label_color}; line-height: 1;">
+                    {tightness_pct:.0f}<span style="font-size: 1.5rem; vertical-align: super;">th</span>
+                </div>
+                <div style="font-size: 0.85rem; color: #A0AEC0; margin-top: 0.25rem;">percentile</div>
+            </div>
+            <div style="flex: 1;">
+                <div style="font-size: 1.75rem; font-weight: 600; color: {label_color}; margin-bottom: 0.25rem;">
+                    {tightness_label}
+                </div>
+                <div style="font-size: 1rem; color: #E2E8F0; margin-bottom: 0.5rem;">
+                    {cz_name}, {state} · {selected_occ}
+                </div>
+                <div style="font-size: 0.9rem; color: #A0AEC0;">
+                    {label_desc}
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Mini-map in a smaller section below
+    with st.expander("📍 Location Map", expanded=False):
         mini_map = create_cz_mini_map(czone, tightness_pct)
         if mini_map:
             st.plotly_chart(mini_map, use_container_width=True, config={'displayModeBar': False})
-
-    with header_col2:
-        state = cz.get('state_abbr', '')
-        # Use percentile to determine label, not raw gap
-        if tightness_pct >= 67:
-            tightness_label = "Tight"
-        elif tightness_pct <= 33:
-            tightness_label = "Loose"
-        else:
-            tightness_label = "Balanced"
-
-        st.markdown(f"""
-        <div class="county-panel" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
-            <div class="county-title">{state}</div>
-            <div class="county-subtitle">{selected_occ}</div>
-            <div style="margin-top: 0.5rem; color: #A0AEC0; font-size: 0.85rem;">
-                Tightness: <strong>{tightness_pct:.0f}th percentile</strong> ({tightness_label})
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
 
     # Extract metrics from CZ data
     total_emp = cz['total_emp']
