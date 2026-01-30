@@ -1387,7 +1387,7 @@ def render_cz_detail(gap_data, selected_occ):
     # =========================================================================
     # SECTION 4: Annual Flow Details
     # =========================================================================
-    st.markdown("### Annual Flow Breakdown")
+    st.markdown("### Workforce Flow Breakdown")
 
     flow_col1, flow_col2, flow_col3, flow_col4 = st.columns(4)
 
