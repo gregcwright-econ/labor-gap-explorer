@@ -1312,36 +1312,22 @@ def render_cz_detail(gap_data, selected_occ):
     # =========================================================================
     st.markdown("### Immigration Scenario")
 
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #1A1D24 0%, #252A34 100%);
-                border-radius: 12px; padding: 1.5rem; margin: 1rem 0;
-                border: 1px solid #3B82F6;">
-    """, unsafe_allow_html=True)
-
     immig_col1, immig_col2 = st.columns([1, 2])
 
     with immig_col1:
         st.markdown(f"""
         <div style="text-align: center;">
-            <div style="color: #A0AEC0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
-                Current Immigration
-            </div>
-            <div style="color: #3B82F6; font-size: 2.5rem; font-weight: 700; margin: 0.5rem 0;">
-                {annual_immigration:,.0f}
-            </div>
-            <div style="color: #718096; font-size: 0.85rem;">
-                workers/year
-            </div>
-            <div style="color: #A0AEC0; font-size: 0.75rem; margin-top: 0.5rem;">
-                ({pct_immig:.2f}% of workforce)
+            <div style="color: #A0AEC0; font-size: 0.85rem;">Current Immigration</div>
+            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 700; margin: 0.25rem 0;">
+                {annual_immigration:,.0f}/yr
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     with immig_col2:
         st.markdown("""
-        <div style="color: #E0E0E0; font-size: 0.9rem; margin-bottom: 0.75rem;">
-            <strong>Adjust immigration level:</strong>
+        <div style="color: #A0AEC0; font-size: 0.85rem; margin-bottom: 0.5rem;">
+            Adjust immigration level:
         </div>
         """, unsafe_allow_html=True)
 
@@ -1360,9 +1346,6 @@ def render_cz_detail(gap_data, selected_occ):
         )
 
         immigration_delta = new_immigration - annual_immigration
-        pct_change = (immigration_delta / annual_immigration * 100) if annual_immigration > 0 else 0
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
