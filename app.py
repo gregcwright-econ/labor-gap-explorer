@@ -1126,7 +1126,6 @@ def render_cz_detail(gap_data, selected_occ):
     st.markdown("""
     <div style="color: #A0AEC0; font-size: 0.85rem; margin-bottom: 1rem;">
         Historical data showing the sources of labor supply in this region.
-        These flows feed into the "Other Inflows" used in projections.
     </div>
     """, unsafe_allow_html=True)
 
