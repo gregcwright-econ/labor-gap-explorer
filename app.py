@@ -1120,15 +1120,8 @@ def render_cz_detail(gap_data, selected_occ):
     exit_rate = cz.get('exit_rate', 0.10) or 0.10
 
     # =========================================================================
-    # SECTION 1: Historical Labor Entry Sources
+    # DATA LOADING: Entry sources and immigration calculations
     # =========================================================================
-    st.markdown("### Where Workers Come From (2019-2023)")
-    st.markdown("""
-    <div style="color: #A0AEC0; font-size: 0.85rem; margin-bottom: 1rem;">
-        Sources of labor inflows into this CZ.
-    </div>
-    """, unsafe_allow_html=True)
-
     # Load entry sources data based on occupation filter
     entry = None
     nat_immig = nat_interstate = nat_intercounty = nat_young = 0
@@ -1171,140 +1164,21 @@ def render_cz_detail(gap_data, selected_occ):
         pct_foreign = entry.get('pct_foreign_born', 0) or 0
 
         # Calculate actual annual immigration inflow
-        # pct_immig is % of workforce who are recent immigrants
-        # To convert to annual inflow: workforce × pct_immig / 2 (since it's 2-year window)
         annual_immigration = (total_emp * pct_immig / 100) / 2
     else:
         pct_immig = pct_interstate = pct_intercounty = pct_young = pct_foreign = 0
-        annual_immigration = annual_other * 0.05  # Default 5% of inflows
+        annual_immigration = annual_other * 0.05
 
-    # Show entry sources in a compact row
-    entry_col1, entry_col2, entry_col3, entry_col4 = st.columns(4)
-
-    with entry_col1:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Immigration</div>
-            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_immig:.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_immig:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with entry_col2:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Interstate</div>
-            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_interstate:.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_interstate:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with entry_col3:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Intercounty</div>
-            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_intercounty:.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_intercounty:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with entry_col4:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Young Entrants</div>
-            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_young:.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_young:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # =========================================================================
-    # SECTION 2: Immigration Component Box
-    # =========================================================================
-    st.markdown("### Immigration Scenario")
-
-    # Create a styled box for the immigration component
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #1A1D24 0%, #252A34 100%);
-                border-radius: 12px; padding: 1.5rem; margin: 1rem 0;
-                border: 1px solid #3B82F6;">
-    """, unsafe_allow_html=True)
-
-    immig_col1, immig_col2 = st.columns([1, 2])
-
-    with immig_col1:
-        st.markdown(f"""
-        <div style="text-align: center;">
-            <div style="color: #A0AEC0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
-                Current Immigration
-            </div>
-            <div style="color: #3B82F6; font-size: 2.5rem; font-weight: 700; margin: 0.5rem 0;">
-                {annual_immigration:,.0f}
-            </div>
-            <div style="color: #718096; font-size: 0.85rem;">
-                workers/year
-            </div>
-            <div style="color: #A0AEC0; font-size: 0.75rem; margin-top: 0.5rem;">
-                ({pct_immig:.2f}% of workforce)
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with immig_col2:
-        st.markdown("""
-        <div style="color: #E0E0E0; font-size: 0.9rem; margin-bottom: 0.75rem;">
-            <strong>Adjust immigration level:</strong>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Slider to adjust immigration - shows actual worker counts
-        max_immigration = int(annual_immigration * 3) if annual_immigration > 0 else 1000
-        min_immigration = 0
-        step = max(1, int(annual_immigration / 20)) if annual_immigration > 0 else 10
-
-        new_immigration = st.slider(
-            "Annual immigration (workers/year)",
-            min_value=min_immigration,
-            max_value=max_immigration,
-            value=int(annual_immigration),
-            step=step,
-            format="%d",
-            label_visibility="collapsed"
-        )
-
-        # Show the change
-        immigration_delta = new_immigration - annual_immigration
-        pct_change = (immigration_delta / annual_immigration * 100) if annual_immigration > 0 else 0
-
-        if immigration_delta != 0:
-            change_color = "#10B981" if immigration_delta > 0 else "#EF4444"
-            st.markdown(f"""
-            <div style="color: {change_color}; font-size: 0.9rem; margin-top: 0.5rem;">
-                {immigration_delta:+,.0f} workers/year ({pct_change:+.0f}% change)
-            </div>
-            """, unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # Calculate policy impact
-    policy_active = immigration_delta != 0
-
-    if policy_active:
-        # Over 5 years, this changes supply
-        supply_change_5yr = immigration_delta * 5
-
-        # Gap decreases by this amount (more supply = less gap)
-        adj_gap = baseline_gap - supply_change_5yr
-        gap_change = baseline_gap - adj_gap
-    else:
-        adj_gap = baseline_gap
-        gap_change = 0
-
-    display_gap = adj_gap
+    # For now, no policy adjustment (will be set by slider later)
+    new_immigration = annual_immigration
+    immigration_delta = 0
+    policy_active = False
+    display_gap = baseline_gap
     display_gap_pct = display_gap / total_emp * 100 if total_emp > 0 else 0
     display_wage_pressure = display_gap_pct / 0.7
 
     # =========================================================================
-    # SECTION 3: Projected Outcomes
+    # SECTION 1: 5-Year Projection
     # =========================================================================
     st.markdown("### 5-Year Projection")
 
@@ -1369,22 +1243,8 @@ def render_cz_detail(gap_data, selected_occ):
         </div>
         """, unsafe_allow_html=True)
 
-    # Impact summary
-    if policy_active:
-        impact_direction = "eases" if immigration_delta > 0 else "tightens"
-        wage_change = display_wage_pressure - baseline_wage
-        st.markdown(f"""
-        <div style="background: #1A1D24; border-radius: 8px; padding: 0.75rem; margin-top: 0.5rem;
-                    border-left: 3px solid {'#10B981' if immigration_delta > 0 else '#EF4444'};">
-            <span style="color: #E0E0E0; font-size: 0.85rem;">
-                <strong>Impact:</strong> Changing immigration from {annual_immigration:,.0f} → {new_immigration:,.0f} workers/year
-                {impact_direction} the labor market by <strong>{abs(wage_change):.1f}%</strong> wage pressure
-            </span>
-        </div>
-        """, unsafe_allow_html=True)
-
     # =========================================================================
-    # SECTION 4: Annual Flow Details
+    # SECTION 2: Workforce Flow Breakdown
     # =========================================================================
     st.markdown("### Workforce Flow Breakdown")
 
@@ -1429,6 +1289,138 @@ def render_cz_detail(gap_data, selected_occ):
             <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Net Flow</div>
             <div style="color: {flow_color}; font-size: 1.75rem; font-weight: 600;">{net_flow:+,.0f}/yr</div>
             <div style="color: #A0AEC0; font-size: 0.75rem;">inflows − exits</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # =========================================================================
+    # SECTION 3: Where Workers Come From
+    # =========================================================================
+    st.markdown("### Where Workers Come From (2019-2023)")
+    st.markdown("""
+    <div style="color: #A0AEC0; font-size: 0.85rem; margin-bottom: 1rem;">
+        Sources of labor inflows into this CZ.
+    </div>
+    """, unsafe_allow_html=True)
+
+    entry_col1, entry_col2, entry_col3, entry_col4 = st.columns(4)
+
+    with entry_col1:
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Immigration</div>
+            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_immig:.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_immig:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with entry_col2:
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Interstate</div>
+            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_interstate:.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_interstate:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with entry_col3:
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Intercounty</div>
+            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_intercounty:.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_intercounty:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with entry_col4:
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Young Entrants</div>
+            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_young:.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_young:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # =========================================================================
+    # SECTION 4: Immigration Scenario
+    # =========================================================================
+    st.markdown("### Immigration Scenario")
+
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #1A1D24 0%, #252A34 100%);
+                border-radius: 12px; padding: 1.5rem; margin: 1rem 0;
+                border: 1px solid #3B82F6;">
+    """, unsafe_allow_html=True)
+
+    immig_col1, immig_col2 = st.columns([1, 2])
+
+    with immig_col1:
+        st.markdown(f"""
+        <div style="text-align: center;">
+            <div style="color: #A0AEC0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                Current Immigration
+            </div>
+            <div style="color: #3B82F6; font-size: 2.5rem; font-weight: 700; margin: 0.5rem 0;">
+                {annual_immigration:,.0f}
+            </div>
+            <div style="color: #718096; font-size: 0.85rem;">
+                workers/year
+            </div>
+            <div style="color: #A0AEC0; font-size: 0.75rem; margin-top: 0.5rem;">
+                ({pct_immig:.2f}% of workforce)
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with immig_col2:
+        st.markdown("""
+        <div style="color: #E0E0E0; font-size: 0.9rem; margin-bottom: 0.75rem;">
+            <strong>Adjust immigration level:</strong>
+        </div>
+        """, unsafe_allow_html=True)
+
+        max_immigration = int(annual_immigration * 3) if annual_immigration > 0 else 1000
+        min_immigration = 0
+        step = max(1, int(annual_immigration / 20)) if annual_immigration > 0 else 10
+
+        new_immigration = st.slider(
+            "Annual immigration (workers/year)",
+            min_value=min_immigration,
+            max_value=max_immigration,
+            value=int(annual_immigration),
+            step=step,
+            format="%d",
+            label_visibility="collapsed"
+        )
+
+        immigration_delta = new_immigration - annual_immigration
+        pct_change = (immigration_delta / annual_immigration * 100) if annual_immigration > 0 else 0
+
+        if immigration_delta != 0:
+            change_color = "#10B981" if immigration_delta > 0 else "#EF4444"
+            st.markdown(f"""
+            <div style="color: {change_color}; font-size: 0.9rem; margin-top: 0.5rem;">
+                {immigration_delta:+,.0f} workers/year ({pct_change:+.0f}% change)
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # Show impact if policy changed
+    if immigration_delta != 0:
+        supply_change_5yr = immigration_delta * 5
+        adj_gap = baseline_gap - supply_change_5yr
+        adj_gap_pct = adj_gap / total_emp * 100 if total_emp > 0 else 0
+        adj_wage_pressure = adj_gap_pct / 0.7
+        wage_change = adj_wage_pressure - baseline_wage
+
+        impact_direction = "eases" if immigration_delta > 0 else "tightens"
+        st.markdown(f"""
+        <div style="background: #1A1D24; border-radius: 8px; padding: 0.75rem; margin-top: 0.5rem;
+                    border-left: 3px solid {'#10B981' if immigration_delta > 0 else '#EF4444'};">
+            <span style="color: #E0E0E0; font-size: 0.85rem;">
+                <strong>Impact:</strong> Changing immigration from {annual_immigration:,.0f} → {new_immigration:,.0f} workers/year
+                {impact_direction} the labor market by <strong>{abs(wage_change):.1f}%</strong> wage pressure
+            </span>
         </div>
         """, unsafe_allow_html=True)
 
