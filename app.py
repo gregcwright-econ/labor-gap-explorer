@@ -1248,95 +1248,62 @@ def render_cz_detail(gap_data, selected_occ):
     # =========================================================================
     st.markdown("### Workforce Flow Breakdown")
 
-    flow_col1, flow_col2, flow_col3, flow_col4 = st.columns(4)
+    # Calculate annual inflows from percentages
+    interstate_inflows = total_emp * pct_interstate / 100
+    intercounty_inflows = total_emp * pct_intercounty / 100
+    young_entrant_inflows = total_emp * pct_young / 100
+    display_immig = new_immigration if policy_active else annual_immigration
+    total_inflows = interstate_inflows + intercounty_inflows + young_entrant_inflows + display_immig
+    net_flow = total_inflows - annual_exits
+    flow_color = "#48BB78" if net_flow >= 0 else "#F56565"
+
+    flow_col1, flow_col2, flow_col3, flow_col4, flow_col5, flow_col6 = st.columns(6)
 
     with flow_col1:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Exits</div>
-            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{annual_exits:,.0f}/yr</div>
-            <div style="color: #A0AEC0; font-size: 0.75rem;">{exit_rate*100:.1f}% exit rate</div>
+        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Exits</div>
+            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{annual_exits:,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
 
     with flow_col2:
-        other_non_immig = annual_other - annual_immigration
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Domestic Inflows</div>
-            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{other_non_immig:,.0f}/yr</div>
-            <div style="color: #A0AEC0; font-size: 0.75rem;">movers + young entrants</div>
+        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Interstate</div>
+            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{interstate_inflows:,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
 
     with flow_col3:
-        display_immig = new_immigration if policy_active else annual_immigration
-        immig_baseline_text = f"baseline: {annual_immigration:,.0f}" if policy_active else ""
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Immigration</div>
-            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{display_immig:,.0f}/yr</div>
-            <div style="color: #A0AEC0; font-size: 0.75rem;">{immig_baseline_text}</div>
+        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Intercounty</div>
+            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{intercounty_inflows:,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
 
     with flow_col4:
-        total_inflows = other_non_immig + display_immig
-        net_flow = total_inflows - annual_exits
-        flow_color = "#48BB78" if net_flow >= 0 else "#F56565"
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Net Flow</div>
-            <div style="color: {flow_color}; font-size: 1.75rem; font-weight: 600;">{net_flow:+,.0f}/yr</div>
-            <div style="color: #A0AEC0; font-size: 0.75rem;">inflows − exits</div>
+        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Young Entrants</div>
+            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{young_entrant_inflows:,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
 
-    # =========================================================================
-    # SECTION 3: Where Workers Come From
-    # =========================================================================
-    st.markdown("### Where Workers Come From (2019-2023)")
-    st.markdown("""
-    <div style="color: #A0AEC0; font-size: 0.85rem; margin-bottom: 1rem;">
-        Sources of labor inflows into this CZ.
-    </div>
-    """, unsafe_allow_html=True)
-
-    entry_col1, entry_col2, entry_col3, entry_col4 = st.columns(4)
-
-    with entry_col1:
+    with flow_col5:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Immigration</div>
-            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_immig:.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_immig:.1f}%</div>
+        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Immigration</div>
+            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{display_immig:,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
 
-    with entry_col2:
+    with flow_col6:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Interstate</div>
-            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_interstate:.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_interstate:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with entry_col3:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Intercounty</div>
-            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_intercounty:.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_intercounty:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with entry_col4:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Young Entrants</div>
-            <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_young:.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_young:.1f}%</div>
+        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Net Flow</div>
+            <div style="color: {flow_color}; font-size: 1.25rem; font-weight: 600;">{net_flow:+,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
 
