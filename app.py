@@ -1348,27 +1348,16 @@ def render_cz_detail(gap_data, selected_occ):
         </div>
         """, unsafe_allow_html=True)
 
-    # Row 2: Market outcome and wage pressure
-    outcome_col1, outcome_col2 = st.columns(2)
-
-    with outcome_col1:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Projected Market</div>
-            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{market_status}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with outcome_col2:
-        baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
-        wage_baseline_text = f"baseline: {baseline_wage:+.1f}%" if policy_active else ""
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Wage Pressure</div>
-            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{display_wage_pressure:+.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem;">{wage_baseline_text}</div>
-        </div>
-        """, unsafe_allow_html=True)
+    # Row 2: Wage pressure outcome
+    baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
+    wage_baseline_text = f"baseline: {baseline_wage:+.1f}%" if policy_active else ""
+    st.markdown(f"""
+    <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748; max-width: 50%;">
+        <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Wage Pressure</div>
+        <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{display_wage_pressure:+.1f}%</div>
+        <div style="color: #A0AEC0; font-size: 0.85rem;">{wage_baseline_text}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Impact summary
     if policy_active:
