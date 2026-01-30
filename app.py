@@ -4,7 +4,8 @@ Labor Shortage Explorer
 Interactive dashboard for exploring projected labor shortages by occupation and geography,
 with policy scenario modeling.
 
-V2: Uses 22 occupation groups and 5 age bins for more reliable estimates.
+V2.1: Fixed employment scaling (divided by 5 for pooled ACS years).
+      Uses 22 occupation groups and 5 age bins for more reliable estimates.
 """
 
 import streamlit as st
