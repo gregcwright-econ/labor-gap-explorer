@@ -926,13 +926,33 @@ def render_national_view(gap_data, selected_occ):
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("Employment", f"{total_emp/1e6:.1f}M")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Employment</div>
+            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{total_emp/1e6:.1f}M</div>
+        </div>
+        """, unsafe_allow_html=True)
     with col2:
-        st.metric("Market Condition", market_status)
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Market Condition</div>
+            <div style="color: {status_color}; font-size: 1.75rem; font-weight: 600;">{market_status}</div>
+        </div>
+        """, unsafe_allow_html=True)
     with col3:
-        st.metric("Exit Rate", f"{exit_rate:.1f}%/yr")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Exit Rate</div>
+            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{exit_rate:.1f}%/yr</div>
+        </div>
+        """, unsafe_allow_html=True)
     with col4:
-        st.metric("Wage Pressure", f"{wage_pressure:+.1f}%")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Wage Pressure</div>
+            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{wage_pressure:+.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 def create_cz_mini_map(czone, tightness_pct):
@@ -1314,15 +1334,31 @@ def render_cz_detail(gap_data, selected_occ):
     metric_col1, metric_col2, metric_col3 = st.columns(3)
 
     with metric_col1:
-        st.metric("Current Employment", f"{total_emp:,.0f}")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Current Employment</div>
+            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{total_emp:,.0f}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with metric_col2:
-        st.metric("Projected Market", market_status)
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Projected Market</div>
+            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{market_status}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with metric_col3:
         baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
-        wage_delta_str = f"{display_wage_pressure - baseline_wage:+.1f}%" if policy_active else None
-        st.metric("Wage Pressure", f"{display_wage_pressure:+.1f}%", delta=wage_delta_str, delta_color="inverse")
+        wage_baseline_text = f"baseline: {baseline_wage:+.1f}%" if policy_active else ""
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Wage Pressure</div>
+            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{display_wage_pressure:+.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.8rem;">{wage_baseline_text}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     # Impact summary
     if policy_active:
@@ -1346,24 +1382,46 @@ def render_cz_detail(gap_data, selected_occ):
     flow_col1, flow_col2, flow_col3, flow_col4 = st.columns(4)
 
     with flow_col1:
-        st.metric("Exits", f"{annual_exits:,.0f}/yr",
-                  help=f"{exit_rate*100:.1f}% annual exit rate (retirements + transfers out)")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Exits</div>
+            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{annual_exits:,.0f}/yr</div>
+            <div style="color: #A0AEC0; font-size: 0.75rem;">{exit_rate*100:.1f}% exit rate</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with flow_col2:
         other_non_immig = annual_other - annual_immigration
-        st.metric("Domestic Inflows", f"{other_non_immig:,.0f}/yr",
-                  help="Interstate/intercounty movers, young entrants, re-entrants")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Domestic Inflows</div>
+            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{other_non_immig:,.0f}/yr</div>
+            <div style="color: #A0AEC0; font-size: 0.75rem;">movers + young entrants</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with flow_col3:
         display_immig = new_immigration if policy_active else annual_immigration
-        immig_delta_str = f"{immigration_delta:+,.0f}" if policy_active else None
-        st.metric("Immigration", f"{display_immig:,.0f}/yr", delta=immig_delta_str,
-                  help="Foreign-born workers entering this occupation")
+        immig_baseline_text = f"baseline: {annual_immigration:,.0f}" if policy_active else ""
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Immigration</div>
+            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{display_immig:,.0f}/yr</div>
+            <div style="color: #A0AEC0; font-size: 0.75rem;">{immig_baseline_text}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with flow_col4:
         total_inflows = other_non_immig + display_immig
         net_flow = total_inflows - annual_exits
-        st.metric("Net Flow", f"{net_flow:+,.0f}/yr")
+        flow_color = "#48BB78" if net_flow >= 0 else "#F56565"
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Net Flow</div>
+            <div style="color: {flow_color}; font-size: 1.75rem; font-weight: 600;">{net_flow:+,.0f}/yr</div>
+            <div style="color: #A0AEC0; font-size: 0.75rem;">inflows − exits</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
