@@ -683,20 +683,20 @@ def render_methods_tab():
 
     ### Correlation with External Measures
 
-    | Comparison | Correlation | Interpretation |
-    |------------|-------------|----------------|
-    | State tightness vs. unemployment rate | −0.19 | Correct direction ✓ |
-    | Occupation tightness vs. mean wage | +0.22 | Positive as expected ✓ |
+    | Comparison | Correlation | Data Source |
+    |------------|-------------|-------------|
+    | State tightness vs. unemployment rate | **r = −0.19** | BLS LAUS (Dec 2024) |
+    | Occupation tightness vs. mean wage | **r = +0.22** | BLS OEWS (May 2024) |
 
     ### What This Means
 
-    - **Unemployment correlation**: States our model identifies as "tighter" tend to have lower unemployment rates
-    - **Wage correlation**: Occupations facing more demographic pressure tend to have higher wages (reflects scarcity)
+    - **Unemployment (r = −0.19)**: States our model identifies as "tighter" tend to have lower unemployment rates. Negative correlation is the expected direction.
+    - **Wages (r = +0.22)**: Occupations facing more demographic pressure tend to have higher wages, reflecting labor scarcity. Positive correlation is the expected direction.
 
     The correlations are moderate (not strong), which is expected because:
-    - Our model captures *demographic* tightness (aging, pipeline adequacy)
-    - Unemployment reflects *cyclical* conditions (recession, demand shocks)
-    - Wages reflect both, plus historical factors, unionization, etc.
+    - Our model captures *demographic* tightness (aging workforce, training pipeline adequacy)
+    - Unemployment reflects *cyclical* conditions (recessions, demand shocks)
+    - Wages reflect both, plus historical factors, unionization, skill requirements, etc.
 
     ### Limitations
 
