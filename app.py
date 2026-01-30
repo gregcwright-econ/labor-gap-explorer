@@ -1125,7 +1125,7 @@ def render_cz_detail(gap_data, selected_occ):
     st.markdown("### Where Workers Come From (2019-2023)")
     st.markdown("""
     <div style="color: #A0AEC0; font-size: 0.85rem; margin-bottom: 1rem;">
-        Historical data showing the sources of labor supply in this region.
+        Sources of labor inflows into this CZ.
     </div>
     """, unsafe_allow_html=True)
 
@@ -1211,7 +1211,7 @@ def render_cz_detail(gap_data, selected_occ):
     with entry_col4:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 10px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Young (20-24)</div>
+            <div style="color: #CBD5E0; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;">Young Entrants</div>
             <div style="color: #FFFFFF; font-size: 2.25rem; font-weight: 700; line-height: 1.1;">{pct_young:.1f}%</div>
             <div style="color: #A0AEC0; font-size: 0.85rem; margin-top: 0.5rem;">nat'l avg: {nat_young:.1f}%</div>
         </div>
