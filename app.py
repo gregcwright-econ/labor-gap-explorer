@@ -924,26 +924,19 @@ def render_national_view(gap_data, selected_occ):
         market_status = "Balanced"
         status_color = "#10B981"  # Green
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Employment</div>
-            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{total_emp/1e6:.1f}M</div>
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Market Condition</div>
+            <div style="color: {status_color}; font-size: 2rem; font-weight: 600;">{market_status}</div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Market Condition</div>
-            <div style="color: {status_color}; font-size: 1.75rem; font-weight: 600;">{market_status}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with col3:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.9rem; margin-bottom: 0.25rem;">Wage Pressure</div>
-            <div style="color: #FFFFFF; font-size: 1.75rem; font-weight: 600;">{wage_pressure:+.1f}%</div>
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Wage Pressure</div>
+            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{wage_pressure:+.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
