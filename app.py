@@ -1270,7 +1270,7 @@ def render_cz_detail(gap_data, selected_occ):
     with flow_col2:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Interstate</div>
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Interstate Inflow</div>
             <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{interstate_inflows:,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
@@ -1278,7 +1278,7 @@ def render_cz_detail(gap_data, selected_occ):
     with flow_col3:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Intercounty</div>
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Intercounty Inflow</div>
             <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{intercounty_inflows:,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
@@ -1286,7 +1286,7 @@ def render_cz_detail(gap_data, selected_occ):
     with flow_col4:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Young Entrants</div>
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Young Entrant Inflow</div>
             <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{young_entrant_inflows:,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
@@ -1294,7 +1294,7 @@ def render_cz_detail(gap_data, selected_occ):
     with flow_col5:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Immigration</div>
+            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Immigration Inflow</div>
             <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{display_immig:,.0f}/yr</div>
         </div>
         """, unsafe_allow_html=True)
