@@ -928,14 +928,14 @@ def render_national_view(gap_data, selected_occ):
     with col1:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Market Condition</div>
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">5-Year Outlook</div>
             <div style="color: {status_color}; font-size: 2rem; font-weight: 600;">{market_status}</div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Wage Pressure</div>
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Projected Wage Pressure</div>
             <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{wage_pressure:+.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
