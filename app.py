@@ -4,7 +4,8 @@ Labor Shortage Explorer
 Interactive dashboard for exploring projected labor shortages by occupation and geography,
 with policy scenario modeling.
 
-V2.1: Fixed employment scaling (divided by 5 for pooled ACS years).
+V2.2: Cohort-based inflow model - transfers balance, retirements depend on young share.
+      Fixed employment scaling (divided by 5 for pooled ACS years).
       Uses 22 occupation groups and 5 age bins for more reliable estimates.
 """
 
@@ -624,21 +625,24 @@ def render_methods_tab():
 
     Exit rates are adjusted by occupation (e.g., Food Prep: 1.35×, Healthcare Practitioners: 0.80×).
 
-    ### Inflow Model: The "Revolving Door"
+    ### Inflow Model: Cohort-Based Replacement
 
-    **Key insight**: High-turnover occupations have high exits AND high entries. A job with 15% annual exits also tends to have ~13% annual entries—workers constantly cycling in and out.
+    **Key insight**: Workers leave occupations for two very different reasons:
+    1. **Occupation transfers** (switching careers) — these roughly balance out across the economy
+    2. **Retirements** (leaving the labor force) — these create the demographic gap
 
-    We model this as:
+    We model inflows separately for each type:
+
     ```
-    Annual Inflows = Annual Exits × 0.85
+    Transfer Inflows = Transfer Exits × 0.98   (nearly balanced)
+    Retirement Inflows = Retirement Exits × (young_share / avg_young_share)
     ```
 
-    The 15% "demographic drag" represents the portion of exits not replaced due to:
-    - Aging workforce (retirements exceed young entrants)
-    - Skill mismatches
-    - Geographic frictions
+    The retirement replacement rate depends on the occupation's ability to attract young workers:
+    - **Young-skewing fields** (Food Prep, Healthcare Support) easily attract new entrants → near 100% replacement
+    - **Old-skewing fields** (Management, Legal) struggle to attract young workers → lower replacement
 
-    This approach ensures high-turnover occupations don't appear artificially tight just because they have high exit rates.
+    This ensures that high-turnover occupations with young workforces don't appear artificially tight, while fields with aging workforces show appropriate demographic pressure.
 
     ### Supply Projection Formula
 
@@ -681,17 +685,20 @@ def render_methods_tab():
 
     | Comparison | Correlation | Interpretation |
     |------------|-------------|----------------|
-    | State tightness vs. unemployment rate | −0.08 | Weak, correct direction |
-    | State tightness vs. mean wage | +0.42 | Moderate positive ✓ |
-    | Occupation tightness vs. mean wage | −0.04 | Essentially zero |
+    | State tightness vs. unemployment rate | −0.19 | Correct direction ✓ |
+    | Occupation tightness vs. mean wage | +0.22 | Positive as expected ✓ |
 
     ### What This Means
 
-    - **Wage correlation validates**: Regions our model identifies as "tighter" do tend to have higher wages
-    - **Unemployment correlation is weak**: Our measure captures demographic trends but not all aspects of cyclical labor market conditions
-    - **Occupation correlation is neutral**: After calibration, we don't systematically over- or under-estimate tightness for high-wage vs. low-wage occupations
+    - **Unemployment correlation**: States our model identifies as "tighter" tend to have lower unemployment rates
+    - **Wage correlation**: Occupations facing more demographic pressure tend to have higher wages (reflects scarcity)
 
-    ### Limitations of Validation
+    The correlations are moderate (not strong), which is expected because:
+    - Our model captures *demographic* tightness (aging, pipeline adequacy)
+    - Unemployment reflects *cyclical* conditions (recession, demand shocks)
+    - Wages reflect both, plus historical factors, unionization, etc.
+
+    ### Limitations
 
     Our model is forward-looking (5-year projections) while validation data is current. A tight market today may not stay tight, and vice versa.
 
