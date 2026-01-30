@@ -1362,14 +1362,6 @@ def render_cz_detail(gap_data, selected_occ):
         immigration_delta = new_immigration - annual_immigration
         pct_change = (immigration_delta / annual_immigration * 100) if annual_immigration > 0 else 0
 
-        if immigration_delta != 0:
-            change_color = "#10B981" if immigration_delta > 0 else "#EF4444"
-            st.markdown(f"""
-            <div style="color: {change_color}; font-size: 0.9rem; margin-top: 0.5rem;">
-                {immigration_delta:+,.0f} workers/year ({pct_change:+.0f}% change)
-            </div>
-            """, unsafe_allow_html=True)
-
     st.markdown("</div>", unsafe_allow_html=True)
 
 
