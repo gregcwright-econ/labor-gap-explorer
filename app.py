@@ -1177,24 +1177,40 @@ def render_cz_detail(gap_data, selected_occ):
     entry_col1, entry_col2, entry_col3, entry_col4 = st.columns(4)
 
     with entry_col1:
-        delta_immig = f"{pct_immig - nat_immig:+.2f}pp" if entry is not None else None
-        st.metric("Immigration", f"{pct_immig:.2f}%", delta=delta_immig,
-                  help="Share who immigrated in past 2 years")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="color: #A0AEC0; font-size: 0.75rem; margin-bottom: 0.25rem;">Immigration</div>
+            <div style="color: #E2E8F0; font-size: 1.5rem; font-weight: 600;">{pct_immig:.1f}%</div>
+            <div style="color: #718096; font-size: 0.7rem;">nat'l avg: {nat_immig:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with entry_col2:
-        delta_interstate = f"{pct_interstate - nat_interstate:+.2f}pp" if entry is not None else None
-        st.metric("Interstate", f"{pct_interstate:.2f}%", delta=delta_interstate,
-                  help="Moved from another state (1-year)")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="color: #A0AEC0; font-size: 0.75rem; margin-bottom: 0.25rem;">Interstate</div>
+            <div style="color: #E2E8F0; font-size: 1.5rem; font-weight: 600;">{pct_interstate:.1f}%</div>
+            <div style="color: #718096; font-size: 0.7rem;">nat'l avg: {nat_interstate:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with entry_col3:
-        delta_intercounty = f"{pct_intercounty - nat_intercounty:+.2f}pp" if entry is not None else None
-        st.metric("Intercounty", f"{pct_intercounty:.2f}%", delta=delta_intercounty,
-                  help="Moved from another county (1-year)")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="color: #A0AEC0; font-size: 0.75rem; margin-bottom: 0.25rem;">Intercounty</div>
+            <div style="color: #E2E8F0; font-size: 1.5rem; font-weight: 600;">{pct_intercounty:.1f}%</div>
+            <div style="color: #718096; font-size: 0.7rem;">nat'l avg: {nat_intercounty:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with entry_col4:
-        delta_young = f"{pct_young - nat_young:+.2f}pp" if entry is not None else None
-        st.metric("Young (20-24)", f"{pct_young:.1f}%", delta=delta_young,
-                  help="Share aged 20-24 (new entrants)")
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="color: #A0AEC0; font-size: 0.75rem; margin-bottom: 0.25rem;">Young (20-24)</div>
+            <div style="color: #E2E8F0; font-size: 1.5rem; font-weight: 600;">{pct_young:.1f}%</div>
+            <div style="color: #718096; font-size: 0.7rem;">nat'l avg: {nat_young:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     # =========================================================================
     # SECTION 2: Immigration Component Box
