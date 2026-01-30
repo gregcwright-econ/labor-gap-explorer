@@ -1328,7 +1328,7 @@ def render_cz_detail(gap_data, selected_occ):
     with metric_col1:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Demand Growth</div>
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Job Growth</div>
             <div style="color: {growth_color}; font-size: 2rem; font-weight: 600;">{emp_change_pct:+.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
