@@ -1066,7 +1066,13 @@ def render_cz_detail(gap_data, selected_occ):
 
     with header_col2:
         state = cz.get('state_abbr', '')
-        tightness_label = "Tight" if cz['gap_pct'] > 0 else "Loose"
+        # Use percentile to determine label, not raw gap
+        if tightness_pct >= 67:
+            tightness_label = "Tight"
+        elif tightness_pct <= 33:
+            tightness_label = "Loose"
+        else:
+            tightness_label = "Balanced"
 
         st.markdown(f"""
         <div class="county-panel" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
