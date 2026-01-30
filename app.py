@@ -1330,6 +1330,9 @@ def render_cz_detail(gap_data, selected_occ):
         market_status = "Balanced"
 
     # All three metrics in one row
+    # Calculate baseline wage pressure (for policy impact calculation)
+    baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
+
     # Calculate national wage pressure for comparison
     if selected_occ != "All Occupations":
         nat_data = gap_data[gap_data['occ_group'] == selected_occ]
