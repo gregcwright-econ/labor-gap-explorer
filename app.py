@@ -713,65 +713,200 @@ def render_methods_tab():
     st.markdown("""
     ## Overview
 
-    This dashboard shows **relative labor market tightness** across 260 US metropolitan areas by comparing projected supply and demand over 5 years.
+    This dashboard shows **projected labor market tightness** across 260 US metropolitan areas. For each metro area and occupation, we independently project labor supply (how many workers will be available) and labor demand (how many workers employers will want), then compare the two. The difference — the "gap" — tells us where labor markets are likely to be tight or loose over the next five years.
 
     The map uses **bubble sizing** proportional to metro employment and **percentile-based coloring** to show which regions are relatively tighter or looser than average.
 
     ---
 
-    ## Data Sources
+    ## Data
 
-    | Source | Used For | Years |
-    |--------|----------|-------|
-    | American Community Survey (ACS) | Current employment by age, occupation, geography | 2019-2023 (pooled) |
-    | Bureau of Labor Statistics (BLS) | Employment projections, separation rates | 2024-2034 |
-    | BLS OEWS | Wage data for validation | May 2024 |
+    Everything starts with the **American Community Survey (ACS)**, a large annual Census Bureau survey covering about 1% of the US population each year. We pool five years of ACS microdata at a time to get reliable estimates at the metro × occupation level:
+
+    - **Period 1 (P1)**: 2010-2014
+    - **Period 2 (P2)**: 2015-2019
+    - **Period 3 (P3)**: 2019-2023 (the most recent data, and our starting point for projections)
+
+    From the ACS we extract, for each metro × occupation cell: total employment, age distribution (shares aged 20-29, 30-54, 55+), mean wages, share with a college degree, and share foreign-born.
+
+    We also use:
+
+    | Source | What We Take From It |
+    |--------|---------------------|
+    | BLS Employment Projections (2024-2034) | Projected demand for each occupation nationally |
+    | IPEDS (Dept. of Education) | Community college completions by field — a proxy for the training pipeline |
+    | ACS migration questions | Who moved between metros, who immigrated recently |
 
     ---
 
-    ## Supply Projection Model
+    ## Step 1: Supply Projection (Regression Model)
 
-    We project labor supply using two complementary approaches:
+    The baseline supply projection answers the question: **given a metro's current workforce demographics, training pipeline, wages, and population trends, where is employment in each occupation heading?**
 
-    ### 1. Regression Model (Baseline)
+    ### How the regression works
 
-    A Bartik-style shift-share prediction model that leverages national occupation growth trends interacted with local employment composition. The model includes COVID contact-intensity interactions and achieves out-of-sample R² of 0.997 with median absolute prediction error of 3.6%.
+    We estimate a regression where the outcome is **log employment in period t+1** and the predictors are characteristics measured in period **t**:
 
-    ### 2. Cohort-Flow Model (Immigration Scenarios)
+    ```
+    log(emp_next) = β₁ log(emp) + β₂ share_55_plus + β₃ share_20_29
+                  + β₄ training_rate + β₅ pop_growth + β₆ log(wage)
+                  + occupation fixed effects + metro fixed effects
+    ```
 
-    A demographic pipeline that ages the current workforce through:
-    - **Aging**: Workers advance through age bins, with age-specific exit rates
-    - **Migration**: Metro-specific internal migration patterns
-    - **Education**: Educational attainment transitions
-    - **Labor force participation**: Age-specific LFP rates
-    - **Occupation allocation**: Entry into occupations based on local demand
+    The key predictors and what they capture:
 
-    The cohort model generates supply projections under four immigration scenarios:
+    - **Current employment** (`log_emp`): the starting point — larger occupations tend to stay large
+    - **Share aged 55+** (`share_55_plus`): aging workforce → more retirements → potential decline
+    - **Share aged 20-29** (`share_20_29`): young workforce → more potential entrants
+    - **Training rate**: community college completions per worker — captures the local training pipeline feeding into this occupation
+    - **Population growth**: is the metro growing or shrinking overall?
+    - **Log wage**: higher wages attract more workers into an occupation
+    - **Occupation fixed effects**: some occupations grow nationally regardless of local conditions
+    - **Metro fixed effects**: some metros grow regardless of which occupations they have
 
-    | Scenario | Description |
+    ### Training the model
+
+    We estimate this regression on two five-year transitions of ACS data:
+
+    - **P1→P2**: 2010-14 characteristics predicting 2015-19 employment
+    - **P2→P3**: 2015-19 characteristics predicting 2019-23 employment
+
+    This gives us roughly 10,600 observations (260 metros × 22 occupations × 2 time periods) to learn how workforce characteristics translate into future employment.
+
+    Because the P2→P3 period includes COVID, we add a **COVID interaction term**: each occupation has a "contact intensity" score (e.g., Food Service = 1.0, Computer/Math = 0.05), and we interact this with a P2→P3 indicator. This lets the model learn that high-contact occupations like Food Service shrank more during COVID. Importantly, this term is only active for the historical COVID period — it does not affect the forward projection.
+
+    ### Making the forward projection
+
+    To project P3→P4 (2019-23 → 2024-28), we take each metro's current P3 characteristics and feed them through the estimated model. One important design choice: **we drop the Bartik demand shock variable from the projection specification.** The Bartik shock is a demand-side instrument (it captures how national industry trends interact with local industry composition), and including it would contaminate our supply projection with demand information. By excluding it, we get a cleaner supply-side forecast — one driven purely by demographics, training, wages, and population growth.
+
+    The result: a projected employment level for each of the 5,345 metro × occupation cells, representing **where supply is heading** based on workforce fundamentals.
+
+    ---
+
+    ## Step 2: Demand Projection (BLS)
+
+    Demand projections come from the **BLS 2024-2034 Employment Projections**, which forecast how many workers employers will need in each occupation over the next decade. BLS constructs these using macroeconomic forecasts, industry-occupation staffing patterns, and expert judgment.
+
+    BLS projections are at the national level. We allocate them to metro areas in proportion to each metro's current share of national employment within each occupation. For example, if New York has 5% of national employment in Healthcare Practitioners, it gets 5% of projected national demand for Healthcare Practitioners.
+
+    ---
+
+    ## Step 3: The Gap
+
+    For each metro × occupation cell:
+
+    ```
+    Gap = Projected Demand (BLS) − Projected Supply (Regression)
+    ```
+
+    - **Positive gap** = demand exceeds supply → tight labor market, upward wage pressure
+    - **Negative gap** = supply exceeds demand → loose labor market, downward wage pressure
+    - **Gap %** = gap as a percentage of projected demand
+
+    ---
+
+    ## Step 4: Immigration Scenarios (Cohort-Flow Model)
+
+    The regression model gives us a single baseline projection. But what if immigration patterns change? To answer this, we built a separate **cohort-flow model** — a demographic simulation that tracks the population through a chain of steps:
+
+    1. **Start** with the P3 (2019-23) population by metro, age band, sex, and nativity
+    2. **Age forward** 5 years: everyone moves up one age bracket, with age-specific survival rates
+    3. **Apply migration**: net domestic migration rates (people moving between metros) and immigration rates (people arriving from abroad), estimated from ACS migration questions
+    4. **Assign education**: new labor market entrants receive education levels based on metro-specific college completion rates
+    5. **Apply labor force participation**: age × education-specific employment rates determine how many people actually work
+    6. **Allocate to occupations**: workers are assigned to occupations using an education-occupation matrix (separate matrices for native-born and foreign-born workers, reflecting their different occupation distributions)
+
+    The key advantage of this model is that immigration enters as an explicit, adjustable parameter. We run four scenarios:
+
+    | Scenario | What Changes |
     |----------|-------------|
-    | **Baseline** | Current immigration trends continue |
-    | **Low Immigration** | 50% reduction in immigrant inflows |
-    | **No Immigration** | Zero new immigrant inflows |
-    | **High Domestic** | Increased domestic labor force participation |
+    | **Baseline** | Historical immigration and domestic migration rates continue unchanged |
+    | **Low Immigration** | Immigration rates cut by 50%; domestic migration unchanged |
+    | **No Immigration** | Immigration rates set to zero; domestic migration unchanged |
+    | **High Domestic** | Immigration unchanged; domestic migration rates multiplied by 1.5× for growing metros |
+
+    ### How scenarios appear in the dashboard
+
+    The dashboard uses the **regression model** for the baseline gap (because it is more accurate — see Validation below). When you switch to a non-baseline scenario, we compute the **difference** between that scenario's cohort supply projection and the baseline cohort supply projection, and apply that difference to the regression baseline:
+
+    ```
+    Adjusted Gap = Baseline Gap − (Scenario Supply − Baseline Cohort Supply)
+    ```
+
+    This gives us the best of both worlds: the regression model's accuracy for levels, and the cohort model's ability to simulate immigration counterfactuals.
 
     ---
 
-    ## Demand Projection
+    ## Wage Pressure
 
-    Demand projections come from BLS 2024-2034 occupational employment projections, allocated to metro areas proportional to current local employment shares.
+    A supply-demand gap only tells us there's a mismatch — it doesn't tell us how much wages will respond. To translate gaps into wage pressure, we need a **supply elasticity** for each occupation: how much does employment in that occupation respond to a 1% change in wages?
+
+    ### Calibrating elasticities
+
+    We calibrate occupation-specific supply elasticities using two observable characteristics:
+
+    - **Education barriers** (`share_college`): Occupations requiring more education (e.g., Legal, Engineering) have less elastic supply — it takes years to train new workers, so wages must rise more to attract them
+    - **Workforce aging** (`share_55_plus`): Occupations with older workforces face more retirements and have less flexibility to expand, making supply less elastic
+
+    Higher barriers → lower elasticity → bigger wage response to the same gap. The employment-weighted average elasticity across all occupations is anchored to **0.7**, a standard estimate from the labor economics literature.
+
+    ### The wage pressure formula
+
+    ```
+    Wage Pressure % = Gap % × (1 / elasticity)
+    ```
+
+    For example, if Healthcare Practitioners face a 5% gap and have an elasticity of 0.5:
+
+    ```
+    Wage Pressure = 5% × (1 / 0.5) = 10%
+    ```
+
+    This means wages in that occupation are projected to rise about 10% above trend over 5 years.
 
     ---
 
-    ## Wage Pressure Estimate
+    ## Validation
 
-    We estimate wage pressure using **occupation-specific** labor supply elasticities:
+    We tested both models by seeing how well they predict employment outcomes that **we already know but that the model was not trained on**.
 
-    ```
-    Wage Pressure % = Gap % x (1 / elasticity)
-    ```
+    ### How we validated the regression model
 
-    Each occupation has a different supply elasticity calibrated from education barriers and workforce aging. Higher-barrier occupations (e.g., Legal, Engineering) have lower elasticity, meaning tightness translates into larger wage increases. The employment-weighted average elasticity is 0.7.
+    We use three ACS periods. The key idea: train the model on earlier data, then check its predictions against what actually happened later.
+
+    **Test 1 — Holdout (out-of-time).** We trained the model using only the P1→P2 transition (2010-14 predicting 2015-19). Then we asked it to predict the P2→P3 transition (2015-19 predicting 2019-23) — a period it had never seen. This is a strict test because the model must predict a period that includes COVID without having been trained on any COVID-era data.
+
+    **Test 2 — Cross-validation (out-of-metro).** We pooled both transitions (P1→P2 and P2→P3) and split the data into 5 groups of metro areas. For each group, we trained the model on the other 4 groups and predicted the held-out group. This means that when predicting employment in, say, Pittsburgh, the model has never seen any Pittsburgh data. After 5 rounds, every metro has a prediction that was made without using that metro's data.
+
+    **Benchmarks.** We compared against two simple alternatives:
+    - *Naive random walk*: predict that employment stays the same (no change)
+    - *Log-linear trend*: predict that recent growth rates continue unchanged
+
+    ### Regression model results
+
+    | Test | Out-of-sample R² | Median Absolute Error | Direction Accuracy |
+    |------|-------------------|----------------------|-------------------|
+    | Holdout (out-of-time) | **0.985** | **8.5%** | **73.2%** |
+    | Cross-validation (out-of-metro) | 0.981 | 10.7% | 67.4% |
+    | Naive random walk | 0.974 | 11.2% | 44.8% |
+    | Log-linear trend | 0.938 | 15.3% | 52.8% |
+
+    The regression model beats both benchmarks on every metric. "Direction accuracy" means how often the model correctly predicts whether an occupation in a metro will grow or shrink — the regression gets this right about 73% of the time, compared to 45% for the naive benchmark.
+
+    ### How we validated the cohort-flow model
+
+    We extracted all demographic rates (migration, education, labor force participation, occupation allocation) from P2 microdata and used them to project from P2 to P3. Then we compared the projections against what actually happened in P3. This is a genuine out-of-sample test: the rates come from one period and the outcomes come from another.
+
+    We tested several variants of the cohort model:
+
+    | Variant | Median Absolute Error |
+    |---------|----------------------|
+    | Best cohort variant (metro-specific rates with shrinkage) | 11.9% |
+    | Calibrated baseline (growth-rate approach) | 12.1% |
+    | Naive random walk | 11.1% |
+    | **Regression model** | **8.5%** |
+
+    The cohort model is less accurate than the regression model for predicting absolute employment levels — demographics alone don't capture all the forces that drive local employment growth. However, the cohort model's strength is its ability to decompose supply into components (domestic workers, immigrants, young entrants) and simulate **what happens when you change one component**. That's why we use it for the immigration scenarios rather than for the baseline.
 
     ---
 
@@ -779,81 +914,50 @@ def render_methods_tab():
 
     We use **metropolitan statistical areas (MSAs)** as the primary geographic unit:
     - 260 metro areas covering the majority of US employment
-    - MSAs are clusters of counties with strong economic ties
+    - MSAs are clusters of counties with strong commuting and economic ties
     - Based on 2013-vintage CBSA delineations for consistency with ACS microdata
 
     ---
 
     ## Occupation Groups
 
-    We aggregate detailed occupations into 22 SOC major groups:
+    We aggregate detailed occupations (hundreds of Census occupation codes) into **22 major groups** based on the Standard Occupational Classification (SOC):
 
-    Healthcare & Science: Healthcare Practitioners, Healthcare Support, Life/Physical/Social Science
+    **Healthcare & Science**: Healthcare Practitioners, Healthcare Support, Life/Physical/Social Science
 
-    Business & Legal: Management, Business/Financial Operations, Legal
+    **Business & Legal**: Management, Business/Financial Operations, Legal
 
-    Technical: Computer/Mathematical, Architecture/Engineering
+    **Technical**: Computer/Mathematical, Architecture/Engineering
 
-    Education & Arts: Education/Training/Library, Arts/Design/Entertainment/Sports/Media
+    **Education & Arts**: Education/Training/Library, Arts/Design/Entertainment/Sports/Media
 
-    Service: Food Preparation/Serving, Building/Grounds Maintenance, Personal Care, Protective Service, Community/Social Service
+    **Service**: Food Preparation/Serving, Building/Grounds Maintenance, Personal Care, Protective Service, Community/Social Service
 
-    Sales & Office: Sales, Office/Administrative Support
+    **Sales & Office**: Sales, Office/Administrative Support
 
-    Trades & Production: Construction/Extraction, Installation/Maintenance/Repair, Production, Transportation/Material Moving, Farming/Fishing/Forestry
-
-    ---
-
-    ## Model Validation
-
-    Both models were backtested out-of-sample at the metro level using three ACS periods: P1 (2010-14), P2 (2015-19), and P3 (2019-23).
-
-    ### Regression Model
-
-    Trained on P1→P2 growth, tested on P2→P3 (holdout), plus 5-fold cross-validation on pooled data.
-
-    | Protocol | OOS R² | MdAPE | Direction Accuracy |
-    |----------|--------|-------|--------------------|
-    | Holdout (P2→P3) | **0.985** | **8.5%** | 73.2% |
-    | 5-fold CV | 0.981 | 10.7% | 67.4% |
-    | Naive random walk | 0.974 | 11.2% | 44.8% |
-    | Log-linear trend | 0.938 | 15.3% | 52.8% |
-
-    The regression model beats all benchmarks on every metric. The Bartik shift-share instrument is a strong predictor of local employment growth (first-stage t ≈ 21).
-
-    ### Cohort-Flow Model
-
-    Backtested P2→P3 across 260 metros × 22 occupation groups (5,215 cells). Rates extracted from P2 microdata (out-of-sample).
-
-    | Variant | MdAPE | Key Insight |
-    |---------|-------|-------------|
-    | Best cohort (metro-specific rates) | 11.9% | Metro-specific LFP and occupation rates with shrinkage |
-    | Calibrated baseline | 12.1% | Growth-rate approach anchored to actual P2 levels |
-    | Naive random walk | 11.1% | Persistence dominates at metro level |
-    | **Regression model** | **8.5%** | Best overall — used as baseline in dashboard |
-
-    The cohort model's strength is generating *relative* differences across immigration scenarios, not absolute levels. This is why the dashboard uses the regression model for baseline projections and the cohort model for scenario deltas.
+    **Trades & Production**: Construction/Extraction, Installation/Maintenance/Repair, Production, Transportation/Material Moving, Farming/Fishing/Forestry
 
     ---
 
     ## Confidence Intervals
 
-    Supply projection confidence intervals are derived from the regression model's cross-validated prediction error. The intervals reflect:
-    - Model estimation uncertainty
-    - Variation in Bartik shock predictive power across metros
-    - Historical volatility in local employment growth
+    The projection confidence intervals shown in the metro detail view come from the regression model's prediction error. Specifically, we compute the root mean squared error (RMSE) of the model's out-of-sample predictions and use it to construct a 95% interval around the central projection. These intervals reflect model estimation uncertainty, variation in predictive power across metros, and historical volatility in local employment growth.
 
     ---
 
     ## Limitations
 
-    1. **Projection uncertainty**: 5-year forecasts have substantial uncertainty; actual outcomes depend on economic conditions, policy changes, and technological shifts
+    1. **Projection uncertainty**: These are 5-year forecasts with substantial uncertainty. Actual outcomes depend on economic conditions, policy changes, technology, and many other factors our model does not capture.
 
-    2. **Immigration scenarios**: The cohort model generates relative differences between scenarios, but absolute supply levels are anchored to the regression model
+    2. **Demand allocation**: BLS demand projections are national; we allocate them to metros using current employment shares. This assumes the geographic distribution of demand stays roughly constant, which may not hold if new industries emerge in new locations.
 
-    3. **No vacancy data**: We project supply and demand but don't incorporate real-time job posting or vacancy data
+    3. **Immigration scenarios are relative**: The cohort model generates reliable *differences* between scenarios (e.g., "No Immigration is X% tighter than Baseline"), but the absolute supply levels come from the regression model. The scenario toggle shows how the gap changes relative to the baseline, not an independent re-estimation.
 
-    4. **Wage elasticity**: Occupation-specific elasticities are calibrated from education and demographic characteristics; actual responses depend on local conditions
+    4. **Wage elasticities are calibrated, not estimated**: Ideally we would estimate how wages respond to supply shocks using exogenous variation. Our IV estimates at the metro × occupation level are noisy (a common problem at fine geographic granularity), so we calibrate elasticities from occupation characteristics instead. The results should be interpreted as indicating the *direction and relative magnitude* of wage pressure, not precise dollar amounts.
+
+    5. **No vacancy or job posting data**: We project supply and demand from survey and administrative data. Real-time indicators like job postings or vacancy rates could improve short-run accuracy.
+
+    6. **COVID effects**: The model accounts for COVID's differential impact on high-contact occupations in the historical data, but it does not project further pandemic-related disruptions forward.
 
     ---
 
@@ -862,6 +966,7 @@ def render_methods_tab():
     - BLS Employment Projections: [bls.gov/emp/](https://www.bls.gov/emp/)
     - BLS Occupational Separations: [bls.gov/emp/documentation/separations.htm](https://www.bls.gov/emp/documentation/separations.htm)
     - ACS PUMS: [census.gov/programs-surveys/acs/microdata.html](https://www.census.gov/programs-surveys/acs/microdata.html)
+    - IPEDS Completions: [nces.ed.gov/ipeds/](https://nces.ed.gov/ipeds/)
 
     ---
 
