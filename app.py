@@ -804,6 +804,38 @@ def render_methods_tab():
 
     ---
 
+    ## Model Validation
+
+    Both models were backtested out-of-sample at the metro level using three ACS periods: P1 (2010-14), P2 (2015-19), and P3 (2019-23).
+
+    ### Regression Model
+
+    Trained on P1→P2 growth, tested on P2→P3 (holdout), plus 5-fold cross-validation on pooled data.
+
+    | Protocol | OOS R² | MdAPE | Direction Accuracy |
+    |----------|--------|-------|--------------------|
+    | Holdout (P2→P3) | **0.985** | **8.5%** | 73.2% |
+    | 5-fold CV | 0.981 | 10.7% | 67.4% |
+    | Naive random walk | 0.974 | 11.2% | 44.8% |
+    | Log-linear trend | 0.938 | 15.3% | 52.8% |
+
+    The regression model beats all benchmarks on every metric. The Bartik shift-share instrument is a strong predictor of local employment growth (first-stage t ≈ 21).
+
+    ### Cohort-Flow Model
+
+    Backtested P2→P3 across 260 metros × 22 occupation groups (5,215 cells). Rates extracted from P2 microdata (out-of-sample).
+
+    | Variant | MdAPE | Key Insight |
+    |---------|-------|-------------|
+    | Best cohort (metro-specific rates) | 11.9% | Metro-specific LFP and occupation rates with shrinkage |
+    | Calibrated baseline | 12.1% | Growth-rate approach anchored to actual P2 levels |
+    | Naive random walk | 11.1% | Persistence dominates at metro level |
+    | **Regression model** | **8.5%** | Best overall — used as baseline in dashboard |
+
+    The cohort model's strength is generating *relative* differences across immigration scenarios, not absolute levels. This is why the dashboard uses the regression model for baseline projections and the cohort model for scenario deltas.
+
+    ---
+
     ## Confidence Intervals
 
     Supply projection confidence intervals are derived from the regression model's cross-validated prediction error. The intervals reflect:
