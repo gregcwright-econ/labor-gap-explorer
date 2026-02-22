@@ -1,18 +1,13 @@
 """
-Labor Shortage Explorer
-=======================
-Interactive dashboard for exploring projected labor shortages by occupation and geography,
-with policy scenario modeling.
-
-V2.2: Cohort-based inflow model - transfers balance, retirements depend on young share.
-      Fixed employment scaling (divided by 5 for pooled ACS years).
-      Uses 22 occupation groups and 5 age bins for more reliable estimates.
+Labor Market Tightness Explorer — Metro Edition
+=================================================
+Interactive dashboard showing projected labor market tightness across 260 US metro areas,
+with immigration scenario toggles and occupation-specific wage elasticities.
 """
 
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
 import plotly.graph_objects as go
 from pathlib import Path
 
@@ -239,6 +234,15 @@ st.markdown("""
     .stMarkdown ul, .stMarkdown ol {
         color: #E0E0E0;
     }
+
+    .scenario-badge {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -250,6 +254,24 @@ except NameError:
 
 if not DATA_DIR.exists():
     DATA_DIR = Path(".") / "data"
+
+# Default supply elasticity
+TARGET_MEAN_ELASTICITY = 0.7
+
+# Scenario configuration
+SCENARIO_COLUMNS = {
+    "Baseline": "supply_baseline",
+    "Low Immigration": "supply_low_immigration",
+    "No Immigration": "supply_no_immigration",
+    "High Domestic": "supply_high_domestic",
+}
+
+SCENARIO_COLORS = {
+    "Baseline": "#A0AEC0",
+    "Low Immigration": "#F59E0B",
+    "No Immigration": "#EF4444",
+    "High Domestic": "#10B981",
+}
 
 # Occupation category groupings for sidebar organization
 OCC_CATEGORIES = {
@@ -297,276 +319,379 @@ OCC_CATEGORIES = {
 # ============================================================================
 
 @st.cache_data
-def load_gap_data():
-    """Load gap projections data."""
-    filepath = DATA_DIR / "gap_projections_cz.csv"
-    if filepath.exists():
-        return pd.read_csv(filepath)
-    else:
-        st.error("Gap data not found.")
+def load_tightness_wage():
+    """Load baseline tightness + wage pressure data (260 metros x 22 occs)."""
+    fp = DATA_DIR / "tightness_wage_metro.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    st.error("tightness_wage_metro.csv not found.")
+    return None
+
+
+@st.cache_data
+def load_cohort_supply():
+    """Load cohort supply projections with 4 immigration scenarios."""
+    fp = DATA_DIR / "cohort_supply_projections_metro.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    return None
+
+
+@st.cache_data
+def load_regression_gap():
+    """Load regression-based demand/gap projections."""
+    fp = DATA_DIR / "regression_gap_projections_metro.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    return None
+
+
+@st.cache_data
+def load_regression_supply():
+    """Load regression supply projections with confidence intervals."""
+    fp = DATA_DIR / "regression_supply_projections_metro.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    return None
+
+
+@st.cache_data
+def load_panel_cells():
+    """Load metro-level demographic panel (3 periods)."""
+    fp = DATA_DIR / "panel_cells_metro.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    return None
+
+
+@st.cache_data
+def load_metro_centroids():
+    """Load metro names and lat/lon coordinates."""
+    fp = DATA_DIR / "metro_centroids.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    return None
+
+
+@st.cache_data
+def load_wage_elasticities():
+    """Load occupation-specific wage elasticities."""
+    fp = DATA_DIR / "wage_elasticities.csv"
+    if fp.exists():
+        df = pd.read_csv(fp)
+        df = df[df['occ_group'] != '_POOLED'].copy()
+        return df
+    return None
+
+
+# ============================================================================
+# SCENARIO COMPUTATION
+# ============================================================================
+
+@st.cache_data
+def compute_scenario_gap(scenario):
+    """Compute adjusted gap/wage pressure for a given scenario.
+
+    Baseline: use tightness_wage_metro directly.
+    Other scenarios: adjust supply using cohort deltas, recompute gap & wage pressure.
+
+    Returns a DataFrame with columns:
+        met2013, occ_group, state_abbr, total_emp, stock_gap_pct,
+        wage_pressure_pct, current_mean_wage, projected_wage_change_dollar,
+        emp_projected, supply_elasticity, beta_iv
+    """
+    tw = load_tightness_wage()
+    if tw is None:
         return None
 
+    if scenario == "Baseline":
+        return tw.copy()
 
-@st.cache_data
-def load_crosswalk():
-    """Load county-CZ crosswalk."""
-    filepath = DATA_DIR / "county_cz_crosswalk.csv"
-    if filepath.exists():
-        return pd.read_csv(filepath)
-    return None
+    # Non-baseline: adjust supply using cohort projections
+    cohort = load_cohort_supply()
+    if cohort is None:
+        return tw.copy()
 
+    scenario_col = SCENARIO_COLUMNS[scenario]
+    baseline_col = SCENARIO_COLUMNS["Baseline"]
 
-@st.cache_data
-def load_cz_centroids():
-    """Load CZ centroid coordinates."""
-    filepath = DATA_DIR / "cz_centroids.csv"
-    if filepath.exists():
-        return pd.read_csv(filepath)
-    return None
+    # Merge cohort data onto tightness data
+    merged = tw.merge(
+        cohort[["met2013", "occ_group", baseline_col, scenario_col]],
+        on=["met2013", "occ_group"],
+        how="left"
+    )
 
+    # Compute supply delta
+    merged["delta_supply"] = merged[scenario_col] - merged[baseline_col]
+    merged["delta_supply"] = merged["delta_supply"].fillna(0)
 
-@st.cache_data
-def load_cz_geojson():
-    """Load CZ boundary GeoJSON."""
-    import json
-    filepath = DATA_DIR / "cz_boundaries.geojson"
-    if filepath.exists():
-        with open(filepath) as f:
-            return json.load(f)
-    return None
+    # Adjust gap: if supply decreases (e.g. no immigration), gap gets worse (more positive)
+    # stock_gap_pct is already (demand - supply) / emp * 100
+    # delta_supply is the change in supply level
+    merged["stock_gap_pct"] = (
+        merged["stock_gap_pct"] - (merged["delta_supply"] / merged["total_emp"] * 100)
+    )
 
+    # Recompute wage pressure
+    merged["wage_pressure_pct"] = merged["beta_iv"] * merged["stock_gap_pct"]
+    merged["projected_wage_change_dollar"] = (
+        merged["current_mean_wage"] * merged["wage_pressure_pct"] / 100
+    )
 
-@st.cache_data
-def load_entry_sources():
-    """Load CZ-level entry sources data."""
-    filepath = DATA_DIR / "cz_entry_sources.csv"
-    if filepath.exists():
-        return pd.read_csv(filepath)
-    return None
-
-
-@st.cache_data
-def load_occ_entry_sources():
-    """Load CZ × occupation entry sources data."""
-    filepath = DATA_DIR / "cz_occ_entry_sources.csv"
-    if filepath.exists():
-        return pd.read_csv(filepath)
-    return None
+    # Clean up
+    result = merged.drop(columns=[baseline_col, scenario_col, "delta_supply"], errors="ignore")
+    return result
 
 
-@st.cache_data
-def get_occupation_summary(df):
-    """Get occupation groups with their total gaps."""
-    occ_summary = df.groupby('occ_group').agg({
-        'stock_gap': 'sum',
-        'total_emp': 'sum'
-    }).reset_index()
-    return occ_summary.sort_values('stock_gap', ascending=False)
+# ============================================================================
+# DATA AGGREGATION
+# ============================================================================
 
+def get_metro_data(scenario_data, selected_occ):
+    """Aggregate scenario data to metro level for mapping.
 
-@st.cache_data
-def get_cz_data(gap_data, selected_occ):
-    """Prepare CZ-level data for mapping."""
-    centroids = load_cz_centroids()
-    if centroids is None:
+    If a specific occupation is selected, filter first.
+    If 'All Occupations', aggregate across all occs with employment weights.
+    """
+    centroids = load_metro_centroids()
+    if centroids is None or scenario_data is None:
         return None
 
-    # Filter by occupation if needed
     if selected_occ != "All Occupations":
-        data = gap_data[gap_data['occ_group'] == selected_occ].copy()
+        data = scenario_data[scenario_data['occ_group'] == selected_occ].copy()
     else:
-        data = gap_data.copy()
+        data = scenario_data.copy()
 
-    # Aggregate to CZ level
-    cz_totals = data.groupby(['czone', 'cz_label', 'state_abbr']).agg({
-        'stock_gap': 'sum',
-        'total_emp': 'sum',
-        'emp_projected': 'sum',
-        'supply_projected': 'sum',
-        'annual_training_inflows': 'sum',
-        'annual_other_inflows': 'sum',
-        'annual_total_exits': 'sum',
-        # Weighted average of age shares
-        'emp_55_64': 'sum',
-        'emp_65_plus': 'sum',
+    # Compute weighted wage pressure contribution
+    data["wp_contrib"] = data["wage_pressure_pct"] * data["total_emp"]
+
+    # Aggregate to metro level
+    metro = data.groupby(["met2013", "state_abbr"]).agg({
+        "total_emp": "sum",
+        "stock_gap_pct": lambda x: np.nan,  # placeholder, recompute below
+        "wp_contrib": "sum",
     }).reset_index()
 
-    # Calculate derived metrics
-    cz_totals['gap_pct'] = (cz_totals['stock_gap'] / cz_totals['total_emp'] * 100).fillna(0)
-    cz_totals['wage_pressure'] = (cz_totals['gap_pct'] / 0.7).clip(lower=0)
-    cz_totals['share_55_plus'] = (cz_totals['emp_55_64'] + cz_totals['emp_65_plus']) / cz_totals['total_emp']
-    cz_totals['exit_rate'] = cz_totals['annual_total_exits'] / cz_totals['total_emp']
+    # Recompute gap_pct as sum(gap * emp) / sum(emp)
+    gap_agg = data.groupby("met2013").apply(
+        lambda g: (g["stock_gap_pct"] * g["total_emp"]).sum() / g["total_emp"].sum()
+        if g["total_emp"].sum() > 0 else 0,
+        include_groups=False
+    ).reset_index(name="gap_pct")
 
-    # Add centroid coordinates
-    cz_data = cz_totals.merge(centroids, on='czone', how='left')
+    metro = metro.drop(columns=["stock_gap_pct"])
+    metro = metro.merge(gap_agg, on="met2013")
 
-    return cz_data
+    # Employment-weighted wage pressure
+    metro["wage_pressure"] = np.where(
+        metro["total_emp"] > 0,
+        metro["wp_contrib"] / metro["total_emp"],
+        0
+    )
+    metro = metro.drop(columns=["wp_contrib"])
+
+    # Tightness percentile
+    metro["tightness_percentile"] = metro["gap_pct"].rank(pct=True) * 100
+
+    # Add centroid coordinates and names (drop state_abbr from centroids to avoid collision)
+    metro = metro.merge(
+        centroids.drop(columns=["state_abbr"], errors="ignore"),
+        on="met2013", how="left"
+    )
+
+    return metro
 
 
-# ============================================================================
-# POLICY CALCULATIONS
-# ============================================================================
+def get_national_stats(scenario_data, selected_occ):
+    """Compute national summary statistics for the given scenario and occupation."""
+    if scenario_data is None:
+        return {}
 
-def apply_policy_scenario(total_emp, baseline_gap, annual_exits, annual_training, annual_other,
-                          share_55_plus, new_entrant_growth, retirement_delay, retention_improve):
-    """
-    Apply policy scenario to calculate adjusted gap.
-
-    Uses BLS-calibrated rates:
-    - Labor force exits: ~45% of total exits (retirement, disability, family)
-    - Occupation transfers: ~55% of total exits (career changes)
-
-    Policy effects:
-    - New entrant growth: Increases labor force entrants (immigration, participation)
-    - Retirement delay: Reduces labor force exit rate for 55+ workers
-    - Retention improvement: Reduces occupation transfer rate
-    """
-    horizon = 5
-
-    # Decompose exits into labor force exits and transfers
-    # Based on BLS: 4.7% labor force exits, 5.7% transfers = 10.4% total
-    labor_force_exit_share = 0.45
-    transfer_share = 0.55
-
-    annual_lf_exits = annual_exits * labor_force_exit_share
-    annual_transfers = annual_exits * transfer_share
-
-    # Policy 1: New entrant growth
-    # Increases "other inflows" (new graduates, immigrants, labor force re-entrants)
-    # A 10% increase means 10% more people entering the labor force for this occupation
-    adj_other = annual_other * (1 + new_entrant_growth)
-
-    # Policy 2: Retirement delay
-    # Each year of delay reduces labor force exits for 55+ workers
-    # 55+ workers have ~15% annual exit rate vs ~3% for younger workers
-    # Delay shifts some of these exits into the future
-    if retirement_delay > 0 and share_55_plus > 0:
-        # Reduction in annual exits from delayed retirement
-        # Assumes each year of delay reduces 55+ exit rate by ~15%
-        retirement_reduction = min(retirement_delay * 0.15, 0.6)
-        lf_exit_reduction = annual_lf_exits * share_55_plus * retirement_reduction
+    if selected_occ != "All Occupations":
+        data = scenario_data[scenario_data['occ_group'] == selected_occ]
     else:
-        lf_exit_reduction = 0
+        data = scenario_data
 
-    # Policy 3: Retention improvement
-    # Reduces occupation transfer rate (people switching occupations)
-    transfer_reduction = annual_transfers * retention_improve
+    total_emp = data["total_emp"].sum()
+    if total_emp == 0:
+        return {"total_emp": 0, "gap_pct": 0, "wage_pressure": 0}
 
-    # Calculate adjusted values
-    adj_lf_exits = annual_lf_exits - lf_exit_reduction
-    adj_transfers = annual_transfers - transfer_reduction
-    adj_total_exits = adj_lf_exits + adj_transfers
+    gap_pct = (data["stock_gap_pct"] * data["total_emp"]).sum() / total_emp
+    wage_pressure = (data["wage_pressure_pct"] * data["total_emp"]).sum() / total_emp
 
-    # Baseline supply change (should roughly match what's in the data)
-    baseline_supply_change = (annual_training + annual_other - annual_exits) * horizon
+    # Mean wage (employment-weighted)
+    mean_wage = (data["current_mean_wage"] * data["total_emp"]).sum() / total_emp
+    wage_dollar = mean_wage * wage_pressure / 100
 
-    # Adjusted supply change with policies
-    adj_supply_change = (annual_training + adj_other - adj_total_exits) * horizon
-
-    # Gap reduction is the difference
-    supply_increase = adj_supply_change - baseline_supply_change
-    adj_gap = baseline_gap - supply_increase
-
-    return adj_gap, supply_increase
+    return {
+        "total_emp": total_emp,
+        "gap_pct": gap_pct,
+        "wage_pressure": wage_pressure,
+        "mean_wage": mean_wage,
+        "wage_dollar": wage_dollar,
+    }
 
 
 # ============================================================================
 # VISUALIZATIONS
 # ============================================================================
 
-def create_cz_map(cz_data, metric='tightness'):
-    """Create CZ-level choropleth map with proper boundaries.
-
-    Uses percentile-based coloring to show relative labor market tightness,
-    highlighting which regions are tighter vs looser than average.
-    """
-    if cz_data is None or len(cz_data) == 0:
+def create_bubble_map(metro_data, metric='tightness'):
+    """Create a Scattermapbox bubble map of metro areas."""
+    if metro_data is None or len(metro_data) == 0:
         return None
 
-    # Load CZ GeoJSON
-    cz_geojson = load_cz_geojson()
-    if cz_geojson is None:
+    df = metro_data.dropna(subset=["lat", "lon"]).copy()
+    if len(df) == 0:
         return None
 
-    # Prepare data
-    cz_data = cz_data.copy()
-    cz_data['czone'] = cz_data['czone'].astype(int)
+    # Bubble size: proportional to sqrt(employment)
+    df["bubble_size"] = np.sqrt(df["total_emp"]) / 15
+    df["bubble_size"] = df["bubble_size"].clip(lower=4, upper=50)
 
-    # Calculate tightness percentile (0-100 scale, higher = tighter labor market)
-    # Based on gap_pct: positive gap = tight, negative gap = loose
-    cz_data['tightness_percentile'] = cz_data['gap_pct'].rank(pct=True) * 100
-
-    # Choose color column based on metric
+    # Choose color column
     if metric == 'tightness':
         color_col = 'tightness_percentile'
         color_label = 'Tightness Percentile'
-        # Full percentile range
-        range_color = [0, 100]
+        cmin, cmax = 0, 100
     else:
         color_col = 'wage_pressure'
         color_label = 'Wage Pressure %'
-        # Percentile-based range for wage pressure too
-        p5 = cz_data[color_col].quantile(0.05)
-        p95 = cz_data[color_col].quantile(0.95)
-        range_color = [p5, p95]
+        p5 = df[color_col].quantile(0.05)
+        p95 = df[color_col].quantile(0.95)
+        cmin, cmax = p5, p95
 
-    values = cz_data[color_col].dropna()
-    if len(values) == 0:
-        return None
-
-    # Color scale: blue (loose) -> yellow (average) -> orange/red (tight)
+    # Color scale
     color_scale = [
-        [0, '#3B82F6'],      # Blue - loose labor market
-        [0.25, '#60A5FA'],   # Light blue
-        [0.5, '#FDE68A'],    # Yellow - average
-        [0.75, '#F97316'],   # Orange
-        [1, '#DC2626']       # Red - tight labor market
+        [0, '#3B82F6'],
+        [0.25, '#60A5FA'],
+        [0.5, '#FDE68A'],
+        [0.75, '#F97316'],
+        [1, '#DC2626']
     ]
 
-    fig = px.choropleth_mapbox(
-        cz_data,
-        geojson=cz_geojson,
-        locations='czone',
-        featureidkey='properties.czone',
-        color=color_col,
-        color_continuous_scale=color_scale,
-        range_color=range_color,
-        mapbox_style="carto-darkmatter",
-        zoom=3,
-        center={"lat": 39.8, "lon": -98.6},
-        opacity=0.75,
-        hover_data={
-            'cz_label': True,
-            'state_abbr': True,
-            'total_emp': ':,.0f',
-            'gap_pct': ':+.1f',
-            'tightness_percentile': ':.0f',
-            'czone': False,
-            color_col: False
-        },
-        labels={
-            'cz_label': 'Region',
-            'state_abbr': 'State',
-            'total_emp': 'Employment',
-            'gap_pct': 'Gap %',
-            'tightness_percentile': 'Tightness'
-        },
-        custom_data=['czone']
-    )
+    # Display name
+    display_name = df["metro_name_short"].fillna(df["metro_name"].fillna(""))
+
+    # Hover text
+    hover_text = []
+    for _, r in df.iterrows():
+        name = r.get("metro_name_short", r.get("metro_name", ""))
+        state = r.get("state_abbr", "")
+        emp = r["total_emp"]
+        gap = r["gap_pct"]
+        wp = r["wage_pressure"]
+        hover_text.append(
+            f"<b>{name}, {state}</b><br>"
+            f"Employment: {emp:,.0f}<br>"
+            f"Gap: {gap:+.1f}%<br>"
+            f"Wage Pressure: {wp:+.1f}%"
+        )
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scattermapbox(
+        lat=df["lat"],
+        lon=df["lon"],
+        mode="markers",
+        marker=dict(
+            size=df["bubble_size"],
+            color=df[color_col],
+            colorscale=color_scale,
+            cmin=cmin,
+            cmax=cmax,
+            colorbar=dict(
+                title=dict(text=color_label, font=dict(color='#E0E0E0')),
+                tickfont=dict(color='#E0E0E0'),
+                len=0.6,
+                thickness=12,
+                bgcolor='#1A1D24',
+            ),
+            opacity=0.8,
+            sizemode='diameter',
+        ),
+        text=hover_text,
+        hoverinfo="text",
+        customdata=df["met2013"].values,
+    ))
 
     fig.update_layout(
+        mapbox=dict(
+            style="carto-darkmatter",
+            zoom=3,
+            center={"lat": 39.8, "lon": -98.6},
+        ),
         paper_bgcolor='#0B0D11',
         plot_bgcolor='#0B0D11',
         margin=dict(t=10, b=10, l=10, r=10),
         height=500,
-        coloraxis_colorbar=dict(
-            title=dict(text=color_label, font=dict(color='#E0E0E0')),
-            tickfont=dict(color='#E0E0E0'),
-            len=0.6,
-            thickness=12,
-            bgcolor='#1A1D24'
+        font=dict(color='#E0E0E0'),
+    )
+
+    return fig
+
+
+def create_metro_mini_map(met2013, metro_data):
+    """Create a small map highlighting the selected metro among all metros."""
+    if metro_data is None or len(metro_data) == 0:
+        return None
+
+    df = metro_data.dropna(subset=["lat", "lon"]).copy()
+    selected = df[df["met2013"] == met2013]
+    if len(selected) == 0:
+        return None
+
+    sel = selected.iloc[0]
+    others = df[df["met2013"] != met2013]
+
+    fig = go.Figure()
+
+    # All other metros as small gray dots
+    if len(others) > 0:
+        fig.add_trace(go.Scattermapbox(
+            lat=others["lat"],
+            lon=others["lon"],
+            mode="markers",
+            marker=dict(size=4, color="#4A5568", opacity=0.4),
+            hoverinfo="skip",
+            showlegend=False,
+        ))
+
+    # Selected metro as large highlighted bubble
+    tightness_pct = sel.get("tightness_percentile", 50)
+    if tightness_pct >= 67:
+        highlight_color = "#F56565"
+        label = "Tight"
+    elif tightness_pct <= 33:
+        highlight_color = "#48BB78"
+        label = "Loose"
+    else:
+        highlight_color = "#ECC94B"
+        label = "Balanced"
+
+    fig.add_trace(go.Scattermapbox(
+        lat=[sel["lat"]],
+        lon=[sel["lon"]],
+        mode="markers+text",
+        marker=dict(size=18, color=highlight_color, opacity=0.9),
+        text=[f"<b>{tightness_pct:.0f}th</b> {label}"],
+        textposition="top center",
+        textfont=dict(size=14, color=highlight_color),
+        hoverinfo="skip",
+        showlegend=False,
+    ))
+
+    fig.update_layout(
+        mapbox=dict(
+            style="carto-darkmatter",
+            zoom=5,
+            center={"lat": sel["lat"], "lon": sel["lon"]},
         ),
-        font=dict(color='#E0E0E0')
+        paper_bgcolor='#1A1D24',
+        plot_bgcolor='#1A1D24',
+        margin=dict(t=0, b=0, l=0, r=0),
+        height=250,
     )
 
     return fig
@@ -588,11 +713,9 @@ def render_methods_tab():
     st.markdown("""
     ## Overview
 
-    This dashboard shows **relative labor market tightness** across US commuting zones by comparing projected supply and demand over 5 years.
+    This dashboard shows **relative labor market tightness** across 260 US metropolitan areas by comparing projected supply and demand over 5 years.
 
-    The map uses **percentile-based coloring** to show which regions are relatively tighter or looser than average—useful for comparing across areas even when absolute differences are small.
-
-    **Current national estimate: ~6% gap** (moderately tight market)
+    The map uses **bubble sizing** proportional to metro employment and **percentile-based coloring** to show which regions are relatively tighter or looser than average.
 
     ---
 
@@ -603,128 +726,61 @@ def render_methods_tab():
     | American Community Survey (ACS) | Current employment by age, occupation, geography | 2019-2023 (pooled) |
     | Bureau of Labor Statistics (BLS) | Employment projections, separation rates | 2024-2034 |
     | BLS OEWS | Wage data for validation | May 2024 |
-    | BLS LAUS | Unemployment rates for validation | Dec 2024 |
 
     ---
 
     ## Supply Projection Model
 
-    We project labor supply using a demographic model calibrated to BLS separation rates.
+    We project labor supply using two complementary approaches:
 
-    ### Exit Rates by Age
+    ### 1. Regression Model (Baseline)
 
-    Workers leave occupations through retirement, disability, family reasons, and occupation transfers:
+    A Bartik-style shift-share prediction model that leverages national occupation growth trends interacted with local employment composition. The model includes COVID contact-intensity interactions and achieves out-of-sample R² of 0.997 with median absolute prediction error of 3.6%.
 
-    | Age Group | Annual Exit Rate |
-    |-----------|------------------|
-    | 20-29 | 14.5% |
-    | 30-44 | 7.0% |
-    | 45-54 | 6.5% |
-    | 55-64 | 10.5% |
-    | 65+ | 29.5% |
+    ### 2. Cohort-Flow Model (Immigration Scenarios)
 
-    Exit rates are adjusted by occupation (e.g., Food Prep: 1.35×, Healthcare Practitioners: 0.80×).
+    A demographic pipeline that ages the current workforce through:
+    - **Aging**: Workers advance through age bins, with age-specific exit rates
+    - **Migration**: Metro-specific internal migration patterns
+    - **Education**: Educational attainment transitions
+    - **Labor force participation**: Age-specific LFP rates
+    - **Occupation allocation**: Entry into occupations based on local demand
 
-    ### Inflow Model: Cohort-Based Replacement
+    The cohort model generates supply projections under four immigration scenarios:
 
-    **Key insight**: Workers leave occupations for two very different reasons:
-    1. **Occupation transfers** (switching careers) — these roughly balance out across the economy
-    2. **Retirements** (leaving the labor force) — these create the demographic gap
-
-    We model inflows separately for each type:
-
-    ```
-    Transfer Inflows = Transfer Exits × 0.98   (nearly balanced)
-    Retirement Inflows = Retirement Exits × (young_share / avg_young_share)
-    ```
-
-    The retirement replacement rate depends on the occupation's ability to attract young workers:
-    - **Young-skewing fields** (Food Prep, Healthcare Support) easily attract new entrants → near 100% replacement
-    - **Old-skewing fields** (Management, Legal) struggle to attract young workers → lower replacement
-
-    This ensures that high-turnover occupations with young workforces don't appear artificially tight, while fields with aging workforces show appropriate demographic pressure.
-
-    ### Supply Projection Formula
-
-    ```
-    Projected Supply = Current Employment + (Annual Inflows − Annual Exits) × 5 years
-    ```
+    | Scenario | Description |
+    |----------|-------------|
+    | **Baseline** | Current immigration trends continue |
+    | **Low Immigration** | 50% reduction in immigrant inflows |
+    | **No Immigration** | Zero new immigrant inflows |
+    | **High Domestic** | Increased domestic labor force participation |
 
     ---
 
-    ## Demand Projection Model
+    ## Demand Projection
 
-    Demand projections come from BLS 2024-2034 occupational employment projections.
-
-    BLS projects employment using:
-    - Macroeconomic forecasts (GDP, productivity)
-    - Industry-occupation staffing patterns
-    - Historical trends and expert judgment
-
-    National projections are allocated to commuting zones proportional to current local employment shares.
+    Demand projections come from BLS 2024-2034 occupational employment projections, allocated to metro areas proportional to current local employment shares.
 
     ---
 
     ## Wage Pressure Estimate
 
-    We estimate wage pressure using labor market elasticity:
+    We estimate wage pressure using **occupation-specific** labor supply elasticities:
 
     ```
-    Wage Pressure % = Gap % ÷ 0.7
+    Wage Pressure % = Gap % x (1 / elasticity)
     ```
 
-    This assumes a labor supply elasticity of 0.7—a 1% wage increase attracts 0.7% more workers. This is a rough estimate; actual wage responses vary by occupation and region.
-
-    ---
-
-    ## Model Validation
-
-    We validated our tightness measure against external labor market indicators.
-
-    ### Correlation with External Measures
-
-    | Comparison | Correlation | Data Source |
-    |------------|-------------|-------------|
-    | State tightness vs. unemployment rate | **r = −0.19** | BLS LAUS (Dec 2024) |
-    | Occupation tightness vs. mean wage | **r = +0.22** | BLS OEWS (May 2024) |
-
-    ### What This Means
-
-    - **Unemployment (r = −0.19)**: States our model identifies as "tighter" tend to have lower unemployment rates. Negative correlation is the expected direction.
-    - **Wages (r = +0.22)**: Occupations facing more demographic pressure tend to have higher wages, reflecting labor scarcity. Positive correlation is the expected direction.
-
-    The correlations are moderate (not strong), which is expected because:
-    - Our model captures *demographic* tightness (aging workforce, training pipeline adequacy)
-    - Unemployment reflects *cyclical* conditions (recessions, demand shocks)
-    - Wages reflect both, plus historical factors, unionization, skill requirements, etc.
-
-    ### Limitations
-
-    Our model is forward-looking (5-year projections) while validation data is current. A tight market today may not stay tight, and vice versa.
-
-    ---
-
-    ## Policy Scenario Model
-
-    The dashboard allows you to model changes in immigration levels.
-
-    When viewing a CZ detail:
-    1. **Current Immigration**: Annual inflow calculated from ACS data
-    2. **Adjustment Slider**: Change the number of immigrant workers per year
-    3. **Impact Calculation**: Shows effect on wage pressure
-
-    Example: Increasing immigration from 500 → 750 workers/year:
-    - 5-year additional supply: +1,250 workers
-    - Reduces wage pressure proportionally
+    Each occupation has a different supply elasticity calibrated from education barriers and workforce aging. Higher-barrier occupations (e.g., Legal, Engineering) have lower elasticity, meaning tightness translates into larger wage increases. The employment-weighted average elasticity is 0.7.
 
     ---
 
     ## Geographic Units
 
-    We use **commuting zones (CZs)** as the primary geographic unit:
-    - 741 CZs covering the entire US
-    - CZs are clusters of counties with strong commuting ties
-    - Better captures local labor markets than state or metro boundaries
+    We use **metropolitan statistical areas (MSAs)** as the primary geographic unit:
+    - 260 metro areas covering the majority of US employment
+    - MSAs are clusters of counties with strong economic ties
+    - Based on 2013-vintage CBSA delineations for consistency with ACS microdata
 
     ---
 
@@ -748,17 +804,24 @@ def render_methods_tab():
 
     ---
 
+    ## Confidence Intervals
+
+    Supply projection confidence intervals are derived from the regression model's cross-validated prediction error. The intervals reflect:
+    - Model estimation uncertainty
+    - Variation in Bartik shock predictive power across metros
+    - Historical volatility in local employment growth
+
+    ---
+
     ## Limitations
 
     1. **Projection uncertainty**: 5-year forecasts have substantial uncertainty; actual outcomes depend on economic conditions, policy changes, and technological shifts
 
-    2. **Inflow calibration**: The 15% "demographic drag" is a national average; it likely varies by occupation and region
+    2. **Immigration scenarios**: The cohort model generates relative differences between scenarios, but absolute supply levels are anchored to the regression model
 
-    3. **Training data gaps**: Our training pipeline data only includes community college completions, missing apprenticeships, 4-year programs, and employer training
+    3. **No vacancy data**: We project supply and demand but don't incorporate real-time job posting or vacancy data
 
-    4. **No vacancy data**: We project supply and demand but don't incorporate real-time job posting or vacancy data
-
-    5. **Wage elasticity**: The 0.7 elasticity is a rough estimate from labor economics literature; actual responses vary
+    4. **Wage elasticity**: Occupation-specific elasticities are calibrated from education and demographic characteristics; actual responses depend on local conditions
 
     ---
 
@@ -766,32 +829,25 @@ def render_methods_tab():
 
     - BLS Employment Projections: [bls.gov/emp/](https://www.bls.gov/emp/)
     - BLS Occupational Separations: [bls.gov/emp/documentation/separations.htm](https://www.bls.gov/emp/documentation/separations.htm)
-    - BLS OEWS: [bls.gov/oes/](https://www.bls.gov/oes/)
     - ACS PUMS: [census.gov/programs-surveys/acs/microdata.html](https://www.census.gov/programs-surveys/acs/microdata.html)
-    - David Dorn Commuting Zones: [ddorn.net/data.htm](https://www.ddorn.net/data.htm)
 
     ---
 
-    *Last updated: January 30, 2026*
+    *Last updated: February 2026*
     """)
 
 
 def main():
     # Initialize session state
-    if 'selected_cz' not in st.session_state:
-        st.session_state.selected_cz = None
+    if 'selected_metro' not in st.session_state:
+        st.session_state.selected_metro = None
     if 'selected_occ' not in st.session_state:
         st.session_state.selected_occ = "All Occupations"
 
-    # Load data
-    gap_data = load_gap_data()
-    if gap_data is None:
+    # Load core data
+    tw = load_tightness_wage()
+    if tw is None:
         st.stop()
-
-    # Get occupation summary
-    occ_summary = get_occupation_summary(gap_data)
-    total_gap = occ_summary['stock_gap'].sum()
-    total_emp = occ_summary['total_emp'].sum()
 
     # Create main tabs
     tab_explorer, tab_methods = st.tabs(["Explorer", "Methods"])
@@ -800,16 +856,29 @@ def main():
         render_methods_tab()
 
     with tab_explorer:
-        render_explorer(gap_data, occ_summary, total_gap, total_emp)
+        render_explorer(tw)
 
 
-def render_explorer(gap_data, occ_summary, total_gap, total_emp):
-    """Render the main explorer view."""
-    # Sidebar with hierarchical occupation list
+def render_explorer(tw):
+    """Render the main explorer view with sidebar controls."""
+
+    # ---- Sidebar ----
     with st.sidebar:
+        # Scenario toggle
+        st.markdown("### Supply Scenario")
+        scenario = st.radio(
+            "Scenario",
+            list(SCENARIO_COLUMNS.keys()),
+            index=0,
+            key="scenario_radio",
+            label_visibility="collapsed",
+        )
+
+        st.markdown("---")
+
+        # Occupation picker
         st.markdown("### Occupations")
 
-        # All occupations option
         all_selected = st.session_state.selected_occ == "All Occupations"
         if st.button(
             f"{'●' if all_selected else '○'} All Occupations",
@@ -817,50 +886,66 @@ def render_explorer(gap_data, occ_summary, total_gap, total_emp):
             use_container_width=True
         ):
             st.session_state.selected_occ = "All Occupations"
-            st.session_state.selected_cz = None
+            st.session_state.selected_metro = None
             st.rerun()
 
-        # Hierarchical categories
+        occ_groups_in_data = set(tw['occ_group'].unique())
         for category, occupations in OCC_CATEGORIES.items():
-            with st.expander(f"{category}"):
+            with st.expander(category):
                 for occ in occupations:
-                    occ_row = occ_summary[occ_summary['occ_group'] == occ]
-                    if len(occ_row) > 0:
-                        is_selected = st.session_state.selected_occ == occ
-                        short_name = occ[:28] + '...' if len(occ) > 28 else occ
-
-                        if st.button(
-                            f"{'●' if is_selected else '○'} {short_name}",
-                            key=f"occ_{occ}",
-                            use_container_width=True
-                        ):
-                            st.session_state.selected_occ = occ
-                            st.session_state.selected_cz = None
-                            st.rerun()
+                    if occ not in occ_groups_in_data:
+                        continue
+                    is_selected = st.session_state.selected_occ == occ
+                    short_name = occ[:28] + '...' if len(occ) > 28 else occ
+                    if st.button(
+                        f"{'●' if is_selected else '○'} {short_name}",
+                        key=f"occ_{occ}",
+                        use_container_width=True
+                    ):
+                        st.session_state.selected_occ = occ
+                        st.session_state.selected_metro = None
+                        st.rerun()
 
         st.markdown("---")
-        st.markdown('<p class="data-source">Data: ACS, IPEDS, BLS 2024-2034</p>', unsafe_allow_html=True)
+        st.markdown('<p class="data-source">Data: ACS 2019-23, BLS 2024-2034</p>',
+                    unsafe_allow_html=True)
 
-    # Main content
+    # ---- Main content ----
     selected_occ = st.session_state.selected_occ
 
+    # Compute scenario data
+    scenario_data = compute_scenario_gap(scenario)
+    if scenario_data is None:
+        st.error("Could not load scenario data.")
+        st.stop()
+
     # Header
+    scenario_color = SCENARIO_COLORS.get(scenario, "#A0AEC0")
+    scenario_badge = ""
+    if scenario != "Baseline":
+        scenario_badge = (
+            f' <span class="scenario-badge" style="background: {scenario_color}22; '
+            f'color: {scenario_color}; border: 1px solid {scenario_color};">'
+            f'{scenario}</span>'
+        )
+
     st.markdown(f"""
     <div class="header">
-        <h1>Labor Market Tightness Explorer</h1>
-        <p>Showing: {selected_occ}</p>
+        <h1>Labor Market Tightness Explorer{scenario_badge}</h1>
+        <p>Showing: {selected_occ} &middot; 260 Metro Areas</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # Check if a CZ is selected
-    if st.session_state.selected_cz:
-        render_cz_detail(gap_data, selected_occ)
+    # Route to national or detail view
+    if st.session_state.selected_metro:
+        render_metro_detail(scenario_data, selected_occ, scenario)
     else:
-        render_national_view(gap_data, selected_occ)
+        render_national_view(scenario_data, selected_occ, scenario)
 
 
-def render_national_view(gap_data, selected_occ):
-    """Render the national map view."""
+def render_national_view(scenario_data, selected_occ, scenario):
+    """Render the national bubble map view."""
+
     # Metric toggle
     metric_toggle = st.radio(
         "METRIC",
@@ -871,65 +956,53 @@ def render_national_view(gap_data, selected_occ):
     )
     metric_type = 'tightness' if metric_toggle == "Market Tightness" else 'wage'
 
-    # Get CZ data
-    cz_data = get_cz_data(gap_data, selected_occ)
+    # Get metro-level data
+    metro_data = get_metro_data(scenario_data, selected_occ)
 
     # Create map
-    if cz_data is not None:
-        map_fig = create_cz_map(cz_data, metric=metric_type)
+    if metro_data is not None:
+        map_fig = create_bubble_map(metro_data, metric=metric_type)
         if map_fig:
             clicked = st.plotly_chart(
                 map_fig,
                 use_container_width=True,
                 config={'displayModeBar': False},
                 on_select="rerun",
-                key="cz_map"
+                key="metro_map"
             )
 
             # Handle click events
             if clicked and clicked.selection and clicked.selection.points:
                 point = clicked.selection.points[0]
-                # customdata contains [czone] from the choropleth
-                if 'customdata' in point and point['customdata']:
-                    clicked_cz = point['customdata'][0]
-                    st.session_state.selected_cz = int(clicked_cz)
-                    st.rerun()
-                elif 'location' in point:
-                    # Fallback to location (czone_str)
-                    clicked_cz = point['location']
-                    st.session_state.selected_cz = int(clicked_cz)
+                if 'customdata' in point and point['customdata'] is not None:
+                    cd = point['customdata']
+                    clicked_metro = cd[0] if isinstance(cd, (list, tuple)) else cd
+                    st.session_state.selected_metro = int(clicked_metro)
                     st.rerun()
 
-    # Summary stats
-    if selected_occ == "All Occupations":
-        filtered = gap_data
-    else:
-        filtered = gap_data[gap_data['occ_group'] == selected_occ]
+    # National summary cards
+    nat = get_national_stats(scenario_data, selected_occ)
+    gap_pct = nat.get("gap_pct", 0)
+    wage_pressure = nat.get("wage_pressure", 0)
+    wage_dollar = nat.get("wage_dollar", 0)
 
-    total_emp = filtered['total_emp'].sum()
-    total_gap = filtered['stock_gap'].sum()
-    total_exits = filtered['annual_total_exits'].sum()
-    gap_pct = total_gap / total_emp * 100 if total_emp > 0 else 0
-    exit_rate = total_exits / total_emp * 100 if total_emp > 0 else 0
-    wage_pressure = gap_pct / 0.7
-
-    # Determine market condition
     if gap_pct > 2:
         market_status = "Tight"
-        status_color = "#F97316"  # Orange
+        status_color = "#F97316"
     elif gap_pct < -2:
         market_status = "Loose"
-        status_color = "#3B82F6"  # Blue
+        status_color = "#3B82F6"
     else:
         market_status = "Balanced"
-        status_color = "#10B981"  # Green
+        status_color = "#10B981"
 
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">5-Year Outlook</div>
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">5-Year Market Status</div>
             <div style="color: {status_color}; font-size: 2rem; font-weight: 600;">{market_status}</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">Gap: {gap_pct:+.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
@@ -937,284 +1010,131 @@ def render_national_view(gap_data, selected_occ):
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
             <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Projected Wage Pressure</div>
             <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{wage_pressure:+.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">${wage_dollar:+,.0f}/yr per worker</div>
         </div>
         """, unsafe_allow_html=True)
 
 
-def create_cz_mini_map(czone, tightness_pct):
-    """Create a small map showing just the selected CZ shape."""
-    cz_geojson = load_cz_geojson()
-    if cz_geojson is None:
-        return None
+def render_metro_detail(scenario_data, selected_occ, scenario):
+    """Render the detail view for a selected metro area."""
+    met2013 = st.session_state.selected_metro
 
-    # Find the feature for this CZ
-    cz_feature = None
-    for feature in cz_geojson['features']:
-        if feature['properties']['czone'] == czone:
-            cz_feature = feature
-            break
-
-    if cz_feature is None:
-        return None
-
-    # Create a GeoJSON with just this CZ
-    single_cz_geojson = {
-        'type': 'FeatureCollection',
-        'features': [cz_feature]
-    }
-
-    # Get bounds for centering
-    coords = []
-    geom = cz_feature['geometry']
-    if geom['type'] == 'Polygon':
-        coords = geom['coordinates'][0]
-    elif geom['type'] == 'MultiPolygon':
-        for poly in geom['coordinates']:
-            coords.extend(poly[0])
-
-    if coords:
-        lons = [c[0] for c in coords]
-        lats = [c[1] for c in coords]
-        center_lon = (min(lons) + max(lons)) / 2
-        center_lat = (min(lats) + max(lats)) / 2
-        # Calculate zoom based on extent
-        lon_range = max(lons) - min(lons)
-        lat_range = max(lats) - min(lats)
-        extent = max(lon_range, lat_range)
-        if extent > 5:
-            zoom = 4
-        elif extent > 2:
-            zoom = 5
-        elif extent > 1:
-            zoom = 6
-        else:
-            zoom = 7
-    else:
-        center_lon, center_lat, zoom = -98.6, 39.8, 4
-
-    # Color based on tightness percentile
-    # Blue (loose) -> Yellow (average) -> Red (tight)
-    if tightness_pct <= 50:
-        # Blue to yellow
-        t = tightness_pct / 50
-        r = int(59 + (253 - 59) * t)
-        g = int(130 + (230 - 130) * t)
-        b = int(246 + (138 - 246) * t)
-    else:
-        # Yellow to red
-        t = (tightness_pct - 50) / 50
-        r = int(253 + (220 - 253) * t)
-        g = int(230 + (38 - 230) * t)
-        b = int(138 + (38 - 138) * t)
-    color = f'rgb({r},{g},{b})'
-
-    # Create simple choropleth
-    fig = go.Figure(go.Choroplethmapbox(
-        geojson=single_cz_geojson,
-        locations=[czone],
-        featureidkey='properties.czone',
-        z=[tightness_pct],
-        colorscale=[[0, color], [1, color]],
-        showscale=False,
-        marker_opacity=0.8,
-        marker_line_width=2,
-        marker_line_color='#FFA726'
-    ))
-
-    fig.update_layout(
-        mapbox=dict(
-            style="carto-darkmatter",
-            zoom=zoom,
-            center={"lat": center_lat, "lon": center_lon},
-        ),
-        paper_bgcolor='#1A1D24',
-        plot_bgcolor='#1A1D24',
-        margin=dict(t=0, b=0, l=0, r=0),
-        height=200,
-    )
-
-    return fig
-
-
-def render_cz_detail(gap_data, selected_occ):
-    """Render the CZ detail view with immigration policy scenario."""
-    czone = st.session_state.selected_cz
-    cz_data = get_cz_data(gap_data, selected_occ)
-
-    if cz_data is None:
-        st.error("CZ data not available")
+    # Get metro-level aggregated data for the mini map
+    metro_data = get_metro_data(scenario_data, selected_occ)
+    if metro_data is None:
+        st.error("Metro data not available.")
         return
 
-    cz_row = cz_data[cz_data['czone'] == czone]
-    if len(cz_row) == 0:
-        st.warning("Commuting zone not found")
-        st.session_state.selected_cz = None
+    metro_row = metro_data[metro_data["met2013"] == met2013]
+    if len(metro_row) == 0:
+        st.warning("Metro not found.")
+        st.session_state.selected_metro = None
         st.rerun()
         return
 
-    cz = cz_row.iloc[0]
-
-    # Calculate tightness percentile for this CZ
-    tightness_pct = cz_data['gap_pct'].rank(pct=True)[cz_row.index[0]] * 100
+    mr = metro_row.iloc[0]
 
     # Back button
     if st.button("← Back to National Map", key="back_btn"):
-        st.session_state.selected_cz = None
+        st.session_state.selected_metro = None
         st.rerun()
 
-    # Determine tightness label and color
-    if tightness_pct >= 67:
-        tightness_label = "Tight Market"
-        label_color = "#F56565"  # Red
-        label_desc = "Higher demographic pressure than most regions"
-    elif tightness_pct <= 33:
-        tightness_label = "Loose Market"
-        label_color = "#48BB78"  # Green
-        label_desc = "Lower demographic pressure than most regions"
-    else:
-        tightness_label = "Balanced Market"
-        label_color = "#ECC94B"  # Yellow
-        label_desc = "Moderate demographic pressure"
+    # Metro header
+    metro_name = mr.get("metro_name_short", mr.get("metro_name", f"Metro {met2013}"))
+    state = mr.get("state_abbr", "")
+    scenario_color = SCENARIO_COLORS.get(scenario, "#A0AEC0")
 
-    state = cz.get('state_abbr', '')
-    cz_name = cz.get('cz_label', f'CZ {czone}')
+    scenario_text = ""
+    if scenario != "Baseline":
+        scenario_text = (
+            f'<span class="scenario-badge" style="background: {scenario_color}22; '
+            f'color: {scenario_color}; border: 1px solid {scenario_color};">'
+            f'{scenario}</span>'
+        )
 
-    # Big prominent header showing the key takeaway
     st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #1A1D24 0%, #2D3748 100%);
-                border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem;
-                border: 1px solid #4A5568;">
-        <div style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
-            <div style="text-align: center; min-width: 120px;">
-                <div style="font-size: 3.5rem; font-weight: 700; color: {label_color}; line-height: 1;">
-                    {tightness_pct:.0f}<span style="font-size: 1.5rem; vertical-align: super;">th</span>
-                </div>
-                <div style="font-size: 0.85rem; color: #A0AEC0; margin-top: 0.25rem;">percentile</div>
-            </div>
-            <div style="flex: 1;">
-                <div style="font-size: 1.75rem; font-weight: 600; color: {label_color}; margin-bottom: 0.25rem;">
-                    {tightness_label}
-                </div>
-                <div style="font-size: 1rem; color: #E2E8F0; margin-bottom: 0.5rem;">
-                    {cz_name}, {state} · {selected_occ}
-                </div>
-                <div style="font-size: 0.9rem; color: #A0AEC0;">
-                    {label_desc}
-                </div>
-            </div>
+    <div style="margin-bottom: 1rem;">
+        <div style="font-size: 1.5rem; font-weight: 600; color: #E2E8F0;">
+            {metro_name}, {state} {scenario_text}
+        </div>
+        <div style="font-size: 1rem; color: #A0AEC0;">
+            {selected_occ}
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Mini-map in a smaller section below
-    with st.expander("📍 Location Map", expanded=False):
-        mini_map = create_cz_mini_map(czone, tightness_pct)
-        if mini_map:
-            st.plotly_chart(mini_map, use_container_width=True, config={'displayModeBar': False})
+    # Mini map
+    mini_map = create_metro_mini_map(met2013, metro_data)
+    if mini_map:
+        st.plotly_chart(mini_map, use_container_width=True, config={'displayModeBar': False})
 
-    # Extract metrics from CZ data
-    total_emp = cz['total_emp']
-    baseline_gap = cz['stock_gap']
-    annual_other = cz.get('annual_other_inflows', 0) or 0
-    annual_exits = cz.get('annual_total_exits', 0) or 0
-    exit_rate = cz.get('exit_rate', 0.10) or 0.10
-
-    # =========================================================================
-    # DATA LOADING: Entry sources and immigration calculations
-    # =========================================================================
-    # Load entry sources data based on occupation filter
-    entry = None
-    nat_immig = nat_interstate = nat_intercounty = nat_young = 0
-
-    if selected_occ != "All Occupations":
-        entry_data = load_occ_entry_sources()
-        if entry_data is not None:
-            entry_row = entry_data[(entry_data['czone'] == czone) &
-                                    (entry_data['occ_group'] == selected_occ)]
-            if len(entry_row) > 0:
-                entry = entry_row.iloc[0]
-            # National averages for this occupation
-            nat_occ = entry_data[entry_data['occ_group'] == selected_occ]
-            nat_total = nat_occ['total_emp'].sum()
-            if nat_total > 0:
-                nat_immig = nat_occ['recent_immigrants'].sum() / nat_total * 100
-                nat_interstate = nat_occ['interstate_movers'].sum() / nat_total * 100
-                nat_intercounty = nat_occ['intercounty_movers'].sum() / nat_total * 100
-                nat_young = nat_occ['young_entrants'].sum() / nat_total * 100
-    else:
-        entry_data = load_entry_sources()
-        if entry_data is not None:
-            entry_row = entry_data[entry_data['czone'] == czone]
-            if len(entry_row) > 0:
-                entry = entry_row.iloc[0]
-            # National averages
-            nat_total = entry_data['total_emp'].sum()
-            if nat_total > 0:
-                nat_immig = entry_data['recent_immigrants'].sum() / nat_total * 100
-                nat_interstate = entry_data['interstate_movers'].sum() / nat_total * 100
-                nat_intercounty = entry_data['intercounty_movers'].sum() / nat_total * 100
-                nat_young = entry_data['young_entrants'].sum() / nat_total * 100
-
-    # Calculate immigration inflow from entry sources
-    if entry is not None:
-        pct_immig = entry.get('pct_recent_immigrants', 0) or 0
-        pct_interstate = entry.get('pct_interstate_movers', 0) or 0
-        pct_intercounty = entry.get('pct_intercounty_movers', 0) or 0
-        pct_young = entry.get('pct_young_entrants', 0) or 0
-        pct_foreign = entry.get('pct_foreign_born', 0) or 0
-
-        # Calculate actual annual immigration inflow
-        annual_immigration = (total_emp * pct_immig / 100) / 2
-    else:
-        pct_immig = pct_interstate = pct_intercounty = pct_young = pct_foreign = 0
-        annual_immigration = annual_other * 0.05
-
-    # For now, no policy adjustment (will be set by slider later)
-    new_immigration = annual_immigration
-    immigration_delta = 0
-    policy_active = False
-    display_gap = baseline_gap
-    display_gap_pct = display_gap / total_emp * 100 if total_emp > 0 else 0
-    display_wage_pressure = display_gap_pct / 0.7
-
-    # =========================================================================
-    # SECTION 1: 5-Year Projection
-    # =========================================================================
+    # ---- 5-Year Projection ----
     st.markdown("### 5-Year Projection")
 
-    # Calculate job openings growth (demand side)
-    emp_projected = cz.get('emp_projected', total_emp) or total_emp
-    emp_change = emp_projected - total_emp
-    job_growth_pct = (emp_change / total_emp * 100) if total_emp > 0 else 0
+    # Get detailed occ-level data for this metro
+    metro_occ = scenario_data[scenario_data["met2013"] == met2013].copy()
+    if selected_occ != "All Occupations":
+        metro_occ = metro_occ[metro_occ["occ_group"] == selected_occ]
+
+    total_emp = metro_occ["total_emp"].sum()
+
+    # Demand-side: emp_projected from regression_gap
+    reg_gap = load_regression_gap()
+    if reg_gap is not None:
+        metro_reg = reg_gap[reg_gap["met2013"] == met2013]
+        if selected_occ != "All Occupations":
+            metro_reg = metro_reg[metro_reg["occ_group"] == selected_occ]
+        emp_projected = metro_reg["emp_projected"].sum() if len(metro_reg) > 0 else total_emp
+    else:
+        emp_projected = total_emp
+
+    job_growth_pct = (emp_projected - total_emp) / total_emp * 100 if total_emp > 0 else 0
     job_color = "#48BB78" if job_growth_pct >= 0 else "#F56565"
 
-    # Calculate workforce growth (supply side) - net flow over 5 years
-    net_flow_annual = annual_other - annual_exits
-    workforce_change = net_flow_annual * 5
-    workforce_growth_pct = (workforce_change / total_emp * 100) if total_emp > 0 else 0
+    # Supply-side: use scenario data
+    # For the supply growth, use cohort supply if available
+    cohort = load_cohort_supply()
+    scenario_col = SCENARIO_COLUMNS.get(scenario, "supply_baseline")
+    if cohort is not None:
+        metro_cohort = cohort[cohort["met2013"] == met2013]
+        if selected_occ != "All Occupations":
+            metro_cohort = metro_cohort[metro_cohort["occ_group"] == selected_occ]
+        if len(metro_cohort) > 0:
+            supply_projected = metro_cohort[scenario_col].sum()
+            current_emp_cohort = metro_cohort["current_emp"].sum()
+            workforce_growth_pct = (
+                (supply_projected - current_emp_cohort) / current_emp_cohort * 100
+                if current_emp_cohort > 0 else 0
+            )
+        else:
+            workforce_growth_pct = 0
+    else:
+        workforce_growth_pct = 0
+
     workforce_color = "#48BB78" if workforce_growth_pct >= 0 else "#F56565"
 
-    # Determine market condition
-    if display_gap_pct > 2:
-        market_status = "Tight"
-    elif display_gap_pct < -2:
-        market_status = "Loose"
-    else:
-        market_status = "Balanced"
+    # Wage pressure
+    gap_pct = mr["gap_pct"]
+    wage_pressure = mr["wage_pressure"]
+    mean_wage = (metro_occ["current_mean_wage"] * metro_occ["total_emp"]).sum() / total_emp if total_emp > 0 else 0
+    wage_dollar = mean_wage * wage_pressure / 100
 
-    # All three metrics in one row
-    # Calculate baseline wage pressure (for policy impact calculation)
-    baseline_wage = baseline_gap / total_emp * 100 / 0.7 if total_emp > 0 else 0
+    # National comparison
+    nat = get_national_stats(scenario_data, selected_occ)
+    nat_gap_pct = nat.get("gap_pct", 0)
+    nat_wage_pressure = nat.get("wage_pressure", 0)
 
-    # Calculate national wage pressure for comparison
-    if selected_occ != "All Occupations":
-        nat_data = gap_data[gap_data['occ_group'] == selected_occ]
+    # National job growth
+    if reg_gap is not None:
+        if selected_occ != "All Occupations":
+            nat_reg = reg_gap[reg_gap["occ_group"] == selected_occ]
+        else:
+            nat_reg = reg_gap
+        nat_emp_proj = nat_reg["emp_projected"].sum()
+        nat_total_emp = nat_reg["total_emp"].sum()
+        nat_job_growth = (nat_emp_proj - nat_total_emp) / nat_total_emp * 100 if nat_total_emp > 0 else 0
     else:
-        nat_data = gap_data
-    nat_total_emp = nat_data['total_emp'].sum()
-    nat_gap = nat_data['stock_gap'].sum()
-    nat_wage_pressure = (nat_gap / nat_total_emp * 100 / 0.7) if nat_total_emp > 0 else 0
-    wage_context_text = f"national: {nat_wage_pressure:+.1f}%"
+        nat_job_growth = 0
 
     proj_col1, proj_col2, proj_col3 = st.columns(3)
 
@@ -1223,6 +1143,7 @@ def render_cz_detail(gap_data, selected_occ):
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
             <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Growth in Job Openings</div>
             <div style="color: {job_color}; font-size: 2rem; font-weight: 600;">{job_growth_pct:+.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">national: {nat_job_growth:+.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1238,114 +1159,158 @@ def render_cz_detail(gap_data, selected_occ):
         st.markdown(f"""
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
             <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Wage Pressure</div>
-            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{display_wage_pressure:+.1f}%</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem;">{wage_context_text}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # =========================================================================
-    # SECTION 2: Workforce Flow Breakdown
-    # =========================================================================
-    st.markdown("### Workforce Flow Breakdown")
-
-    # Calculate annual inflows from percentages (illustrative breakdown)
-    interstate_inflows = total_emp * pct_interstate / 100
-    intercounty_inflows = total_emp * pct_intercounty / 100
-    young_entrant_inflows = total_emp * pct_young / 100
-    display_immig = new_immigration if policy_active else annual_immigration
-    # Net flow uses annual_other (from model) for consistency with Growth in Workforce
-    net_flow_display = annual_other - annual_exits
-    flow_color = "#48BB78" if net_flow_display >= 0 else "#F56565"
-
-    flow_col1, flow_col2, flow_col3, flow_col4, flow_col5, flow_col6 = st.columns(6)
-
-    with flow_col1:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Exits</div>
-            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{annual_exits:,.0f}/yr</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with flow_col2:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Interstate Inflow</div>
-            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{interstate_inflows:,.0f}/yr</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with flow_col3:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Intercounty Inflow</div>
-            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{intercounty_inflows:,.0f}/yr</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with flow_col4:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Young Entrant Inflow</div>
-            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{young_entrant_inflows:,.0f}/yr</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with flow_col5:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Immigration Inflow</div>
-            <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{display_immig:,.0f}/yr</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with flow_col6:
-        st.markdown(f"""
-        <div style="background: #1A1D24; padding: 0.75rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-            <div style="color: #CBD5E0; font-size: 0.8rem; margin-bottom: 0.25rem;">Net Flow</div>
-            <div style="color: {flow_color}; font-size: 1.25rem; font-weight: 600;">{net_flow_display:+,.0f}/yr</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # =========================================================================
-    # SECTION 4: Immigration Scenario
-    # =========================================================================
-    st.markdown("### Immigration Scenario")
-
-    immig_col1, immig_col2 = st.columns([1, 2])
-
-    with immig_col1:
-        st.markdown(f"""
-        <div style="text-align: center;">
-            <div style="color: #A0AEC0; font-size: 0.85rem;">Current Immigration</div>
-            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 700; margin: 0.25rem 0;">
-                {annual_immigration:,.0f}/yr
+            <div style="color: #FFFFFF; font-size: 2rem; font-weight: 600;">{wage_pressure:+.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">
+                ${wage_dollar:+,.0f}/yr &middot; national: {nat_wage_pressure:+.1f}%
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-    with immig_col2:
-        st.markdown("""
-        <div style="color: #A0AEC0; font-size: 0.85rem; margin-bottom: 0.5rem;">
-            Adjust immigration level:
-        </div>
-        """, unsafe_allow_html=True)
+    # ---- Projection Confidence ----
+    reg_supply = load_regression_supply()
+    if reg_supply is not None:
+        metro_rs = reg_supply[reg_supply["met2013"] == met2013]
+        if selected_occ != "All Occupations":
+            metro_rs = metro_rs[metro_rs["occ_group"] == selected_occ]
+        if len(metro_rs) > 0:
+            proj_lo = metro_rs["emp_proj_lo"].sum()
+            proj_mid = metro_rs["emp_projected"].sum()
+            proj_hi = metro_rs["emp_proj_hi"].sum()
 
-        max_immigration = int(annual_immigration * 3) if annual_immigration > 0 else 1000
-        min_immigration = 0
-        step = max(1, int(annual_immigration / 20)) if annual_immigration > 0 else 10
+            st.markdown("### Projection Confidence")
+            ci_col1, ci_col2, ci_col3 = st.columns(3)
+            with ci_col1:
+                st.markdown(f"""
+                <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+                    <div style="color: #718096; font-size: 0.8rem;">Low Estimate</div>
+                    <div style="color: #A0AEC0; font-size: 1.25rem; font-weight: 600;">{proj_lo:,.0f}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with ci_col2:
+                st.markdown(f"""
+                <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #FFA726;">
+                    <div style="color: #FFA726; font-size: 0.8rem;">Central Estimate</div>
+                    <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{proj_mid:,.0f}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with ci_col3:
+                st.markdown(f"""
+                <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+                    <div style="color: #718096; font-size: 0.8rem;">High Estimate</div>
+                    <div style="color: #A0AEC0; font-size: 1.25rem; font-weight: 600;">{proj_hi:,.0f}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
-        new_immigration = st.slider(
-            "Annual immigration (workers/year)",
-            min_value=min_immigration,
-            max_value=max_immigration,
-            value=int(annual_immigration),
-            step=step,
-            format="%d",
-            label_visibility="collapsed"
-        )
+    # ---- Wage Pressure by Occupation ----
+    if selected_occ == "All Occupations":
+        occ_detail = scenario_data[scenario_data["met2013"] == met2013].copy()
+        occ_detail = occ_detail[occ_detail["total_emp"] >= 100]
 
-        immigration_delta = new_immigration - annual_immigration
+        if len(occ_detail) > 0:
+            occ_detail = occ_detail.sort_values("wage_pressure_pct", ascending=True)
+
+            st.markdown("### Wage Pressure by Occupation")
+
+            colors = []
+            for wp in occ_detail["wage_pressure_pct"]:
+                if wp <= 0:
+                    colors.append('#3B82F6')
+                elif wp <= 5:
+                    colors.append('#10B981')
+                elif wp <= 10:
+                    colors.append('#F59E0B')
+                elif wp <= 20:
+                    colors.append('#F97316')
+                else:
+                    colors.append('#EF4444')
+
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                y=occ_detail["occ_group"],
+                x=occ_detail["wage_pressure_pct"],
+                orientation='h',
+                marker_color=colors,
+                text=[f"{wp:+.1f}%" for wp in occ_detail["wage_pressure_pct"]],
+                textposition='outside',
+                textfont=dict(size=10),
+            ))
+
+            fig.update_layout(
+                height=max(300, len(occ_detail) * 25),
+                margin=dict(l=0, r=40, t=10, b=10),
+                xaxis_title="Projected Wage Pressure (%)",
+                yaxis=dict(tickfont=dict(size=10)),
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#E0E0E0'),
+                xaxis=dict(gridcolor='#2D3748', zeroline=True,
+                           zerolinecolor='#4A5568', zerolinewidth=1),
+                showlegend=False,
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+    # ---- Demographic Profile ----
+    panel = load_panel_cells()
+    if panel is not None:
+        # Use P3 (most recent period)
+        p3 = panel[panel["period"] == "P3"]
+        metro_demo = p3[p3["met2013"] == met2013]
+
+        if selected_occ != "All Occupations":
+            metro_demo = metro_demo[metro_demo["occ_group"] == selected_occ]
+
+        if len(metro_demo) > 0:
+            st.markdown("### Demographic Profile")
+
+            demo_emp = metro_demo["total_emp"].sum()
+            if demo_emp > 0:
+                # Employment-weighted averages across occ groups
+                w = metro_demo["total_emp"]
+                share_20_29 = (metro_demo["share_20_29"] * w).sum() / demo_emp
+                share_30_54 = (metro_demo["share_30_54"] * w).sum() / demo_emp
+                share_55_plus = (metro_demo["share_55_plus"] * w).sum() / demo_emp
+                share_college = (metro_demo["share_college"] * w).sum() / demo_emp
+                share_fb = (metro_demo["share_foreign_born"] * w).sum() / demo_emp
+                avg_wage = (metro_demo["mean_wage"] * w).sum() / demo_emp
+
+                d1, d2, d3, d4 = st.columns(4)
+
+                with d1:
+                    st.markdown(f"""
+                    <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+                        <div style="color: #718096; font-size: 0.75rem; text-transform: uppercase;">Age Distribution</div>
+                        <div style="color: #E0E0E0; font-size: 0.9rem; margin-top: 0.5rem;">
+                            20-29: {share_20_29:.0%}<br>
+                            30-54: {share_30_54:.0%}<br>
+                            55+: {share_55_plus:.0%}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                with d2:
+                    st.markdown(f"""
+                    <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+                        <div style="color: #718096; font-size: 0.75rem; text-transform: uppercase;">College Share</div>
+                        <div style="color: #E0E0E0; font-size: 1.5rem; font-weight: 600; margin-top: 0.5rem;">{share_college:.0%}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                with d3:
+                    st.markdown(f"""
+                    <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+                        <div style="color: #718096; font-size: 0.75rem; text-transform: uppercase;">Foreign-Born</div>
+                        <div style="color: #E0E0E0; font-size: 1.5rem; font-weight: 600; margin-top: 0.5rem;">{share_fb:.0%}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                with d4:
+                    st.markdown(f"""
+                    <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+                        <div style="color: #718096; font-size: 0.75rem; text-transform: uppercase;">Mean Wage</div>
+                        <div style="color: #E0E0E0; font-size: 1.5rem; font-weight: 600; margin-top: 0.5rem;">${avg_wage:,.0f}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
