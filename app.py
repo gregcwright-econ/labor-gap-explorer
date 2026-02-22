@@ -775,9 +775,11 @@ def render_methods_tab():
 
     Because the P2→P3 period includes COVID, we add a **COVID interaction term**: each occupation has a "contact intensity" score (e.g., Food Service = 1.0, Computer/Math = 0.05), and we interact this with a P2→P3 indicator. This lets the model learn that high-contact occupations like Food Service shrank more during COVID. Importantly, this term is only active for the historical COVID period — it does not affect the forward projection.
 
+    **Note on what this regression does NOT include:** The supply projection model is estimated **without** any demand-side variables. In particular, it does not include Bartik shift-share demand shocks (described below under Validation). The predictors are purely supply-side: demographics, training pipelines, wages, and population trends. This is a deliberate design choice — we want the supply projection to reflect where the workforce is heading based on its own fundamentals, so that comparing it against an independent demand projection (from BLS) produces a meaningful gap.
+
     ### Making the forward projection
 
-    To project P3→P4 (2019-23 → 2024-28), we take each metro's current P3 characteristics and feed them through the estimated model. One important design choice: **we drop the Bartik demand shock variable from the projection specification.** The Bartik shock is a demand-side instrument (it captures how national industry trends interact with local industry composition), and including it would contaminate our supply projection with demand information. By excluding it, we get a cleaner supply-side forecast — one driven purely by demographics, training, wages, and population growth.
+    To project P3→P4 (2019-23 → 2024-28), we take each metro's actual P3 (2019-23) employment and characteristics from the ACS — this is the observed starting point, not a modeled quantity. We then feed these characteristics through the estimated supply-side regression to predict where employment will be in 5 years.
 
     The result: a projected employment level for each of the 5,345 metro × occupation cells, representing **where supply is heading** based on workforce fundamentals.
 
@@ -870,11 +872,11 @@ def render_methods_tab():
 
     We tested both models by seeing how well they predict employment outcomes that **we already know but that the model was not trained on**.
 
-    ### How we validated the regression model
+    ### How we validated the supply regression
 
     We use three ACS periods. The key idea: train the model on earlier data, then check its predictions against what actually happened later.
 
-    **Test 1 — Holdout (out-of-time).** We trained the model using only the P1→P2 transition (2010-14 predicting 2015-19). Then we asked it to predict the P2→P3 transition (2015-19 predicting 2019-23) — a period it had never seen. This is a strict test because the model must predict a period that includes COVID without having been trained on any COVID-era data.
+    **Test 1 — Holdout (out-of-time).** We trained the supply-side model (the same specification used for the forward projection — no Bartik demand shocks) using only the P1→P2 transition (2010-14 predicting 2015-19). Then we asked it to predict the P2→P3 transition (2015-19 predicting 2019-23) — a period it had never seen. This is a strict test because the model must predict a period that includes COVID without having been trained on any COVID-era data.
 
     **Test 2 — Cross-validation (out-of-metro).** We pooled both transitions (P1→P2 and P2→P3) and split the data into 5 groups of metro areas. For each group, we trained the model on the other 4 groups and predicted the held-out group. This means that when predicting employment in, say, Pittsburgh, the model has never seen any Pittsburgh data. After 5 rounds, every metro has a prediction that was made without using that metro's data.
 
@@ -882,7 +884,7 @@ def render_methods_tab():
     - *Naive random walk*: predict that employment stays the same (no change)
     - *Log-linear trend*: predict that recent growth rates continue unchanged
 
-    ### Regression model results
+    ### Supply regression results
 
     | Test | Out-of-sample R² | Median Absolute Error | Direction Accuracy |
     |------|-------------------|----------------------|-------------------|
@@ -891,7 +893,13 @@ def render_methods_tab():
     | Naive random walk | 0.974 | 11.2% | 44.8% |
     | Log-linear trend | 0.938 | 15.3% | 52.8% |
 
-    The regression model beats both benchmarks on every metric. "Direction accuracy" means how often the model correctly predicts whether an occupation in a metro will grow or shrink — the regression gets this right about 73% of the time, compared to 45% for the naive benchmark.
+    The supply regression beats both benchmarks on every metric. "Direction accuracy" means how often the model correctly predicts whether an occupation in a metro will grow or shrink — the regression gets this right about 73% of the time, compared to 45% for the naive benchmark.
+
+    ### A note on Bartik shocks and validation
+
+    As a separate validation exercise, we also estimated a version of the regression that includes **Bartik shift-share demand shocks** — a variable that captures how national industry-level employment trends interact with a metro's specific industry mix. This is a standard instrument in labor economics for isolating demand-driven changes in local employment.
+
+    The Bartik-inclusive model is **not** used for the forward projection (because it would mix demand information into what is meant to be a supply-side forecast). Its purpose is to confirm that the patterns we see in metro employment growth are predictable and economically meaningful, not just noise. The Bartik shock is a strong predictor of local employment growth (first-stage t ≈ 21), and its inclusion confirms that local labor markets respond to demand shocks in the way economic theory predicts. This gives us confidence that the supply-side-only specification — which uses the same demographic and workforce variables but omits the demand component — is capturing real, stable relationships.
 
     ### How we validated the cohort-flow model
 
@@ -904,9 +912,9 @@ def render_methods_tab():
     | Best cohort variant (metro-specific rates with shrinkage) | 11.9% |
     | Calibrated baseline (growth-rate approach) | 12.1% |
     | Naive random walk | 11.1% |
-    | **Regression model** | **8.5%** |
+    | **Supply regression** | **8.5%** |
 
-    The cohort model is less accurate than the regression model for predicting absolute employment levels — demographics alone don't capture all the forces that drive local employment growth. However, the cohort model's strength is its ability to decompose supply into components (domestic workers, immigrants, young entrants) and simulate **what happens when you change one component**. That's why we use it for the immigration scenarios rather than for the baseline.
+    The cohort model is less accurate than the supply regression for predicting absolute employment levels — demographics alone don't capture all the forces that drive local employment growth. However, the cohort model's strength is its ability to decompose supply into components (domestic workers, immigrants, young entrants) and simulate **what happens when you change one component**. That's why we use it for the immigration scenarios rather than for the baseline.
 
     ---
 
