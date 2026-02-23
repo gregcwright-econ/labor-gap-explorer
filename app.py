@@ -734,35 +734,32 @@ def render_methods_tab():
     | Source | What We Take From It |
     |--------|---------------------|
     | BLS Employment Projections (2024-2034) | Projected demand for each occupation nationally |
-    | IPEDS (Dept. of Education) | Community college completions by field — a proxy for the training pipeline |
     | ACS migration questions | Who moved between metros, who immigrated recently |
 
     ---
 
     ## Step 1: Supply Projection (Regression Model)
 
-    The baseline supply projection answers the question: **given a metro's current workforce demographics, training pipeline, wages, and population trends, where is employment in each occupation heading?**
+    The baseline supply projection answers the question: **given a metro's current workforce size, wages, and population trends, where is employment in each occupation heading?**
 
     ### How the regression works
 
     We estimate a regression where the outcome is **log employment in period t+1** and the predictors are characteristics measured in period **t**:
 
     ```
-    log(emp_next) = β₁ log(emp) + β₂ share_55_plus + β₃ share_20_29
-                  + β₄ training_rate + β₅ pop_growth + β₆ log(wage)
+    log(emp_next) = β₁ log(emp) + β₂ pop_growth + β₃ log(wage)
                   + occupation fixed effects + metro fixed effects
     ```
 
     The key predictors and what they capture:
 
     - **Current employment** (`log_emp`): the starting point — larger occupations tend to stay large
-    - **Share aged 55+** (`share_55_plus`): aging workforce → more retirements → potential decline
-    - **Share aged 20-29** (`share_20_29`): young workforce → more potential entrants
-    - **Training rate**: community college completions per worker — captures the local training pipeline feeding into this occupation
     - **Population growth**: is the metro growing or shrinking overall?
     - **Log wage**: higher wages attract more workers into an occupation
-    - **Occupation fixed effects**: some occupations grow nationally regardless of local conditions
+    - **Occupation fixed effects**: some occupations grow nationally regardless of local conditions (captures age structure, training requirements, and other occupation-level characteristics)
     - **Metro fixed effects**: some metros grow regardless of which occupations they have
+
+    We deliberately use a parsimonious supply model. Detailed demographic shares (age composition, training rates) are absorbed by the occupation and metro fixed effects, which capture persistent differences across labor markets without requiring the model to extrapolate cell-level demographic coefficients forward.
 
     ### Training the model
 
@@ -895,12 +892,12 @@ def render_methods_tab():
 
     | Test | Out-of-sample R² | Median Absolute Error | Direction Accuracy |
     |------|-------------------|----------------------|-------------------|
-    | Holdout (out-of-time) | **0.985** | **8.5%** | **73.2%** |
-    | Cross-validation (out-of-metro) | 0.981 | 10.7% | 67.4% |
+    | Holdout (out-of-time) | **0.983** | **9.7%** | **66.9%** |
+    | Cross-validation (out-of-metro) | 0.981 | 11.2% | 67.7% |
     | Naive random walk | 0.974 | 11.2% | 44.8% |
     | Log-linear trend | 0.938 | 15.3% | 52.8% |
 
-    The supply regression beats both benchmarks on every metric. "Direction accuracy" means how often the model correctly predicts whether an occupation in a metro will grow or shrink — the regression gets this right about 73% of the time, compared to 45% for the naive benchmark.
+    The supply regression beats both benchmarks on every metric. "Direction accuracy" means how often the model correctly predicts whether an occupation in a metro will grow or shrink — the regression gets this right about 67% of the time, compared to 45% for the naive benchmark.
 
     ### A note on Bartik shocks and validation
 
@@ -981,7 +978,6 @@ def render_methods_tab():
     - BLS Employment Projections: [bls.gov/emp/](https://www.bls.gov/emp/)
     - BLS Occupational Separations: [bls.gov/emp/documentation/separations.htm](https://www.bls.gov/emp/documentation/separations.htm)
     - ACS PUMS: [census.gov/programs-surveys/acs/microdata.html](https://www.census.gov/programs-surveys/acs/microdata.html)
-    - IPEDS Completions: [nces.ed.gov/ipeds/](https://nces.ed.gov/ipeds/)
 
     ---
 
