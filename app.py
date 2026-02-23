@@ -1016,19 +1016,7 @@ def render_explorer(tw):
 
     # ---- Sidebar ----
     with st.sidebar:
-        # Scenario toggle
-        st.markdown("### Supply Scenario")
-        scenario = st.radio(
-            "Scenario",
-            list(SCENARIO_COLUMNS.keys()),
-            index=0,
-            key="scenario_radio",
-            label_visibility="collapsed",
-        )
-
-        st.markdown("---")
-
-        # Occupation picker
+        # Occupation picker (primary control)
         st.markdown("### Occupations")
 
         all_selected = st.session_state.selected_occ == "All Occupations"
@@ -1057,6 +1045,18 @@ def render_explorer(tw):
                         st.session_state.selected_occ = occ
                         st.session_state.selected_metro = None
                         st.rerun()
+
+        st.markdown("---")
+
+        # Immigration scenario toggle (secondary)
+        st.markdown("### Immigration Scenario")
+        scenario = st.radio(
+            "Scenario",
+            list(SCENARIO_COLUMNS.keys()),
+            index=0,
+            key="scenario_radio",
+            label_visibility="collapsed",
+        )
 
         st.markdown("---")
         st.markdown('<p class="data-source">Data: ACS 2019-23, BLS 2024-2034</p>',
