@@ -785,11 +785,18 @@ def render_methods_tab():
 
     ---
 
-    ## Step 2: Demand Projection (BLS)
+    ## Step 2: Demand Projection (BLS + Bartik Allocation)
 
     Demand projections come from the **BLS 2024-2034 Employment Projections**, which forecast how many workers employers will need in each occupation over the next decade. BLS constructs these using macroeconomic forecasts, industry-occupation staffing patterns, and expert judgment.
 
-    BLS projections are at the national level. We allocate them to metro areas in proportion to each metro's current share of national employment within each occupation. For example, if New York has 5% of national employment in Healthcare Practitioners, it gets 5% of projected national demand for Healthcare Practitioners.
+    BLS projections are at the national level. We allocate them to metro areas using **Bartik shift-share weights** that reflect each metro's industry composition:
+
+    1. From the ACS microdata we compute, for each metro and occupation, the share of workers employed in each of ~20 NAICS industry sectors
+    2. We apply BLS-projected 5-year industry growth rates to these shares, producing a **Bartik demand shock** for each metro-occupation cell: metros with industry mixes tilted toward fast-growing sectors (e.g., healthcare, professional services) receive a positive shock, while metros concentrated in declining sectors (e.g., manufacturing, mining) receive a negative shock
+    3. We scale each metro's current employment by its Bartik shock, then normalize within each occupation group so the shares sum to one
+    4. National demand is allocated in proportion to these Bartik-predicted shares
+
+    This means, for example, that San Jose gets a larger share of demand for Computer/Mathematical occupations (because its industry mix is tech-heavy) while Pittsburgh gets a larger share of Production demand (reflecting its manufacturing base). National totals are preserved by construction — only the metro allocation changes.
 
     ---
 
@@ -957,7 +964,7 @@ def render_methods_tab():
 
     1. **Projection uncertainty**: These are 5-year forecasts with substantial uncertainty. Actual outcomes depend on economic conditions, policy changes, technology, and many other factors our model does not capture.
 
-    2. **Demand allocation**: BLS demand projections are national; we allocate them to metros using current employment shares. This assumes the geographic distribution of demand stays roughly constant, which may not hold if new industries emerge in new locations.
+    2. **Demand allocation**: BLS demand projections are national; we allocate them to metros using Bartik shift-share weights that reflect each metro's industry mix. This captures how national industry trends differentially affect metros (e.g., tech hubs benefit more from Information sector growth), but it assumes that the local industry-occupation staffing patterns remain stable over the projection period.
 
     3. **Immigration scenarios are relative**: The cohort model generates reliable *differences* between scenarios (e.g., "No Immigration is X% tighter than Baseline"), but the absolute supply levels come from the regression model. The scenario toggle shows how the gap changes relative to the baseline, not an independent re-estimation.
 
