@@ -811,7 +811,36 @@ def render_methods_tab():
 
     ---
 
-    ## Step 4: Immigration Scenarios (Cohort-Flow Model)
+    ## Step 4: Wage Pressure
+
+    A supply-demand gap only tells us there's a mismatch — it doesn't tell us how much wages will respond. To translate gaps into wage pressure, we need a **supply elasticity** for each occupation: how much does employment in that occupation respond to a 1% change in wages?
+
+    ### Calibrating elasticities
+
+    We calibrate occupation-specific supply elasticities using two observable characteristics:
+
+    - **Education barriers** (`share_college`): Occupations requiring more education (e.g., Legal, Engineering) have less elastic supply — it takes years to train new workers, so wages must rise more to attract them
+    - **Workforce aging** (`share_55_plus`): Occupations with older workforces face more retirements and have less flexibility to expand, making supply less elastic
+
+    Higher barriers → lower elasticity → bigger wage response to the same gap. The employment-weighted average elasticity across all occupations is anchored to **0.7**, a standard estimate from the labor economics literature.
+
+    ### The wage pressure formula
+
+    ```
+    Wage Pressure % = Gap % × (1 / elasticity)
+    ```
+
+    For example, if Healthcare Practitioners face a 5% gap and have an elasticity of 0.5:
+
+    ```
+    Wage Pressure = 5% × (1 / 0.5) = 10%
+    ```
+
+    This means wages in that occupation are projected to rise about 10% above trend over 5 years.
+
+    ---
+
+    ## Step 5: Immigration Scenarios (Cohort-Flow Model)
 
     The regression model gives us a single baseline projection. But what if immigration patterns change? To answer this, we built a separate **cohort-flow model** — a demographic simulation that tracks the population through a chain of steps:
 
@@ -840,35 +869,6 @@ def render_methods_tab():
     ```
 
     This gives us the best of both worlds: the regression model's accuracy for levels, and the cohort model's ability to simulate immigration counterfactuals.
-
-    ---
-
-    ## Wage Pressure
-
-    A supply-demand gap only tells us there's a mismatch — it doesn't tell us how much wages will respond. To translate gaps into wage pressure, we need a **supply elasticity** for each occupation: how much does employment in that occupation respond to a 1% change in wages?
-
-    ### Calibrating elasticities
-
-    We calibrate occupation-specific supply elasticities using two observable characteristics:
-
-    - **Education barriers** (`share_college`): Occupations requiring more education (e.g., Legal, Engineering) have less elastic supply — it takes years to train new workers, so wages must rise more to attract them
-    - **Workforce aging** (`share_55_plus`): Occupations with older workforces face more retirements and have less flexibility to expand, making supply less elastic
-
-    Higher barriers → lower elasticity → bigger wage response to the same gap. The employment-weighted average elasticity across all occupations is anchored to **0.7**, a standard estimate from the labor economics literature.
-
-    ### The wage pressure formula
-
-    ```
-    Wage Pressure % = Gap % × (1 / elasticity)
-    ```
-
-    For example, if Healthcare Practitioners face a 5% gap and have an elasticity of 0.5:
-
-    ```
-    Wage Pressure = 5% × (1 / 0.5) = 10%
-    ```
-
-    This means wages in that occupation are projected to rise about 10% above trend over 5 years.
 
     ---
 
