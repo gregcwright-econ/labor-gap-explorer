@@ -1044,6 +1044,18 @@ def render_explorer(tw):
 
         st.markdown("---")
 
+        # Metric toggle (map coloring)
+        st.markdown("### Map Metric")
+        st.radio(
+            "Metric",
+            ["Market Tightness", "Wage Pressure"],
+            index=0,
+            key="metric_toggle",
+            label_visibility="collapsed",
+        )
+
+        st.markdown("---")
+
         # Immigration scenario toggle (secondary)
         st.markdown("### Immigration Scenario")
         scenario = st.radio(
@@ -1094,15 +1106,8 @@ def render_explorer(tw):
 def render_national_view(scenario_data, selected_occ, scenario):
     """Render the national bubble map view."""
 
-    # Metric toggle
-    metric_toggle = st.radio(
-        "METRIC",
-        ["Market Tightness", "Wage Pressure"],
-        horizontal=True,
-        key="metric_toggle",
-        label_visibility="collapsed"
-    )
-    metric_type = 'tightness' if metric_toggle == "Market Tightness" else 'wage'
+    # Metric type from sidebar toggle
+    metric_type = 'tightness' if st.session_state.get("metric_toggle", "Market Tightness") == "Market Tightness" else 'wage'
 
     # Get metro-level data
     metro_data = get_metro_data(scenario_data, selected_occ)
