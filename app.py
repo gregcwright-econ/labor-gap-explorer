@@ -347,15 +347,6 @@ def load_regression_gap():
 
 
 @st.cache_data
-def load_regression_supply():
-    """Load regression supply projections with confidence intervals."""
-    fp = DATA_DIR / "regression_supply_projections_metro.csv"
-    if fp.exists():
-        return pd.read_csv(fp)
-    return None
-
-
-@st.cache_data
 def load_panel_cells():
     """Load metro-level demographic panel (3 periods)."""
     fp = DATA_DIR / "panel_cells_metro.csv"
@@ -422,19 +413,21 @@ def compute_scenario_gap(scenario):
         how="left"
     )
 
-    # Compute supply delta
+    # Compute supply delta (in workers)
     merged["delta_supply"] = merged[scenario_col] - merged[baseline_col]
     merged["delta_supply"] = merged["delta_supply"].fillna(0)
 
     # Adjust gap: if supply decreases (e.g. no immigration), gap gets worse (more positive)
-    # stock_gap_pct is already (demand - supply) / emp * 100
-    # delta_supply is the change in supply level
+    # stock_gap_pct is a ratio (e.g., -0.05 = 5% surplus); delta_supply/total_emp is also a ratio
     merged["stock_gap_pct"] = (
-        merged["stock_gap_pct"] - (merged["delta_supply"] / merged["total_emp"] * 100)
+        merged["stock_gap_pct"] - (merged["delta_supply"] / merged["total_emp"])
     )
 
-    # Recompute wage pressure
-    merged["wage_pressure_pct"] = merged["beta_iv"] * merged["stock_gap_pct"]
+    # Recompute tightness and wage pressure
+    # tightness_index = stock_gap_pct * 100 (percentage points)
+    # wage_pressure_pct = beta_iv * tightness_index
+    merged["tightness_index"] = merged["stock_gap_pct"] * 100
+    merged["wage_pressure_pct"] = merged["beta_iv"] * merged["tightness_index"]
     merged["projected_wage_change_dollar"] = (
         merged["current_mean_wage"] * merged["wage_pressure_pct"] / 100
     )
@@ -585,7 +578,7 @@ def create_bubble_map(metro_data, metric='tightness'):
         hover_text.append(
             f"<b>{name}, {state}</b><br>"
             f"Employment: {emp:,.0f}<br>"
-            f"Gap: {gap:+.1f}%<br>"
+            f"Gap: {gap*100:+.1f}%<br>"
             f"Wage Pressure: {wp:+.1f}%"
         )
 
@@ -721,64 +714,56 @@ def render_methods_tab():
 
     ## Data
 
-    Everything starts with the **American Community Survey (ACS)**, a large annual Census Bureau survey covering about 1% of the US population each year. We pool five years of ACS microdata at a time to get reliable estimates at the metro × occupation level:
+    Everything starts with the **American Community Survey (ACS)**, a large annual Census Bureau survey covering about 1% of the US population each year. We use ACS microdata from multiple periods:
 
-    - **Period 1 (P1)**: 2010-2014
-    - **Period 2 (P2)**: 2015-2019
-    - **Period 3 (P3)**: 2019-2023 (the most recent data, and our starting point for projections)
-
-    From the ACS we extract, for each metro × occupation cell: total employment, age distribution (shares aged 20-29, 30-54, 55+), mean wages, share with a college degree, and share foreign-born.
+    - **2010 ACS**: Base year for constructing 10-year synthetic cohorts (matched with 2020 ACS)
+    - **2014 ACS**: Starting population for the 10-year out-of-sample validation test
+    - **2020 ACS**: End year for synthetic cohort matching (10-year retention rates)
+    - **2019-2023 pooled ACS (P3)**: Current employment levels and wages (starting point for projections)
 
     We also use:
 
     | Source | What We Take From It |
     |--------|---------------------|
-    | BLS Employment Projections (2024-2034) | Projected demand for each occupation nationally |
+    | BLS Employment Projections (2024-2034) | Projected national-level employment demand by occupation |
     | ACS migration questions | Who moved between metros, who immigrated recently |
 
     ---
 
-    ## Step 1: Supply Projection (Regression Model)
+    ## Step 1: Supply Projection (Cohort-Flow Model)
 
-    The baseline supply projection answers the question: **given a metro's current workforce size, wages, and population trends, where is employment in each occupation heading?**
+    The supply projection is built on a **synthetic cohort model** — a demographic simulation that tracks how the workforce evolves through aging, retention, new entrants, and immigration.
 
-    ### How the regression works
+    ### How the cohort model works
 
-    We estimate a regression where the outcome is **log employment in period t+1** and the predictors are characteristics measured in period **t**:
+    The model projects supply forward in five layered phases, each adding a demographic component:
+
+    **Phase 1 — Survival.** Start with the current population by metro, age band, and occupation. Age everyone forward using age-specific survival rates from US life tables. This captures the mechanical effect of aging: younger workers move into prime working ages, while older workers retire or exit.
+
+    **Phase 2 — Occupation retention.** Not everyone who works in an occupation today will still be in that occupation in 5-10 years. We estimate **retention rates** at the (age band × occupation group) level by constructing synthetic cohorts: matching birth cohorts across the 2010 and 2020 ACS to see what fraction of workers in each age-occupation cell are still in that occupation a decade later. For example, food preparation workers have a retention rate of 0.61 (high turnover), while computer/math workers have a rate of 1.20 (net inflows from other occupations).
+
+    **Phase 3 — Metro-specific shifts.** National retention rates don't capture local dynamics — some metros are growing while others are shrinking. We compute metro-specific shift factors that adjust the national rates based on each metro's recent growth trajectory. Small metro cells are blended toward the national rate using shrinkage (minimum 300 employed workers for full local weight) to avoid noisy estimates.
+
+    **Phase 4 — New entrants.** Young people entering the labor market for the first time are a critical source of supply. We estimate new-entrant flows from the ACS by age band and occupation, and add them to the projected workforce. This phase produces the largest improvement in model accuracy — RMSE drops from 0.53 to 0.39 when new entrants are included.
+
+    **Phase 5 — Immigration.** Foreign-born workers arriving from abroad are modeled as additive flows, estimated from ACS migration questions. Immigration is broken out as a separate, adjustable parameter — this is what enables the scenario analysis.
+
+    ### Immigration scenarios
+
+    Because immigration enters the model as an explicit parameter, we can simulate counterfactual scenarios:
+
+    | Scenario | What Changes |
+    |----------|-------------|
+    | **Baseline** | Historical immigration and domestic migration rates continue unchanged |
+    | **Low Immigration** | Immigration rates cut by 50%; domestic migration unchanged |
+    | **No Immigration** | Immigration rates set to zero; domestic migration unchanged |
+    | **High Domestic** | Immigration unchanged; domestic migration rates multiplied by 1.5× for growing metros |
+
+    When you switch scenarios, we compute the **difference** between that scenario's cohort supply projection and the baseline cohort supply projection, and apply that difference to the baseline gap:
 
     ```
-    log(emp_next) = β₁ log(emp) + β₂ pop_growth + β₃ log(wage)
-                  + occupation fixed effects + metro fixed effects
+    Adjusted Gap = Baseline Gap − (Scenario Supply − Baseline Cohort Supply)
     ```
-
-    The key predictors and what they capture:
-
-    - **Current employment** (`log_emp`): the starting point — larger occupations tend to stay large
-    - **Population growth**: is the metro growing or shrinking overall?
-    - **Log wage**: higher wages attract more workers into an occupation
-    - **Occupation fixed effects**: some occupations grow nationally regardless of local conditions (captures age structure, training requirements, and other occupation-level characteristics)
-    - **Metro fixed effects**: some metros grow regardless of which occupations they have
-
-    We deliberately use a parsimonious supply model. Detailed demographic shares (age composition, training rates) are absorbed by the occupation and metro fixed effects, which capture persistent differences across labor markets without requiring the model to extrapolate cell-level demographic coefficients forward.
-
-    ### Training the model
-
-    We estimate this regression on two five-year transitions of ACS data:
-
-    - **P1→P2**: 2010-14 characteristics predicting 2015-19 employment
-    - **P2→P3**: 2015-19 characteristics predicting 2019-23 employment
-
-    This gives us roughly 10,600 observations (260 metros × 22 occupations × 2 time periods) to learn how workforce characteristics translate into future employment.
-
-    Because the P2→P3 period includes COVID, we add a **COVID interaction term**: each occupation has a "contact intensity" score (e.g., Food Service = 1.0, Computer/Math = 0.05), and we interact this with a P2→P3 indicator. This lets the model learn that high-contact occupations like Food Service shrank more during COVID. Importantly, this term is only active for the historical COVID period — it does not affect the forward projection.
-
-    **Note on what this regression does NOT include:** The supply projection model is estimated **without** any demand-side variables. In particular, it does not include Bartik shift-share demand shocks (described below under Validation). The predictors are purely supply-side: demographics, training pipelines, wages, and population trends. This is a deliberate design choice — we want the supply projection to reflect where the workforce is heading based on its own fundamentals, so that comparing it against an independent demand projection (from BLS) produces a meaningful gap.
-
-    ### Making the forward projection
-
-    To project P3→P4 (2019-23 → 2024-28), we take each metro's actual P3 (2019-23) employment and characteristics from the ACS — this is the observed starting point, not a modeled quantity. We then feed these characteristics through the estimated supply-side regression to predict where employment will be in 5 years.
-
-    The result: a projected employment level for each of the 5,345 metro × occupation cells, representing **where supply is heading** based on workforce fundamentals.
 
     ---
 
@@ -786,7 +771,7 @@ def render_methods_tab():
 
     Demand projections come from the **BLS 2024-2034 Employment Projections**, which forecast how many workers employers will need in each occupation over the next decade. BLS constructs these using macroeconomic forecasts, industry-occupation staffing patterns, and expert judgment.
 
-    BLS projections are at the national level. We allocate them to metro areas using **Bartik shift-share weights** that reflect each metro's industry composition:
+    BLS projections are at the national-occupation level — they tell us how many workers the US economy will need in each occupation, but not where those jobs will be located. We allocate them to metro areas using **Bartik shift-share weights** that reflect each metro's industry composition:
 
     1. From the ACS microdata we compute, for each metro and occupation, the share of workers employed in each of ~20 NAICS industry sectors
     2. We apply BLS-projected 5-year industry growth rates to these shares, producing a **Bartik demand shock** for each metro-occupation cell: metros with industry mixes tilted toward fast-growing sectors (e.g., healthcare, professional services) receive a positive shock, while metros concentrated in declining sectors (e.g., manufacturing, mining) receive a negative shock
@@ -802,7 +787,7 @@ def render_methods_tab():
     For each metro × occupation cell:
 
     ```
-    Gap = Projected Demand (BLS) − Projected Supply (Regression)
+    Gap = Projected Demand (BLS) − Projected Supply (Cohort Model)
     ```
 
     - **Positive gap** = demand exceeds supply → tight labor market, upward wage pressure
@@ -840,85 +825,24 @@ def render_methods_tab():
 
     ---
 
-    ## Step 5: Immigration Scenarios (Cohort-Flow Model)
-
-    The regression model gives us a single baseline projection. But what if immigration patterns change? To answer this, we built a separate **cohort-flow model** — a demographic simulation that tracks the population through a chain of steps:
-
-    1. **Start** with the P3 (2019-23) population by metro, age band, sex, and nativity
-    2. **Age forward** 5 years: everyone moves up one age bracket, with age-specific survival rates
-    3. **Apply migration**: net domestic migration rates (people moving between metros) and immigration rates (people arriving from abroad), estimated from ACS migration questions
-    4. **Assign education**: new labor market entrants receive education levels based on metro-specific college completion rates
-    5. **Apply labor force participation**: age × education-specific employment rates determine how many people actually work
-    6. **Allocate to occupations**: workers are assigned to occupations using an education-occupation matrix (separate matrices for native-born and foreign-born workers, reflecting their different occupation distributions)
-
-    The key advantage of this model is that immigration enters as an explicit, adjustable parameter. We run four scenarios:
-
-    | Scenario | What Changes |
-    |----------|-------------|
-    | **Baseline** | Historical immigration and domestic migration rates continue unchanged |
-    | **Low Immigration** | Immigration rates cut by 50%; domestic migration unchanged |
-    | **No Immigration** | Immigration rates set to zero; domestic migration unchanged |
-    | **High Domestic** | Immigration unchanged; domestic migration rates multiplied by 1.5× for growing metros |
-
-    ### How scenarios appear in the dashboard
-
-    The dashboard uses the **regression model** for the baseline gap (because it is more accurate — see Validation below). When you switch to a non-baseline scenario, we compute the **difference** between that scenario's cohort supply projection and the baseline cohort supply projection, and apply that difference to the regression baseline:
-
-    ```
-    Adjusted Gap = Baseline Gap − (Scenario Supply − Baseline Cohort Supply)
-    ```
-
-    This gives us the best of both worlds: the regression model's accuracy for levels, and the cohort model's ability to simulate immigration counterfactuals.
-
-    ---
-
     ## Validation
 
-    We tested both models by seeing how well they predict employment outcomes that **we already know but that the model was not trained on**.
+    We validated the cohort-flow model using a genuine **out-of-sample test**: we extracted all demographic rates (survival, retention, migration, new entrants, immigration) from the 2010 and 2020 ACS, used them to project employment forward from 2014, and compared the projections against actual 2024 ACS outcomes. This is a strict 10-year out-of-sample test — the model must predict a decade of labor market evolution it has never seen.
 
-    ### How we validated the supply regression
+    ### How the layered phases contribute
 
-    We use three ACS periods. The key idea: train the model on earlier data, then check its predictions against what actually happened later.
+    We tested each phase of the model cumulatively to understand what drives accuracy:
 
-    **Test 1 — Holdout (out-of-time).** We trained the supply-side model (the same specification used for the forward projection — no Bartik demand shocks) using only the P1→P2 transition (2010-14 predicting 2015-19). Then we asked it to predict the P2→P3 transition (2015-19 predicting 2019-23) — a period it had never seen. This is a strict test because the model must predict a period that includes COVID without having been trained on any COVID-era data.
+    | Phase | W-MAPE | RMSE(log) | Key insight |
+    |-------|--------|-----------|-------------|
+    | 1: Survival only | 22.4% | 0.506 | Naive aging alone |
+    | 2: + Retention rates | 22.9% | 0.524 | National rates add some noise |
+    | 3: + Metro shifts | 22.8% | 0.530 | Metro adjustment needs entrants |
+    | 4: **+ New entrants** | **11.7%** | **0.390** | Major improvement — entrants are critical |
+    | 5: + Immigration | 11.7% | 0.398 | Neutral for accuracy; enables scenarios |
+    | Naive random walk | 19.5% | 0.468 | Phase 4 clearly beats this benchmark |
 
-    **Test 2 — Cross-validation (out-of-metro).** We pooled both transitions (P1→P2 and P2→P3) and split the data into 5 groups of metro areas. For each group, we trained the model on the other 4 groups and predicted the held-out group. This means that when predicting employment in, say, Pittsburgh, the model has never seen any Pittsburgh data. After 5 rounds, every metro has a prediction that was made without using that metro's data.
-
-    **Benchmarks.** We compared against two simple alternatives:
-    - *Naive random walk*: predict that employment stays the same (no change)
-    - *Log-linear trend*: predict that recent growth rates continue unchanged
-
-    ### Supply regression results
-
-    | Test | Out-of-sample R² | Median Absolute Error | Direction Accuracy |
-    |------|-------------------|----------------------|-------------------|
-    | Holdout (out-of-time) | **0.983** | **9.7%** | **66.9%** |
-    | Cross-validation (out-of-metro) | 0.981 | 11.2% | 67.7% |
-    | Naive random walk | 0.974 | 11.2% | 44.8% |
-    | Log-linear trend | 0.938 | 15.3% | 52.8% |
-
-    The supply regression beats both benchmarks on every metric. "Direction accuracy" means how often the model correctly predicts whether an occupation in a metro will grow or shrink — the regression gets this right about 67% of the time, compared to 45% for the naive benchmark.
-
-    ### A note on Bartik shocks and validation
-
-    As a separate validation exercise, we also estimated a version of the regression that includes **Bartik shift-share demand shocks** — a variable that captures how national industry-level employment trends interact with a metro's specific industry mix. This is a standard instrument in labor economics for isolating demand-driven changes in local employment.
-
-    The Bartik-inclusive model is **not** used for the forward projection (because it would mix demand information into what is meant to be a supply-side forecast). Its purpose is to confirm that the patterns we see in metro employment growth are predictable and economically meaningful, not just noise. The Bartik shock is a strong predictor of local employment growth (first-stage t ≈ 21), and its inclusion confirms that local labor markets respond to demand shocks in the way economic theory predicts. This gives us confidence that the supply-side-only specification — which uses the same demographic and workforce variables but omits the demand component — is capturing real, stable relationships.
-
-    ### How we validated the cohort-flow model
-
-    We extracted all demographic rates (migration, education, labor force participation, occupation allocation) from P2 microdata and used them to project from P2 to P3. Then we compared the projections against what actually happened in P3. This is a genuine out-of-sample test: the rates come from one period and the outcomes come from another.
-
-    We tested several variants of the cohort model:
-
-    | Variant | Median Absolute Error |
-    |---------|----------------------|
-    | Best cohort variant (metro-specific rates with shrinkage) | 11.9% |
-    | Calibrated baseline (growth-rate approach) | 12.1% |
-    | Naive random walk | 11.1% |
-    | **Supply regression** | **8.5%** |
-
-    The cohort model is less accurate than the supply regression for predicting absolute employment levels — demographics alone don't capture all the forces that drive local employment growth. However, the cohort model's strength is its ability to decompose supply into components (domestic workers, immigrants, young entrants) and simulate **what happens when you change one component**. That's why we use it for the immigration scenarios rather than for the baseline.
+    The key result: **new entrants are the critical component**. Adding young workers entering each occupation cuts RMSE by 26% (from 0.530 to 0.390) and clearly beats the naive random walk benchmark. Immigration adds little to overall accuracy but provides the meaningful variation needed for scenario analysis — for example, Farming occupations see +14% more supply under baseline immigration, while Computer/Math sees +9%.
 
     ---
 
@@ -951,25 +875,19 @@ def render_methods_tab():
 
     ---
 
-    ## Confidence Intervals
-
-    The projection confidence intervals shown in the metro detail view come from the regression model's prediction error. Specifically, we compute the root mean squared error (RMSE) of the model's out-of-sample predictions and use it to construct a 95% interval around the central projection. These intervals reflect model estimation uncertainty, variation in predictive power across metros, and historical volatility in local employment growth.
-
-    ---
-
     ## Limitations
 
     1. **Projection uncertainty**: These are 5-year forecasts with substantial uncertainty. Actual outcomes depend on economic conditions, policy changes, technology, and many other factors our model does not capture.
 
-    2. **Demand allocation**: BLS demand projections are national; we allocate them to metros using Bartik shift-share weights that reflect each metro's industry mix. This captures how national industry trends differentially affect metros (e.g., tech hubs benefit more from Information sector growth), but it assumes that the local industry-occupation staffing patterns remain stable over the projection period.
+    2. **Demand allocation**: BLS demand projections are at the national-occupation level; we allocate them to metros using Bartik shift-share weights that reflect each metro's industry mix. This captures how national industry trends differentially affect metros (e.g., tech hubs benefit more from Information sector growth), but it assumes that the local industry-occupation staffing patterns remain stable over the projection period.
 
-    3. **Immigration scenarios are relative**: The cohort model generates reliable *differences* between scenarios (e.g., "No Immigration is X% tighter than Baseline"), but the absolute supply levels come from the regression model. The scenario toggle shows how the gap changes relative to the baseline, not an independent re-estimation.
+    3. **Demographic model limitations**: The cohort-flow model captures demographic forces (aging, retention, new entrants, immigration) but does not directly model economic forces like wage-driven labor supply responses, technology adoption, or industry restructuring. These forces are partially captured through the retention and new-entrant rates estimated from historical data, but the model cannot anticipate structural breaks.
 
     4. **Wage elasticities are calibrated, not estimated**: Ideally we would estimate how wages respond to supply shocks using exogenous variation. Our IV estimates at the metro × occupation level are noisy (a common problem at fine geographic granularity), so we calibrate elasticities from occupation characteristics instead. The results should be interpreted as indicating the *direction and relative magnitude* of wage pressure, not precise dollar amounts.
 
     5. **No vacancy or job posting data**: We project supply and demand from survey and administrative data. Real-time indicators like job postings or vacancy rates could improve short-run accuracy.
 
-    6. **COVID effects**: The model accounts for COVID's differential impact on high-contact occupations in the historical data, but it does not project further pandemic-related disruptions forward.
+    6. **Shrinkage for small metros**: Metro-specific rates are blended toward national averages for small cells to avoid noisy estimates. This means projections for very small metros may look more similar to the national average than they should.
 
     ---
 
@@ -1139,10 +1057,11 @@ def render_national_view(scenario_data, selected_occ, scenario):
     wage_pressure = nat.get("wage_pressure", 0)
     wage_dollar = nat.get("wage_dollar", 0)
 
-    if gap_pct > 2:
+    gap_pct_display = gap_pct * 100  # convert ratio to percentage points
+    if gap_pct_display > 2:
         market_status = "Tight"
         status_color = "#F97316"
-    elif gap_pct < -2:
+    elif gap_pct_display < -2:
         market_status = "Loose"
         status_color = "#3B82F6"
     else:
@@ -1155,7 +1074,7 @@ def render_national_view(scenario_data, selected_occ, scenario):
         <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
             <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">5-Year Market Status</div>
             <div style="color: {status_color}; font-size: 2rem; font-weight: 600;">{market_status}</div>
-            <div style="color: #A0AEC0; font-size: 0.85rem;">Gap: {gap_pct:+.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">Gap: {gap_pct*100:+.1f}%</div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
@@ -1231,17 +1150,20 @@ def render_metro_detail(scenario_data, selected_occ, scenario):
 
     total_emp = metro_occ["total_emp"].sum()
 
-    # Demand-side: emp_projected from regression_gap
+    # Demand-side: projected demand from BLS + Bartik allocation
     reg_gap = load_regression_gap()
     if reg_gap is not None:
         metro_reg = reg_gap[reg_gap["met2013"] == met2013]
         if selected_occ != "All Occupations":
             metro_reg = metro_reg[metro_reg["occ_group"] == selected_occ]
-        emp_projected = metro_reg["emp_projected"].sum() if len(metro_reg) > 0 else total_emp
+        if len(metro_reg) > 0:
+            demand_projected = metro_reg["metro_demand_projected"].sum()
+            demand_current = metro_reg["metro_demand_current"].sum()
+            job_growth_pct = (demand_projected - demand_current) / demand_current * 100 if demand_current > 0 else 0
+        else:
+            job_growth_pct = 0
     else:
-        emp_projected = total_emp
-
-    job_growth_pct = (emp_projected - total_emp) / total_emp * 100 if total_emp > 0 else 0
+        job_growth_pct = 0
     job_color = "#48BB78" if job_growth_pct >= 0 else "#F56565"
 
     # Supply-side: use scenario data
@@ -1277,15 +1199,15 @@ def render_metro_detail(scenario_data, selected_occ, scenario):
     nat_gap_pct = nat.get("gap_pct", 0)
     nat_wage_pressure = nat.get("wage_pressure", 0)
 
-    # National job growth
+    # National job growth (demand-side)
     if reg_gap is not None:
         if selected_occ != "All Occupations":
             nat_reg = reg_gap[reg_gap["occ_group"] == selected_occ]
         else:
             nat_reg = reg_gap
-        nat_emp_proj = nat_reg["emp_projected"].sum()
-        nat_total_emp = nat_reg["total_emp"].sum()
-        nat_job_growth = (nat_emp_proj - nat_total_emp) / nat_total_emp * 100 if nat_total_emp > 0 else 0
+        nat_demand_proj = nat_reg["metro_demand_projected"].sum()
+        nat_demand_curr = nat_reg["metro_demand_current"].sum()
+        nat_job_growth = (nat_demand_proj - nat_demand_curr) / nat_demand_curr * 100 if nat_demand_curr > 0 else 0
     else:
         nat_job_growth = 0
 
@@ -1318,41 +1240,6 @@ def render_metro_detail(scenario_data, selected_occ, scenario):
             </div>
         </div>
         """, unsafe_allow_html=True)
-
-    # ---- Projection Confidence ----
-    reg_supply = load_regression_supply()
-    if reg_supply is not None:
-        metro_rs = reg_supply[reg_supply["met2013"] == met2013]
-        if selected_occ != "All Occupations":
-            metro_rs = metro_rs[metro_rs["occ_group"] == selected_occ]
-        if len(metro_rs) > 0:
-            proj_lo = metro_rs["emp_proj_lo"].sum()
-            proj_mid = metro_rs["emp_projected"].sum()
-            proj_hi = metro_rs["emp_proj_hi"].sum()
-
-            st.markdown("### Projection Confidence")
-            ci_col1, ci_col2, ci_col3 = st.columns(3)
-            with ci_col1:
-                st.markdown(f"""
-                <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-                    <div style="color: #718096; font-size: 0.8rem;">Low Estimate</div>
-                    <div style="color: #A0AEC0; font-size: 1.25rem; font-weight: 600;">{proj_lo:,.0f}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            with ci_col2:
-                st.markdown(f"""
-                <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #FFA726;">
-                    <div style="color: #FFA726; font-size: 0.8rem;">Central Estimate</div>
-                    <div style="color: #FFFFFF; font-size: 1.25rem; font-weight: 600;">{proj_mid:,.0f}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            with ci_col3:
-                st.markdown(f"""
-                <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
-                    <div style="color: #718096; font-size: 0.8rem;">High Estimate</div>
-                    <div style="color: #A0AEC0; font-size: 1.25rem; font-weight: 600;">{proj_hi:,.0f}</div>
-                </div>
-                """, unsafe_allow_html=True)
 
     # ---- Wage Pressure by Occupation ----
     if selected_occ == "All Occupations":
