@@ -668,7 +668,7 @@ def create_metro_mini_map(met2013, metro_data):
         lon=[sel["lon"]],
         mode="markers+text",
         marker=dict(size=18, color=highlight_color, opacity=0.9),
-        text=[f"<b>{tightness_pct:.0f}th</b> {label}"],
+        text=[f"{tightness_pct:.0f}th {label}"],
         textposition="top center",
         textfont=dict(size=14, color=highlight_color),
         hoverinfo="skip",
