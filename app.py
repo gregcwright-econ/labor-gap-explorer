@@ -375,6 +375,24 @@ def load_wage_elasticities():
     return None
 
 
+@st.cache_data
+def load_ge_equilibrium():
+    """Load GE equilibrium results (metro × occ)."""
+    fp = DATA_DIR / "ge_equilibrium_metro.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    return None
+
+
+@st.cache_data
+def load_ge_shortage():
+    """Load GE shortage by wage ceiling (metro × occ)."""
+    fp = DATA_DIR / "ge_shortage_metro.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    return None
+
+
 # ============================================================================
 # SCENARIO COMPUTATION
 # ============================================================================
@@ -903,6 +921,260 @@ def render_methods_tab():
     """)
 
 
+def render_ge_tab(ge_eq):
+    """Render the General Equilibrium model tab with wage ceiling slider."""
+
+    st.markdown("""
+    <div class="header">
+        <h1>General Equilibrium Model</h1>
+        <p>Structural model: workers choose occupations, employers set wages, markets clear</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    ge_short = load_ge_shortage()
+    centroids = load_metro_centroids()
+
+    # --- Sidebar controls for GE tab ---
+    ceiling_pct = st.slider(
+        "Max acceptable wage growth (%)",
+        min_value=2, max_value=20, value=5, step=1,
+        help="Shortage = additional workers needed to keep wages below this ceiling"
+    )
+
+    # Occupation filter
+    occ_list = ["All Occupations"] + sorted(ge_eq['occ_group'].unique().tolist())
+    selected_occ = st.selectbox("Occupation", occ_list, index=0, key="ge_occ_select")
+
+    # --- Summary cards ---
+    if selected_occ == "All Occupations":
+        eq_filt = ge_eq.copy()
+    else:
+        eq_filt = ge_eq[ge_eq['occ_group'] == selected_occ].copy()
+
+    avg_pct_change = np.average(eq_filt['pct_change'], weights=eq_filt['supply_eq'].clip(lower=1))
+    n_wage_up = (eq_filt['pct_change'] > 0).sum()
+    n_wage_down = (eq_filt['pct_change'] <= 0).sum()
+
+    # Shortage at selected ceiling
+    ceil_col = f'shortage_{ceiling_pct}pct'
+    if ge_short is not None and ceil_col in ge_short.columns:
+        if selected_occ == "All Occupations":
+            total_shortage = ge_short[ceil_col].sum()
+        else:
+            short_filt = ge_short[ge_short['occ_group'] == selected_occ]
+            total_shortage = short_filt[ceil_col].sum() if len(short_filt) > 0 else 0
+    else:
+        total_shortage = 0
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        color = "#F97316" if avg_pct_change > 0 else "#3B82F6"
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Equilibrium Wage Change</div>
+            <div style="color: {color}; font-size: 2rem; font-weight: 600;">{avg_pct_change:+.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">{n_wage_up} up / {n_wage_down} down</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Shortage at {ceiling_pct}% Ceiling</div>
+            <div style="color: #EF4444; font-size: 2rem; font-weight: 600;">{total_shortage/1e6:.2f}M</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">additional workers needed</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        total_supply = eq_filt['supply_eq'].sum()
+        total_demand = eq_filt['demand_eq'].sum()
+        gap_pct = (total_demand - total_supply) / total_supply * 100 if total_supply > 0 else 0
+        color = "#F97316" if gap_pct > 0 else "#3B82F6"
+        st.markdown(f"""
+        <div style="background: #1A1D24; padding: 1.25rem; border-radius: 8px; text-align: center; border: 1px solid #2D3748;">
+            <div style="color: #CBD5E0; font-size: 1rem; margin-bottom: 0.5rem;">Supply-Demand Gap</div>
+            <div style="color: {color}; font-size: 2rem; font-weight: 600;">{gap_pct:+.1f}%</div>
+            <div style="color: #A0AEC0; font-size: 0.85rem;">at equilibrium wages</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # --- Bubble map: color = wage change, size = shortage ---
+    if centroids is not None and ge_short is not None and ceil_col in ge_short.columns:
+        st.markdown("### Equilibrium Wage Changes & Shortages")
+
+        # Aggregate to metro level
+        metro_eq = eq_filt.groupby('met2013').apply(
+            lambda g: pd.Series({
+                'pct_change': np.average(g['pct_change'], weights=g['supply_eq'].clip(lower=1)),
+                'supply_eq': g['supply_eq'].sum(),
+                'demand_eq': g['demand_eq'].sum(),
+            }),
+            include_groups=False,
+        ).reset_index()
+
+        # Shortage at selected ceiling
+        if selected_occ == "All Occupations":
+            metro_short = ge_short.groupby('met2013')[ceil_col].sum().reset_index()
+        else:
+            short_filt = ge_short[ge_short['occ_group'] == selected_occ]
+            metro_short = short_filt.groupby('met2013')[ceil_col].sum().reset_index()
+
+        metro_eq = metro_eq.merge(metro_short, on='met2013', how='left')
+        metro_eq[ceil_col] = metro_eq[ceil_col].fillna(0)
+        metro_eq = metro_eq.merge(centroids, on='met2013', how='inner')
+
+        # Bubble map
+        max_short = metro_eq[ceil_col].quantile(0.95) if metro_eq[ceil_col].max() > 0 else 1
+        metro_eq['bubble_size'] = np.clip(metro_eq[ceil_col] / max(max_short, 1) * 30, 3, 40)
+
+        fig = go.Figure()
+        fig.add_trace(go.Scattergeo(
+            lon=metro_eq['lon'],
+            lat=metro_eq['lat'],
+            marker=dict(
+                size=metro_eq['bubble_size'],
+                color=metro_eq['pct_change'],
+                colorscale='RdBu_r',
+                cmid=0,
+                cmin=-30,
+                cmax=30,
+                colorbar=dict(
+                    title=dict(text="Wage %", font=dict(color='#A0AEC0', size=11)),
+                    tickfont=dict(color='#A0AEC0', size=10),
+                    bgcolor='rgba(0,0,0,0)',
+                ),
+                line=dict(width=0.5, color='rgba(255,255,255,0.3)'),
+                opacity=0.8,
+            ),
+            text=metro_eq.apply(
+                lambda r: (f"{r.get('metro_name', 'Metro ' + str(r['met2013']))}<br>"
+                           f"Wage change: {r['pct_change']:+.1f}%<br>"
+                           f"Shortage at {ceiling_pct}%: {r[ceil_col]:,.0f}"),
+                axis=1),
+            hoverinfo='text',
+        ))
+
+        fig.update_layout(
+            geo=dict(
+                scope='usa',
+                bgcolor='rgba(0,0,0,0)',
+                lakecolor='rgba(0,0,0,0)',
+                landcolor='#1A1D24',
+                showland=True,
+                showlakes=True,
+            ),
+            height=450,
+            margin=dict(l=0, r=0, t=10, b=0),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+        )
+
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+
+    # --- Bar chart: equilibrium wages by occupation ---
+    st.markdown("### Equilibrium Wage Change by Occupation")
+
+    occ_eq = ge_eq.groupby('occ_group').apply(
+        lambda g: pd.Series({
+            'pct_change': np.average(g['pct_change'], weights=g['supply_eq'].clip(lower=1)),
+            'supply_eq': g['supply_eq'].sum(),
+        }),
+        include_groups=False,
+    ).reset_index().sort_values('pct_change', ascending=True)
+
+    colors = ['#EF4444' if p > 10 else '#F97316' if p > 0 else '#3B82F6' if p > -10 else '#1D4ED8'
+              for p in occ_eq['pct_change']]
+
+    fig_occ = go.Figure()
+    fig_occ.add_trace(go.Bar(
+        y=occ_eq['occ_group'],
+        x=occ_eq['pct_change'],
+        orientation='h',
+        marker_color=colors,
+        text=[f"{p:+.1f}%" for p in occ_eq['pct_change']],
+        textposition='outside',
+        textfont=dict(size=10),
+    ))
+
+    fig_occ.update_layout(
+        height=max(400, len(occ_eq) * 25),
+        margin=dict(l=0, r=50, t=10, b=10),
+        xaxis_title="Equilibrium Wage Change (%)",
+        yaxis=dict(tickfont=dict(size=10)),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='#E0E0E0'),
+        xaxis=dict(gridcolor='#2D3748', zeroline=True,
+                   zerolinecolor='#4A5568', zerolinewidth=1),
+        showlegend=False,
+    )
+
+    st.plotly_chart(fig_occ, use_container_width=True)
+
+    # --- Shortage by occupation at selected ceiling ---
+    if ge_short is not None and ceil_col in ge_short.columns:
+        st.markdown(f"### Shortage by Occupation (at {ceiling_pct}% ceiling)")
+
+        occ_short = ge_short.groupby('occ_group')[ceil_col].sum().reset_index()
+        occ_short = occ_short[occ_short[ceil_col] > 0].sort_values(ceil_col, ascending=True)
+
+        if len(occ_short) > 0:
+            fig_short = go.Figure()
+            fig_short.add_trace(go.Bar(
+                y=occ_short['occ_group'],
+                x=occ_short[ceil_col] / 1000,
+                orientation='h',
+                marker_color='#EF4444',
+                text=[f"{s/1000:,.0f}K" for s in occ_short[ceil_col]],
+                textposition='outside',
+                textfont=dict(size=10),
+            ))
+
+            fig_short.update_layout(
+                height=max(300, len(occ_short) * 25),
+                margin=dict(l=0, r=50, t=10, b=10),
+                xaxis_title="Shortage (thousands of workers)",
+                yaxis=dict(tickfont=dict(size=10)),
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#E0E0E0'),
+                xaxis=dict(gridcolor='#2D3748'),
+                showlegend=False,
+            )
+
+            st.plotly_chart(fig_short, use_container_width=True)
+
+    # --- GE model explanation ---
+    with st.expander("About the GE Model"):
+        st.markdown("""
+**General Equilibrium Model**
+
+This tab shows results from a structural labor market model where:
+
+1. **Workers choose occupations** based on relative wages (nested logit model).
+   Higher wages in an occupation attract more workers, especially from less-educated
+   tiers who have more occupational flexibility.
+
+2. **Employers have downward-sloping demand curves** estimated via Bartik IV
+   (shift-share instruments). When more workers are available, marginal productivity
+   falls and wages decline.
+
+3. **Markets clear**: the equilibrium wage is where supply equals demand in each
+   metro x occupation cell simultaneously.
+
+**Wage ceiling & shortage**: The slider sets a maximum acceptable wage growth rate.
+The "shortage" is the number of additional workers that would be needed to keep wages
+below this ceiling. At a 0% ceiling, the shortage equals the full supply-demand gap.
+At a very high ceiling, the shortage approaches zero as the market clears naturally.
+
+**Key parameters**:
+- Supply elasticities (alpha): 0.25 (graduate) to 1.27 (no high school)
+- Demand elasticities (eta): -0.15 to -2.0 by occupation
+- 260 metros x 22 occupations = 5,720 markets solved simultaneously
+        """)
+
+
 def main():
     # Initialize session state
     if 'selected_metro' not in st.session_state:
@@ -915,8 +1187,14 @@ def main():
     if tw is None:
         st.stop()
 
-    # Create main tabs
-    tab_explorer, tab_methods = st.tabs(["Explorer", "Methods"])
+    # Create main tabs — include GE tab if data available
+    ge_eq = load_ge_equilibrium()
+    if ge_eq is not None:
+        tab_explorer, tab_ge, tab_methods = st.tabs(["Explorer", "GE Model", "Methods"])
+        with tab_ge:
+            render_ge_tab(ge_eq)
+    else:
+        tab_explorer, tab_methods = st.tabs(["Explorer", "Methods"])
 
     with tab_methods:
         render_methods_tab()
