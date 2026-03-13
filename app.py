@@ -393,6 +393,24 @@ def load_ge_shortage():
     return None
 
 
+@st.cache_data
+def load_ge_detailed():
+    """Load GE equilibrium at SOC minor group level (~94 groups)."""
+    fp = DATA_DIR / "ge_equilibrium_detailed_metro.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    return None
+
+
+@st.cache_data
+def load_ge_shortage_detailed():
+    """Load GE shortage at SOC minor group level."""
+    fp = DATA_DIR / "ge_shortage_detailed_metro.csv"
+    if fp.exists():
+        return pd.read_csv(fp)
+    return None
+
+
 # ============================================================================
 # SCENARIO COMPUTATION
 # ============================================================================
@@ -1144,6 +1162,86 @@ def render_ge_tab(ge_eq):
             )
 
             st.plotly_chart(fig_short, use_container_width=True)
+
+    # --- Sub-occupation drilldown ---
+    ge_det = load_ge_detailed()
+    ge_short_det = load_ge_shortage_detailed()
+    if ge_det is not None:
+        st.markdown("### Sub-Occupation Detail (SOC Minor Groups)")
+        if selected_occ == "All Occupations":
+            st.info("Select a specific occupation above to see the sub-occupation breakdown.")
+        else:
+            # Aggregate minor groups nationally for this occ_group
+            det_filt = ge_det[ge_det['occ_group'] == selected_occ].copy()
+            if len(det_filt) > 0:
+                minor_agg = det_filt.groupby(['soc_code', 'soc_title']).agg(
+                    supply=('supply_detailed', 'sum'),
+                    demand=('demand_detailed', 'sum'),
+                    median_wage=('current_wage_oes', 'median'),
+                    bls_growth=('bls_growth_10yr', 'first'),
+                ).reset_index()
+                minor_agg['gap_pct'] = (minor_agg['demand'] - minor_agg['supply']) / minor_agg['supply'] * 100
+                minor_agg = minor_agg.sort_values('supply', ascending=True)
+
+                # Shortage detail
+                if ge_short_det is not None and ceil_col in ge_short_det.columns:
+                    short_minor = ge_short_det[ge_short_det['occ_group'] == selected_occ].groupby(
+                        ['soc_code', 'soc_title']
+                    )[ceil_col].sum().reset_index()
+                    minor_agg = minor_agg.merge(short_minor, on=['soc_code', 'soc_title'], how='left')
+                    minor_agg[ceil_col] = minor_agg[ceil_col].fillna(0)
+
+                # Horizontal bar: supply by minor group
+                fig_minor = go.Figure()
+                fig_minor.add_trace(go.Bar(
+                    y=minor_agg['soc_title'].str[:40],
+                    x=minor_agg['supply'] / 1000,
+                    orientation='h',
+                    marker_color='#3B82F6',
+                    name='Supply',
+                    text=[f"{s/1000:,.0f}K" for s in minor_agg['supply']],
+                    textposition='outside',
+                    textfont=dict(size=10),
+                ))
+                fig_minor.add_trace(go.Bar(
+                    y=minor_agg['soc_title'].str[:40],
+                    x=minor_agg['demand'] / 1000,
+                    orientation='h',
+                    marker_color='#F97316',
+                    name='Demand',
+                    opacity=0.6,
+                ))
+
+                fig_minor.update_layout(
+                    barmode='overlay',
+                    height=max(300, len(minor_agg) * 35),
+                    margin=dict(l=0, r=60, t=10, b=10),
+                    xaxis_title="Workers (thousands)",
+                    yaxis=dict(tickfont=dict(size=10)),
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='#E0E0E0'),
+                    xaxis=dict(gridcolor='#2D3748'),
+                    legend=dict(
+                        orientation='h', yanchor='bottom', y=1.02,
+                        xanchor='right', x=1, font=dict(size=11),
+                    ),
+                )
+                st.plotly_chart(fig_minor, use_container_width=True)
+
+                # Summary table
+                display_df = minor_agg[['soc_code', 'soc_title', 'supply', 'demand',
+                                         'median_wage', 'bls_growth']].copy()
+                display_df.columns = ['SOC', 'Occupation', 'Supply', 'Demand',
+                                      'Median Wage', 'BLS Growth (10yr)']
+                display_df = display_df.sort_values('Supply', ascending=False)
+                display_df['Supply'] = display_df['Supply'].apply(lambda x: f"{x:,.0f}")
+                display_df['Demand'] = display_df['Demand'].apply(lambda x: f"{x:,.0f}")
+                display_df['Median Wage'] = display_df['Median Wage'].apply(
+                    lambda x: f"${x:,.0f}" if pd.notna(x) else "N/A")
+                display_df['BLS Growth (10yr)'] = display_df['BLS Growth (10yr)'].apply(
+                    lambda x: f"{x:.1%}")
+                st.dataframe(display_df, hide_index=True, use_container_width=True)
 
     # --- GE model explanation ---
     with st.expander("About the GE Model"):
