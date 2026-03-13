@@ -734,208 +734,105 @@ def render_methods_tab():
     """Render the methodology documentation tab."""
     st.markdown("""
     <div class="header">
-        <h1>Methodology</h1>
-        <p>How we project labor supply, demand, and market tightness</p>
+        <h1>Methods & Data</h1>
+        <p>How we project labor supply, demand, and shortages</p>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    ## Overview
+    ## About This Tool
 
-    This dashboard shows **projected labor market tightness** across 260 US metropolitan areas. For each metro area and occupation, we independently project labor supply (how many workers will be available) and labor demand (how many workers employers will want), then compare the two. The difference — the "gap" — tells us where labor markets are likely to be tight or loose over the next five years.
+    This dashboard accompanies the working paper:
 
-    The map uses **bubble sizing** proportional to metro employment and **percentile-based coloring** to show which regions are relatively tighter or looser than average.
+    > **Bahar, D. and G.C. Wright (2026). "Projecting Occupation-Specific Labor Shortages at the Metropolitan Level."** Working paper.
 
-    ---
-
-    ## Data
-
-    Everything starts with the **American Community Survey (ACS)**, a large annual Census Bureau survey covering about 1% of the US population each year. We use ACS microdata from multiple periods:
-
-    - **2010 ACS**: Base year for constructing 10-year synthetic cohorts (matched with 2020 ACS)
-    - **2014 ACS**: Starting population for the 10-year out-of-sample validation test
-    - **2020 ACS**: End year for synthetic cohort matching (10-year retention rates)
-    - **2019-2023 pooled ACS (P3)**: Current employment levels and wages (starting point for projections)
-
-    We also use:
-
-    | Source | What We Take From It |
-    |--------|---------------------|
-    | BLS Employment Projections (2024-2034) | Projected national-level employment demand by occupation |
-    | ACS migration questions | Who moved between metros, who immigrated recently |
+    We project occupation-specific labor shortages for 260 U.S. metropolitan areas. The approach is simple in structure: we project supply and demand separately, solve for equilibrium using estimated elasticities, and define shortages as the additional workers needed when wages are constrained not to rise beyond a ceiling. Full methodological details, validation results, and robustness checks are in the paper.
 
     ---
 
-    ## Step 1: Supply Projection (Cohort-Flow Model)
+    ## How It Works
 
-    The supply projection is built on a **synthetic cohort model** — a demographic simulation that tracks how the workforce evolves through aging, retention, new entrants, and immigration.
+    **1. Supply.** A demographic cohort-flow model projects how many workers each metro will have in each occupation, based on aging, occupational retention, labor force entry, and immigration. The model uses only demographic information from the American Community Survey — no demand-side data.
 
-    ### How the cohort model works
+    **2. Demand.** We project how many workers employers will want using BLS Employment Projections, enriched with state-specific growth rates from Projections Central (produced by state workforce agencies). National projections are allocated to metros via Bartik shift-share instruments based on each metro's industry composition.
 
-    The model projects supply forward in five layered phases, each adding a demographic component:
+    **3. Equilibrium.** The raw supply-demand gap ignores the fact that wages adjust. We estimate supply elasticities from a nested logit occupation choice model and demand elasticities from Bartik-instrumented regressions. A tatonnement solver finds the wage vector that clears all 22 occupation markets simultaneously in each metro.
 
-    **Phase 1 — Survival.** Start with the current population by metro, age band, and occupation. Age everyone forward using age-specific survival rates from US life tables. This captures the mechanical effect of aging: younger workers move into prime working ages, while older workers retire or exit.
+    **4. Shortage.** A "shortage" is defined as excess demand at a wage ceiling — the additional workers needed if wages are not allowed to rise more than a given percentage. The GE Model tab lets you adjust this ceiling.
 
-    **Phase 2 — Occupation retention.** Not everyone who works in an occupation today will still be in that occupation in 5-10 years. We estimate **retention rates** at the (age band × occupation group) level by constructing synthetic cohorts: matching birth cohorts across the 2010 and 2020 ACS to see what fraction of workers in each age-occupation cell are still in that occupation a decade later. For example, food preparation workers have a retention rate of 0.61 (high turnover), while computer/math workers have a rate of 1.20 (net inflows from other occupations).
+    **5. Disaggregation.** The equilibrium model operates at the level of 22 SOC major groups. We disaggregate results to approximately 94 SOC minor groups using BLS Occupational Employment and Wage Statistics, with growth-adjusted shares and a minimum cell size threshold.
 
-    **Phase 3 — Metro-specific shifts.** National retention rates don't capture local dynamics — some metros are growing while others are shrinking. We compute metro-specific shift factors that adjust the national rates based on each metro's recent growth trajectory. Small metro cells are blended toward the national rate using shrinkage (minimum 300 employed workers for full local weight) to avoid noisy estimates.
+    ---
 
-    **Phase 4 — New entrants.** Young people entering the labor market for the first time are a critical source of supply. We estimate new-entrant flows from the ACS by age band and occupation, and add them to the projected workforce. This phase produces the largest improvement in model accuracy — RMSE drops from 0.53 to 0.39 when new entrants are included.
+    ## Data Sources
 
-    **Phase 5 — Immigration.** Foreign-born workers arriving from abroad are modeled as additive flows, estimated from ACS migration questions. Immigration is broken out as a separate, adjustable parameter — this is what enables the scenario analysis.
+    | Source | What We Use It For |
+    |--------|-------------------|
+    | **American Community Survey (ACS)** microdata, 2010-2024 | Employment, wages, demographics, migration, and immigration by metro × occupation |
+    | **BLS Employment Projections** (2024-2034) | National occupation-level demand growth rates |
+    | **Projections Central** (state workforce agencies) | State-specific occupation growth rates (2022-2032) |
+    | **BLS Occupational Employment Statistics** (OES, 2024) | Metro-level employment by detailed SOC code for disaggregation |
+    | **U.S. life tables** | Age-specific survival rates for demographic aging |
 
-    ### Immigration scenarios
+    ---
 
-    Because immigration enters the model as an explicit parameter, we can simulate counterfactual scenarios:
+    ## Immigration Scenarios
 
-    | Scenario | What Changes |
+    Immigration enters the supply model as an explicit, adjustable parameter:
+
+    | Scenario | Description |
     |----------|-------------|
-    | **Baseline** | Historical immigration and domestic migration rates continue unchanged |
-    | **Low Immigration** | Immigration rates cut by 50%; domestic migration unchanged |
-    | **No Immigration** | Immigration rates set to zero; domestic migration unchanged |
-    | **High Domestic** | Immigration unchanged; domestic migration rates multiplied by 1.5× for growing metros |
-
-    When you switch scenarios, we compute the **difference** between that scenario's cohort supply projection and the baseline cohort supply projection, and apply that difference to the baseline gap:
-
-    ```
-    Adjusted Gap = Baseline Gap − (Scenario Supply − Baseline Cohort Supply)
-    ```
-
-    ---
-
-    ## Step 2: Demand Projection (BLS + Bartik Allocation)
-
-    Demand projections come from the **BLS 2024-2034 Employment Projections**, which forecast how many workers employers will need in each occupation over the next decade. BLS constructs these using macroeconomic forecasts, industry-occupation staffing patterns, and expert judgment.
-
-    BLS projections are at the national-occupation level — they tell us how many workers the US economy will need in each occupation, but not where those jobs will be located. We allocate them to metro areas using **Bartik shift-share weights** that reflect each metro's industry composition:
-
-    1. From the ACS microdata we compute, for each metro and occupation, the share of workers employed in each of ~20 NAICS industry sectors
-    2. We apply BLS-projected 5-year industry growth rates to these shares, producing a **Bartik demand shock** for each metro-occupation cell: metros with industry mixes tilted toward fast-growing sectors (e.g., healthcare, professional services) receive a positive shock, while metros concentrated in declining sectors (e.g., manufacturing, mining) receive a negative shock
-    3. We scale each metro's current employment by its Bartik shock, then normalize within each occupation group so the shares sum to one
-    4. National demand is allocated in proportion to these Bartik-predicted shares
-
-    This means, for example, that San Jose gets a larger share of demand for Computer/Mathematical occupations (because its industry mix is tech-heavy) while Pittsburgh gets a larger share of Production demand (reflecting its manufacturing base). National totals are preserved by construction — only the metro allocation changes.
-
-    ---
-
-    ## Step 3: The Gap
-
-    For each metro × occupation cell:
-
-    ```
-    Gap = Projected Demand (BLS) − Projected Supply (Cohort Model)
-    ```
-
-    - **Positive gap** = demand exceeds supply → tight labor market, upward wage pressure
-    - **Negative gap** = supply exceeds demand → loose labor market, downward wage pressure
-    - **Gap %** = gap as a percentage of projected demand
-
-    ---
-
-    ## Step 4: Wage Pressure
-
-    A supply-demand gap only tells us there's a mismatch — it doesn't tell us how much wages will respond. To translate gaps into wage pressure, we need a **supply elasticity** for each occupation: how much does employment in that occupation respond to a 1% change in wages?
-
-    ### Calibrating elasticities
-
-    We calibrate occupation-specific supply elasticities using two observable characteristics:
-
-    - **Education barriers** (`share_college`): Occupations requiring more education (e.g., Legal, Engineering) have less elastic supply — it takes years to train new workers, so wages must rise more to attract them
-    - **Workforce aging** (`share_55_plus`): Occupations with older workforces face more retirements and have less flexibility to expand, making supply less elastic
-
-    Higher barriers → lower elasticity → bigger wage response to the same gap. The employment-weighted average elasticity across all occupations is anchored to **0.7**, a standard estimate from the labor economics literature.
-
-    ### The wage pressure formula
-
-    ```
-    Wage Pressure % = Gap % × (1 / elasticity)
-    ```
-
-    For example, if Healthcare Practitioners face a 5% gap and have an elasticity of 0.5:
-
-    ```
-    Wage Pressure = 5% × (1 / 0.5) = 10%
-    ```
-
-    This means wages in that occupation are projected to rise about 10% above trend over 5 years.
+    | **Baseline** | Historical immigration rates continue unchanged |
+    | **Low Immigration** | Immigration rates cut by 50% |
+    | **No Immigration** | Immigration set to zero |
+    | **High Domestic** | Immigration unchanged; domestic migration rates multiplied by 1.5x for growing metros |
 
     ---
 
     ## Validation
 
-    We validated the cohort-flow model using a genuine **out-of-sample test**: we extracted all demographic rates (survival, retention, migration, new entrants, immigration) from the 2010 and 2020 ACS, used them to project employment forward from 2014, and compared the projections against actual 2024 ACS outcomes. This is a strict 10-year out-of-sample test — the model must predict a decade of labor market evolution it has never seen.
+    We validated the supply model using a genuine out-of-sample test: demographic rates were extracted from the 2010 and 2020 ACS, used to project forward from 2014, and compared against actual 2024 outcomes — a strict 10-year test the model has never seen.
 
-    ### How the layered phases contribute
+    | Component | RMSE | W-MAPE | Key finding |
+    |-----------|------|--------|-------------|
+    | Full supply model | 0.39 | 11.7% | Substantially beats naive random walk (0.47) |
+    | New entrants | — | — | Critical component: RMSE drops from 0.53 to 0.39 when added |
+    | Immigration | — | — | Neutral for accuracy; enables policy scenario variation |
 
-    We tested each phase of the model cumulatively to understand what drives accuracy:
-
-    | Phase | W-MAPE | RMSE(log) | Key insight |
-    |-------|--------|-----------|-------------|
-    | 1: Survival only | 22.4% | 0.506 | Naive aging alone |
-    | 2: + Retention rates | 22.9% | 0.524 | National rates add some noise |
-    | 3: + Metro shifts | 22.8% | 0.530 | Metro adjustment needs entrants |
-    | 4: **+ New entrants** | **11.7%** | **0.390** | Major improvement — entrants are critical |
-    | 5: + Immigration | 11.7% | 0.398 | Neutral for accuracy; enables scenarios |
-    | Naive random walk | 19.5% | 0.468 | Phase 4 clearly beats this benchmark |
-
-    The key result: **new entrants are the critical component**. Adding young workers entering each occupation cuts RMSE by 26% (from 0.530 to 0.390) and clearly beats the naive random walk benchmark. Immigration adds little to overall accuracy but provides the meaningful variation needed for scenario analysis — for example, Farming occupations see +14% more supply under baseline immigration, while Computer/Math sees +9%.
+    We also validate the supply-demand decomposition: metros where equilibrium employment exceeds demographic supply experience faster subsequent wage growth, confirming that the gap captures genuine demand pressure.
 
     ---
 
-    ## Geographic Units
+    ## Geographic & Occupation Units
 
-    We use **metropolitan statistical areas (MSAs)** as the primary geographic unit:
-    - 260 metro areas covering the majority of US employment
-    - MSAs are clusters of counties with strong commuting and economic ties
-    - Based on 2013-vintage CBSA delineations for consistency with ACS microdata
-
-    ---
-
-    ## Occupation Groups
-
-    We aggregate detailed occupations (hundreds of Census occupation codes) into **22 major groups** based on the Standard Occupational Classification (SOC):
-
-    **Healthcare & Science**: Healthcare Practitioners, Healthcare Support, Life/Physical/Social Science
-
-    **Business & Legal**: Management, Business/Financial Operations, Legal
-
-    **Technical**: Computer/Mathematical, Architecture/Engineering
-
-    **Education & Arts**: Education/Training/Library, Arts/Design/Entertainment/Sports/Media
-
-    **Service**: Food Preparation/Serving, Building/Grounds Maintenance, Personal Care, Protective Service, Community/Social Service
-
-    **Sales & Office**: Sales, Office/Administrative Support
-
-    **Trades & Production**: Construction/Extraction, Installation/Maintenance/Repair, Production, Transportation/Material Moving, Farming/Fishing/Forestry
+    - **260 metropolitan statistical areas** (2013-vintage CBSA delineations)
+    - **22 SOC major occupation groups** for the equilibrium model
+    - **~94 SOC minor groups** for the disaggregation layer (with a minimum threshold of 1,000 workers per cell)
 
     ---
 
     ## Limitations
 
-    1. **Projection uncertainty**: These are 5-year forecasts with substantial uncertainty. Actual outcomes depend on economic conditions, policy changes, technology, and many other factors our model does not capture.
+    1. **No endogenous migration.** Each metro is solved independently; workers do not move across metros in response to wage differences. This likely overstates shortages in high-wage metros and understates them elsewhere.
 
-    2. **Demand allocation**: BLS demand projections are at the national-occupation level; we allocate them to metros using Bartik shift-share weights that reflect each metro's industry mix. This captures how national industry trends differentially affect metros (e.g., tech hubs benefit more from Information sector growth), but it assumes that the local industry-occupation staffing patterns remain stable over the projection period.
+    2. **Projection uncertainty.** These are forward-looking projections. Actual outcomes depend on economic conditions, policy changes, and technology that the model does not anticipate.
 
-    3. **Demographic model limitations**: The cohort-flow model captures demographic forces (aging, retention, new entrants, immigration) but does not directly model economic forces like wage-driven labor supply responses, technology adoption, or industry restructuring. These forces are partially captured through the retention and new-entrant rates estimated from historical data, but the model cannot anticipate structural breaks.
+    3. **Demand allocation.** National BLS projections are allocated to metros via Bartik shift-share, which captures differential industry exposure but assumes stable local staffing patterns.
 
-    4. **Wage elasticities are calibrated, not estimated**: Ideally we would estimate how wages respond to supply shocks using exogenous variation. Our IV estimates at the metro × occupation level are noisy (a common problem at fine geographic granularity), so we calibrate elasticities from occupation characteristics instead. The results should be interpreted as indicating the *direction and relative magnitude* of wage pressure, not precise dollar amounts.
-
-    5. **No vacancy or job posting data**: We project supply and demand from survey and administrative data. Real-time indicators like job postings or vacancy rates could improve short-run accuracy.
-
-    6. **Shrinkage for small metros**: Metro-specific rates are blended toward national averages for small cells to avoid noisy estimates. This means projections for very small metros may look more similar to the national average than they should.
+    4. **Disaggregation error.** Splitting 22 broad groups into 94 minor groups reintroduces prediction error. The intermediate granularity and cell threshold reduce this, but within-group employment shifts are difficult to predict at the metro level.
 
     ---
 
     ## References
 
     - BLS Employment Projections: [bls.gov/emp/](https://www.bls.gov/emp/)
-    - BLS Occupational Separations: [bls.gov/emp/documentation/separations.htm](https://www.bls.gov/emp/documentation/separations.htm)
+    - Projections Central: [projectionscentral.org](https://projectionscentral.org/)
     - ACS PUMS: [census.gov/programs-surveys/acs/microdata.html](https://www.census.gov/programs-surveys/acs/microdata.html)
+    - BLS OES: [bls.gov/oes/](https://www.bls.gov/oes/)
 
     ---
 
-    *Last updated: February 2026*
+    *Last updated: March 2026*
     """)
 
 
@@ -1288,11 +1185,11 @@ def main():
     # Create main tabs — include GE tab if data available
     ge_eq = load_ge_equilibrium()
     if ge_eq is not None:
-        tab_explorer, tab_ge, tab_methods = st.tabs(["Explorer", "GE Model", "Methods"])
+        tab_explorer, tab_ge, tab_methods = st.tabs(["Explorer", "GE Model", "Methods & Data"])
         with tab_ge:
             render_ge_tab(ge_eq)
     else:
-        tab_explorer, tab_methods = st.tabs(["Explorer", "Methods"])
+        tab_explorer, tab_methods = st.tabs(["Explorer", "Methods & Data"])
 
     with tab_methods:
         render_methods_tab()
