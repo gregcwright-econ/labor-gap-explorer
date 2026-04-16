@@ -752,7 +752,7 @@ def render_methods_tab():
 
     ## How It Works
 
-    **1. Supply.** A demographic cohort-flow model projects how many workers each metro will have in each occupation, based on aging, occupational retention, labor force entry, and immigration. The model uses only demographic information from the American Community Survey — no demand-side data.
+    **1. Supply.** A demographic cohort-flow model projects how many workers each metro will have in each occupation, based on aging, occupational retention, labor force entry, and immigration. The model starts from 2024 ACS microdata and applies demographic transition rates estimated from 2010-2020 synthetic cohort matching. Metro-level growth rates are anchored to the BLS civilian labor force projection (3.5% over 10 years) while preserving the cohort model's cross-metro and cross-occupation variation.
 
     **2. Demand.** We project how many workers employers will want using BLS Employment Projections, enriched with state-specific growth rates from Projections Central (produced by state workforce agencies). National projections are allocated to metros via Bartik shift-share instruments based on each metro's industry composition.
 
@@ -768,8 +768,9 @@ def render_methods_tab():
 
     | Source | What We Use It For |
     |--------|-------------------|
-    | **American Community Survey (ACS)** microdata, 2010-2024 | Employment, wages, demographics, migration, and immigration by metro × occupation |
-    | **BLS Employment Projections** (2024-2034) | National occupation-level demand growth rates |
+    | **American Community Survey (ACS)** microdata, 2010-2024 | Employment, wages, demographics, migration, and immigration by metro × occupation. 2024 ACS as supply base year; 2010-2020 for demographic transition rates. |
+    | **Current Population Survey (CPS)** matched panels, 2014-2024 | Occupation-to-occupation transition probabilities (22×22 matrix) for blending with cohort projections |
+    | **BLS Employment Projections** (2024-2034) | National occupation-level demand growth rates; civilian labor force growth target for supply anchoring |
     | **Projections Central** (state workforce agencies) | State-specific occupation growth rates (2022-2032) |
     | **BLS Occupational Employment Statistics** (OES, 2024) | Metro-level employment by detailed SOC code for disaggregation |
     | **U.S. life tables** | Age-specific survival rates for demographic aging |
@@ -805,7 +806,7 @@ def render_methods_tab():
 
     ## Geographic & Occupation Units
 
-    - **260 metropolitan statistical areas** (2013-vintage CBSA delineations)
+    - **264 metropolitan statistical areas** (2013-vintage CBSA delineations)
     - **22 SOC major occupation groups** for the equilibrium model
     - **~94 SOC minor groups** for the disaggregation layer (with a minimum threshold of 1,000 workers per cell)
 
@@ -832,7 +833,7 @@ def render_methods_tab():
 
     ---
 
-    *Last updated: March 2026*
+    *Last updated: April 2026*
     """)
 
 
