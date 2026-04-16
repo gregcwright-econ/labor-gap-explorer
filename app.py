@@ -850,9 +850,10 @@ def render_ge_tab(ge_eq):
     centroids = load_metro_centroids()
 
     # --- Sidebar controls for GE tab ---
-    ceiling_pct = st.slider(
+    ceiling_pct = st.select_slider(
         "Max acceptable wage growth (%)",
-        min_value=2, max_value=20, value=5, step=1,
+        options=[2, 5, 10, 15, 20],
+        value=5,
         help="Shortage = additional workers needed to keep wages below this ceiling"
     )
 
