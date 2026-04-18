@@ -26,6 +26,8 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 10420,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,3236.31,3054.59,2772.31,2512.98,2273.84
 10420,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,1420.46,1237.15,952.63,691.51,450.96
 10420,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,2664.41,2320.56,1786.88,1297.09,845.88
+10540,41-2,Retail Salespersons,Sales and Related,4700,low,54.65,0.00,0.00,0.00,0.00
+10540,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,226.54,195.27,146.72,102.16,61.11
 10580,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,4057.19,3771.68,3322.04,2902.04,2508.56
 10580,13-2,Accountants and Auditors,Business and Financial Operations,500,low,1777.81,1652.70,1455.67,1271.64,1099.22
 10580,15-1,Software Developers,Computer and Mathematical,1000,low,3557.02,2950.90,2021.36,1180.54,416.62
@@ -496,15 +498,16 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 13820,53-1,"First-Line Supervisors of Transportation and Material Moving Workers, Except Aircraft Cargo Handling Supervisors",Transportation and Material Moving,9000,low,171.85,117.43,32.96,0.00,0.00
 13820,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,1023.27,699.21,196.25,0.00,0.00
 13820,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,1593.81,1089.07,305.68,0.00,0.00
-13900,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,601.79,516.31,388.42,276.15,177.04
-13900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,26.10,0.00,0.00,0.00,0.00
-13900,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,low,13.05,0.00,0.00,0.00,0.00
-13900,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,1400.00,694.19,0.00,0.00,0.00
-13900,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,low,378.73,84.17,0.00,0.00,0.00
-13900,39-9,Childcare Workers,Personal Care and Service,4300,low,286.28,112.93,0.00,0.00,0.00
-13900,47-2,Construction Laborers,Construction and Extraction,6200,low,129.38,49.46,0.00,0.00,0.00
-13900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,55.72,4.54,0.00,0.00,0.00
-13900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,70.80,5.77,0.00,0.00,0.00
+13900,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,600.50,515.01,387.11,274.84,175.72
+13900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,23.19,0.00,0.00,0.00,0.00
+13900,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,low,11.59,0.00,0.00,0.00,0.00
+13900,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,1395.96,690.14,0.00,0.00,0.00
+13900,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,low,372.59,78.00,0.00,0.00,0.00
+13900,39-9,Childcare Workers,Personal Care and Service,4300,low,282.73,109.37,0.00,0.00,0.00
+13900,47-2,Construction Laborers,Construction and Extraction,6200,low,117.28,37.31,0.00,0.00,0.00
+13900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,308.24,256.61,178.18,108.03,44.98
+13900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,48.51,0.00,0.00,0.00,0.00
+13900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,61.64,0.00,0.00,0.00,0.00
 13980,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,909.81,778.58,582.25,409.90,257.74
 13980,25-1,"Postsecondary Teachers, All Other","Education, Training, and Library",2200,low,1168.04,1070.38,919.95,783.14,658.21
 13980,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,1220.04,1118.03,960.90,818.01,687.51
@@ -601,12 +604,12 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 14460,51-7,Cabinetmakers and Bench Carpenters,Production,7700,low,49.06,20.29,0.00,0.00,0.00
 14460,51-8,"Petroleum Pump System Operators, Refinery Operators, and Gaugers",Production,7700,low,105.81,43.76,0.00,0.00,0.00
 14460,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,987.47,408.36,0.00,0.00,0.00
-14740,15-1,Software Developers,Computer and Mathematical,1000,low,102.02,0.00,0.00,0.00,0.00
-14740,17-2,Mechanical Engineers,Architecture and Engineering,1300,low,1402.34,908.95,291.54,0.00,0.00
-14740,17-3,Architectural and Civil Drafters,Architecture and Engineering,1300,low,1074.70,696.59,223.42,0.00,0.00
-14740,33-9,Security Guards,Protective Service,3700,low,127.67,97.63,50.95,8.04,0.00
-14740,47-2,Construction Laborers,Construction and Extraction,6200,low,1909.37,1696.10,1366.42,1065.34,789.27
-14740,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,1076.01,930.54,709.55,511.94,334.36
+14740,15-1,Software Developers,Computer and Mathematical,1000,low,94.87,0.00,0.00,0.00,0.00
+14740,17-2,Mechanical Engineers,Architecture and Engineering,1300,low,1400.59,907.20,289.77,0.00,0.00
+14740,17-3,Architectural and Civil Drafters,Architecture and Engineering,1300,low,1073.36,695.24,222.07,0.00,0.00
+14740,33-9,Security Guards,Protective Service,3700,low,125.39,95.34,48.65,5.74,0.00
+14740,47-2,Construction Laborers,Construction and Extraction,6200,low,1890.50,1677.15,1347.37,1046.18,770.01
+14740,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,1069.42,923.92,702.90,505.26,327.65
 14860,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,3644.66,3325.83,2823.71,2354.70,1915.30
 14860,13-2,Accountants and Auditors,Business and Financial Operations,500,low,2726.67,2488.14,2112.50,1761.61,1432.89
 14860,23-1,Lawyers,Legal,2100,low,733.42,655.08,531.70,416.45,308.47
@@ -1278,7 +1281,7 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 19820,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,4611.52,3539.10,1874.62,346.97,0.00
 19820,53-6,Parking Attendants,Transportation and Material Moving,9000,low,264.78,203.20,107.63,19.92,0.00
 19820,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,8130.50,6239.74,3305.11,611.74,0.00
-20020,41-2,Retail Salespersons,Sales and Related,4700,low,167.43,0.00,0.00,0.00,0.00
+20020,41-2,Retail Salespersons,Sales and Related,4700,low,74.32,0.00,0.00,0.00,0.00
 20100,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,249.30,171.27,54.50,0.00,0.00
 20100,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,59.89,0.00,0.00,0.00,0.00
 20100,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,low,21.78,0.00,0.00,0.00,0.00
@@ -2246,25 +2249,22 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 31180,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,low,70.36,23.51,0.00,0.00,0.00
 31180,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,low,161.63,101.53,8.88,0.00,0.00
 31180,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,low,419.44,263.49,23.03,0.00,0.00
-31340,11-1,General and Operations Managers,Management,10,low,161.12,0.00,0.00,0.00,0.00
-31340,11-3,Financial Managers,Management,10,low,67.67,0.00,0.00,0.00,0.00
-31340,11-9,"Managers, All Other",Management,10,low,95.75,0.00,0.00,0.00,0.00
-31340,15-1,Software Developers,Computer and Mathematical,1000,low,119.41,0.00,0.00,0.00,0.00
-31340,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,1267.52,1117.71,893.58,696.84,523.14
-31340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,1131.63,988.44,767.85,567.22,383.98
-31340,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,low,415.04,362.52,281.62,208.04,140.83
-31340,27-2,Producers and Directors,"Arts, Design, Entertainment, Sports, Media",2600,low,33.53,10.55,0.00,0.00,0.00
-31340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,231.36,0.00,0.00,0.00,0.00
-31340,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,111.32,0.00,0.00,0.00,0.00
-31340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,584.55,506.90,386.87,277.26,176.76
-31340,41-1,First-Line Supervisors of Retail Sales Workers,Sales and Related,4700,low,7.17,0.00,0.00,0.00,0.00
-31340,41-2,Retail Salespersons,Sales and Related,4700,low,39.94,0.00,0.00,0.00,0.00
-31340,41-3,"Sales Representatives of Services, Except Advertising, Insurance, Financial Services, and Travel",Sales and Related,4700,low,7.89,0.00,0.00,0.00,0.00
-31340,47-2,Construction Laborers,Construction and Extraction,6200,low,353.59,239.83,63.94,0.00,0.00
-31340,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,349.32,245.87,88.67,0.00,0.00
-31340,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,582.78,539.49,472.24,410.46,353.49
-31340,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,low,825.32,764.02,668.79,581.29,500.60
-31340,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,896.12,829.56,726.16,631.16,543.55
+31340,11-1,General and Operations Managers,Management,10,low,75.75,0.00,0.00,0.00,0.00
+31340,11-3,Financial Managers,Management,10,low,31.81,0.00,0.00,0.00,0.00
+31340,11-9,"Managers, All Other",Management,10,low,45.02,0.00,0.00,0.00,0.00
+31340,15-1,Software Developers,Computer and Mathematical,1000,low,59.55,0.00,0.00,0.00,0.00
+31340,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,1228.22,1078.38,854.22,657.44,483.71
+31340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,1047.06,903.82,683.15,482.45,299.14
+31340,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,low,384.03,331.49,250.56,176.94,109.71
+31340,27-2,Producers and Directors,"Arts, Design, Entertainment, Sports, Media",2600,low,20.89,0.00,0.00,0.00,0.00
+31340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,145.01,0.00,0.00,0.00,0.00
+31340,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,69.77,0.00,0.00,0.00,0.00
+31340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,573.32,495.64,375.57,265.93,165.40
+31340,47-2,Construction Laborers,Construction and Extraction,6200,low,340.63,226.83,50.89,0.00,0.00
+31340,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,340.77,237.30,80.07,0.00,0.00
+31340,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,578.34,535.04,467.78,405.98,348.98
+31340,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,low,819.04,757.72,662.46,574.94,494.23
+31340,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,889.30,822.72,719.29,624.26,536.62
 31460,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,181.35,124.39,36.64,0.00,0.00
 31460,45-2,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse","Farming, Fishing, and Forestry",6000,low,5014.72,4797.66,4467.84,4172.81,3907.63
 31900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,581.04,508.22,396.04,293.99,200.79
@@ -2563,7 +2563,7 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 33860,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,1135.44,1064.19,953.51,851.82,758.05
 33860,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,208.44,97.97,0.00,0.00,0.00
 33860,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,407.13,191.35,0.00,0.00,0.00
-34580,47-2,Construction Laborers,Construction and Extraction,6200,low,573.87,532.49,468.53,410.12,356.58
+34580,47-2,Construction Laborers,Construction and Extraction,6200,low,519.84,478.31,414.12,355.51,301.77
 34620,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,633.08,572.88,480.14,395.79,318.75
 34620,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,283.86,0.00,0.00,0.00,0.00
 34620,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,low,301.64,246.85,162.38,85.47,15.15
@@ -3245,14 +3245,14 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 38300,53-1,"First-Line Supervisors of Transportation and Material Moving Workers, Except Aircraft Cargo Handling Supervisors",Transportation and Material Moving,9000,low,299.24,238.11,143.22,56.14,0.00
 38300,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,3157.66,2512.57,1511.32,592.38,0.00
 38300,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,3767.39,2997.74,1803.15,706.76,0.00
-38340,11-1,General and Operations Managers,Management,10,low,550.08,16.31,0.00,0.00,0.00
-38340,11-3,Financial Managers,Management,10,low,276.02,8.19,0.00,0.00,0.00
-38340,11-9,"Managers, All Other",Management,10,low,362.93,10.76,0.00,0.00,0.00
-38340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,1066.75,985.65,860.72,747.11,643.36
-38340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,749.67,232.76,0.00,0.00,0.00
-38340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,532.02,488.31,420.77,359.11,302.58
-38340,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,low,318.05,269.76,195.32,127.55,65.60
-38340,47-2,Construction Laborers,Construction and Extraction,6200,low,543.06,476.95,374.76,281.43,195.86
+38340,11-1,General and Operations Managers,Management,10,low,493.86,0.00,0.00,0.00,0.00
+38340,11-3,Financial Managers,Management,10,low,247.81,0.00,0.00,0.00,0.00
+38340,11-9,"Managers, All Other",Management,10,low,325.83,0.00,0.00,0.00,0.00
+38340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,1014.33,933.20,808.22,694.57,590.79
+38340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,682.94,166.00,0.00,0.00,0.00
+38340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,525.11,481.39,413.84,352.15,295.61
+38340,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,low,312.27,263.97,189.51,121.72,59.75
+38340,47-2,Construction Laborers,Construction and Extraction,6200,low,535.71,469.59,367.37,274.01,188.41
 38860,11-1,General and Operations Managers,Management,10,low,877.54,0.00,0.00,0.00,0.00
 38860,11-2,Marketing Managers,Management,10,low,331.65,0.00,0.00,0.00,0.00
 38860,11-3,Financial Managers,Management,10,low,536.45,0.00,0.00,0.00,0.00
@@ -3656,16 +3656,16 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 40420,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,2575.12,2454.29,2266.61,2094.19,1935.22
 40420,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,589.05,508.86,384.39,270.17,164.95
 40420,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,1642.88,1419.21,1072.08,753.50,460.04
-40580,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,371.60,312.35,221.07,138.04,62.21
-40580,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,84.34,0.00,0.00,0.00,0.00
-40580,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,55.03,0.00,0.00,0.00,0.00
-40580,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,374.57,323.84,245.43,173.82,108.17
-40580,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,low,46.21,0.00,0.00,0.00,0.00
-40580,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,22.00,0.00,0.00,0.00,0.00
-40580,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,1101.83,1047.68,963.58,886.32,815.08
-40580,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,1286.44,1223.23,1125.04,1034.83,951.66
-40580,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,271.78,226.16,155.35,90.36,30.50
-40580,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,557.84,464.20,318.86,185.47,62.59
+40580,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,369.48,310.23,218.94,135.90,60.06
+40580,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,81.18,0.00,0.00,0.00,0.00
+40580,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,52.97,0.00,0.00,0.00,0.00
+40580,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,370.76,320.02,241.59,169.96,104.29
+40580,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,low,37.01,0.00,0.00,0.00,0.00
+40580,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,17.21,0.00,0.00,0.00,0.00
+40580,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,1097.88,1043.72,959.59,882.30,811.04
+40580,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,1281.84,1218.60,1120.37,1030.14,946.93
+40580,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,266.52,220.87,150.02,85.00,25.10
+40580,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,547.04,453.35,307.93,174.46,51.52
 40900,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,6626.56,5898.09,4750.86,3679.29,2675.41
 40900,13-2,Accountants and Auditors,Business and Financial Operations,500,low,2497.58,2223.02,1790.62,1386.74,1008.37
 40900,15-1,Software Developers,Computer and Mathematical,1000,low,9390.51,7735.42,5197.16,2901.06,814.89
@@ -4124,21 +4124,22 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 42220,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,258.14,215.92,150.35,90.10,34.56
 42220,51-3,Bakers,Production,7700,low,260.52,217.92,151.73,90.94,34.88
 42220,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,615.44,514.79,358.45,214.82,82.39
-42540,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,2256.45,1977.29,1559.66,1193.04,869.37
-42540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,2465.14,818.72,0.00,0.00,0.00
-42540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,1579.53,524.59,0.00,0.00,0.00
-42540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,926.49,762.25,508.37,276.53,63.97
-42540,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,low,73.59,0.00,0.00,0.00,0.00
-42540,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,low,171.26,0.00,0.00,0.00,0.00
-42540,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,low,161.21,62.89,0.00,0.00,0.00
-42540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,290.83,113.46,0.00,0.00,0.00
-42540,51-1,First-Line Supervisors of Production and Operating Workers,Production,7700,low,456.77,421.32,366.26,315.66,269.01
-42540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,1032.47,952.35,827.88,713.52,608.07
-42540,51-3,Bakers,Production,7700,low,545.95,503.58,437.76,377.29,321.53
-42540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,low,968.00,892.88,776.18,668.97,570.10
-42540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,1454.65,1341.76,1166.40,1005.28,856.70
-42540,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,1819.88,1666.66,1428.87,1210.65,1009.63
-42540,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,4490.86,4112.77,3525.98,2987.48,2491.43
+42540,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,2252.24,1973.07,1555.42,1188.78,865.09
+42540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,2453.95,807.51,0.00,0.00,0.00
+42540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,1572.36,517.41,0.00,0.00,0.00
+42540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,911.42,747.11,493.15,261.23,48.59
+42540,35-1,First-Line Supervisors of Food Preparation and Serving Workers,Food Preparation and Serving,4000,low,27.69,0.00,0.00,0.00,0.00
+42540,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,low,63.74,0.00,0.00,0.00,0.00
+42540,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,low,148.33,0.00,0.00,0.00,0.00
+42540,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,low,153.06,54.72,0.00,0.00,0.00
+42540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,276.13,98.71,0.00,0.00,0.00
+42540,51-1,First-Line Supervisors of Production and Operating Workers,Production,7700,low,452.76,417.29,362.20,311.58,264.90
+42540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,1023.40,943.24,818.71,704.29,598.78
+42540,51-3,Bakers,Production,7700,low,541.15,498.76,432.91,372.41,316.62
+42540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,low,959.50,884.34,767.58,660.31,561.39
+42540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,1441.87,1328.93,1153.47,992.27,843.62
+42540,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,1803.31,1650.02,1412.11,1193.78,992.67
+42540,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,4449.96,4071.70,3484.62,2945.86,2449.57
 42660,11-1,General and Operations Managers,Management,10,low,18.12,0.00,0.00,0.00,0.00
 42660,11-2,Marketing Managers,Management,10,low,8.73,0.00,0.00,0.00,0.00
 42660,11-3,Financial Managers,Management,10,low,21.96,0.00,0.00,0.00,0.00
@@ -4218,15 +4219,15 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 43340,47-5,"Service Unit Operators, Oil and Gas",Construction and Extraction,6200,low,254.08,201.24,119.56,44.95,0.00
 43340,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,low,264.95,203.04,108.96,24.80,0.00
 43340,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,563.81,432.06,231.87,52.78,0.00
-43900,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,65.61,0.00,0.00,0.00,0.00
-43900,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,86.95,0.00,0.00,0.00,0.00
-43900,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,low,192.34,112.58,0.00,0.00,0.00
-43900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,418.76,245.10,0.00,0.00,0.00
-43900,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,3553.16,3347.14,3027.11,2733.09,2461.97
-43900,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,low,1025.96,966.47,874.06,789.17,710.88
-43900,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,1233.57,1162.05,1050.94,948.86,854.74
-43900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,439.69,328.48,155.85,0.00,0.00
-43900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,877.98,655.90,311.20,0.00,0.00
+43900,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,18.55,0.00,0.00,0.00,0.00
+43900,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,74.65,0.00,0.00,0.00,0.00
+43900,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,low,187.87,108.09,0.00,0.00,0.00
+43900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,409.02,235.33,0.00,0.00,0.00
+43900,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,3540.82,3334.77,3014.69,2720.63,2449.47
+43900,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,low,1022.40,962.90,870.48,785.57,707.27
+43900,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,1229.29,1157.75,1046.63,944.54,850.40
+43900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,429.31,318.07,145.41,0.00,0.00
+43900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,857.25,635.12,290.34,0.00,0.00
 44060,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,279.71,118.04,0.00,0.00,0.00
 44060,13-2,Accountants and Auditors,Business and Financial Operations,500,low,117.54,49.60,0.00,0.00,0.00
 44060,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,2174.45,1813.01,1272.26,797.53,378.38
@@ -4413,15 +4414,15 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 45780,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,3110.98,2967.36,2744.27,2539.33,2350.35
 45780,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,3227.32,3026.86,2715.77,2430.29,2167.34
 45780,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,6201.84,5816.63,5218.82,4670.22,4164.91
-45820,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,812.10,679.95,482.25,308.67,155.42
-45820,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,613.97,495.68,313.44,147.69,0.00
-45820,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,low,316.11,255.21,161.38,76.04,0.00
-45820,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,347.22,269.47,149.30,39.54,0.00
-45820,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,low,288.99,253.39,198.08,147.24,100.34
-45820,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,low,35.25,0.00,0.00,0.00,0.00
-45820,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,64.27,0.00,0.00,0.00,0.00
-45820,51-3,Bakers,Production,7700,low,377.48,339.76,281.18,227.34,177.70
-45820,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,698.01,628.27,519.94,420.39,328.60
+45820,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,810.15,678.00,480.29,306.71,153.44
+45820,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,610.48,492.18,309.93,144.17,0.00
+45820,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,low,314.31,253.41,159.57,74.23,0.00
+45820,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,341.27,263.50,143.29,33.51,0.00
+45820,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,low,286.48,250.88,195.56,144.71,97.79
+45820,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,low,31.73,0.00,0.00,0.00,0.00
+45820,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,57.85,0.00,0.00,0.00,0.00
+45820,51-3,Bakers,Production,7700,low,373.86,336.13,277.52,223.66,174.00
+45820,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,691.32,621.55,513.17,413.59,321.75
 45940,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,287.53,168.89,0.00,0.00,0.00
 45940,13-2,Accountants and Auditors,Business and Financial Operations,500,low,110.91,65.14,0.00,0.00,0.00
 45940,15-1,Software Developers,Computer and Mathematical,1000,low,2912.64,2575.99,2059.75,1592.82,1168.63
@@ -4568,21 +4569,21 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 46520,49-2,"Telecommunications Equipment Installers and Repairers, Except Line Installers","Installation, Maintenance, and Repair",7000,low,387.97,329.36,240.31,160.68,89.12
 46520,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,low,1110.78,942.96,688.03,460.04,255.16
 46520,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,2303.16,1955.20,1426.60,953.88,529.06
-46540,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,496.29,441.83,356.07,275.96,200.92
-46540,13-2,Accountants and Auditors,Business and Financial Operations,500,low,277.99,247.48,199.44,154.57,112.54
-46540,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,1275.20,1126.44,903.90,708.55,536.10
-46540,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,1506.12,1357.90,1129.58,921.92,732.28
-46540,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,low,708.31,638.60,531.22,433.57,344.38
-46540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,1746.03,820.27,0.00,0.00,0.00
-46540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,999.68,469.64,0.00,0.00,0.00
-46540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,680.55,593.81,459.73,337.30,225.05
-46540,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,low,1230.08,1164.90,1063.63,970.56,884.72
-46540,39-9,Childcare Workers,Personal Care and Service,4300,low,246.67,0.00,0.00,0.00,0.00
-46540,41-2,Retail Salespersons,Sales and Related,4700,low,825.39,0.00,0.00,0.00,0.00
-46540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,233.23,142.05,3.49,0.00,0.00
-46540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,262.94,226.75,170.53,118.87,71.22
-46540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,low,266.05,229.43,172.54,120.27,72.07
-46540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,294.18,253.69,190.79,132.99,79.68
+46540,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,492.72,438.25,352.47,272.35,197.29
+46540,13-2,Accountants and Auditors,Business and Financial Operations,500,low,275.98,245.47,197.43,152.55,110.51
+46540,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,1273.72,1124.96,902.41,707.06,534.60
+46540,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,1503.04,1354.81,1126.47,918.80,729.15
+46540,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,low,706.86,637.15,529.76,432.10,342.91
+46540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,1741.94,816.17,0.00,0.00,0.00
+46540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,997.34,467.29,0.00,0.00,0.00
+46540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,675.29,588.53,454.42,331.96,219.70
+46540,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,low,1227.30,1162.12,1060.83,967.75,881.90
+46540,39-9,Childcare Workers,Personal Care and Service,4300,low,241.66,0.00,0.00,0.00,0.00
+46540,41-2,Retail Salespersons,Sales and Related,4700,low,814.39,0.00,0.00,0.00,0.00
+46540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,228.18,136.98,0.00,0.00,0.00
+46540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,259.60,223.39,167.15,115.47,67.81
+46540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,low,262.67,226.04,169.12,116.83,68.61
+46540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,290.44,249.93,187.01,129.18,75.86
 46700,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,176.18,74.16,0.00,0.00,0.00
 46700,13-2,Accountants and Auditors,Business and Financial Operations,500,low,45.02,18.95,0.00,0.00,0.00
 46700,21-1,Social and Human Service Assistants,Community and Social Service,2000,low,1497.06,1270.17,930.72,632.73,369.63
@@ -4709,17 +4710,17 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 47900,49-2,"Telecommunications Equipment Installers and Repairers, Except Line Installers","Installation, Maintenance, and Repair",7000,low,494.04,266.34,0.00,0.00,0.00
 47900,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,low,1631.39,879.51,0.00,0.00,0.00
 47900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,3273.51,1764.80,0.00,0.00,0.00
-48140,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,689.72,648.84,584.46,524.33,468.00
-48140,13-2,Accountants and Auditors,Business and Financial Operations,500,low,308.51,290.22,261.43,234.53,209.33
-48140,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,346.46,274.02,162.41,60.89,0.00
-48140,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,638.36,79.86,0.00,0.00,0.00
-48140,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,276.85,34.64,0.00,0.00,0.00
-48140,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,207.96,167.15,104.07,46.47,0.00
-48140,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,342.18,279.31,183.79,98.36,21.58
-48140,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,767.85,728.89,668.38,612.79,561.53
-48140,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,841.32,798.63,732.33,671.42,615.26
-48140,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,121.20,67.53,0.00,0.00,0.00
-48140,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,167.61,93.39,0.00,0.00,0.00
+48140,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,low,662.36,621.46,557.04,496.88,440.52
+48140,13-2,Accountants and Auditors,Business and Financial Operations,500,low,296.27,277.97,249.16,222.25,197.04
+48140,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,low,312.76,240.29,128.65,27.10,0.00
+48140,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,low,601.94,43.42,0.00,0.00,0.00
+48140,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,low,261.06,18.83,0.00,0.00,0.00
+48140,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,203.85,163.03,99.95,42.33,0.00
+48140,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,low,339.51,276.63,181.10,95.67,18.88
+48140,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,low,765.95,726.99,666.47,610.88,559.61
+48140,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,low,839.24,796.55,730.24,669.33,613.16
+48140,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,low,116.56,62.88,0.00,0.00,0.00
+48140,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,low,161.18,86.95,0.00,0.00,0.00
 48300,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,low,79.51,42.13,0.00,0.00,0.00
 48300,45-2,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse","Farming, Fishing, and Forestry",6000,low,3916.47,3745.04,3484.55,3251.55,3042.11
 48620,17-2,Mechanical Engineers,Architecture and Engineering,1300,low,719.31,0.00,0.00,0.00,0.00
@@ -4911,6 +4912,8 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 10420,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,3161.15,2981.30,2701.93,2445.26,2208.59
 10420,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,1476.14,1291.40,1004.66,741.51,499.09
 10420,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,2768.84,2422.32,1884.48,1390.87,936.15
+10540,41-2,Retail Salespersons,Sales and Related,4700,mid,64.04,0.00,0.00,0.00,0.00
+10540,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,253.90,221.92,172.29,126.73,84.75
 10580,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,mid,4418.95,4128.23,3670.39,3242.74,2842.09
 10580,13-2,Accountants and Auditors,Business and Financial Operations,500,mid,1936.33,1808.94,1608.32,1420.93,1245.37
 10580,15-1,Software Developers,Computer and Mathematical,1000,mid,3864.10,3247.35,2301.53,1445.98,668.68
@@ -5406,15 +5409,16 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 13820,53-1,"First-Line Supervisors of Transportation and Material Moving Workers, Except Aircraft Cargo Handling Supervisors",Transportation and Material Moving,9000,mid,207.48,152.14,66.26,0.00,0.00
 13820,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,1235.44,905.94,394.53,0.00,0.00
 13820,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,1924.27,1411.06,614.51,0.00,0.00
-13900,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,623.21,536.59,407.01,293.25,192.83
-13900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,59.17,0.00,0.00,0.00,0.00
-13900,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,mid,29.58,0.00,0.00,0.00,0.00
-13900,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,1505.22,781.32,0.00,0.00,0.00
-13900,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,mid,407.18,107.63,0.00,0.00,0.00
-13900,39-9,Childcare Workers,Personal Care and Service,4300,mid,303.21,127.75,0.00,0.00,0.00
-13900,47-2,Construction Laborers,Construction and Extraction,6200,mid,204.15,122.08,0.00,0.00,0.00
-13900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,100.66,48.33,0.00,0.00,0.00
-13900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,127.91,61.41,0.00,0.00,0.00
+13900,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,621.91,535.29,405.70,291.95,191.51
+13900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,56.26,0.00,0.00,0.00,0.00
+13900,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,mid,28.12,0.00,0.00,0.00,0.00
+13900,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,1501.17,777.27,0.00,0.00,0.00
+13900,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,mid,401.04,101.46,0.00,0.00,0.00
+13900,39-9,Childcare Workers,Personal Care and Service,4300,mid,299.66,124.19,0.00,0.00,0.00
+13900,47-2,Construction Laborers,Construction and Extraction,6200,mid,192.05,109.93,0.00,0.00,0.00
+13900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,334.65,281.92,201.80,130.15,65.76
+13900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,93.45,41.09,0.00,0.00,0.00
+13900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,118.75,52.21,0.00,0.00,0.00
 13980,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,978.22,843.37,641.63,464.53,308.18
 13980,25-1,"Postsecondary Teachers, All Other","Education, Training, and Library",2200,mid,1181.86,1083.77,932.68,795.27,669.78
 13980,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,1234.48,1132.02,974.20,830.67,699.60
@@ -5514,17 +5518,17 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 14460,51-7,Cabinetmakers and Bench Carpenters,Production,7700,mid,44.74,16.07,0.00,0.00,0.00
 14460,51-8,"Petroleum Pump System Operators, Refinery Operators, and Gaugers",Production,7700,mid,96.49,34.67,0.00,0.00,0.00
 14460,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,900.46,323.52,0.00,0.00,0.00
-14740,15-1,Software Developers,Computer and Mathematical,1000,mid,375.26,169.98,0.00,0.00,0.00
-14740,17-2,Mechanical Engineers,Architecture and Engineering,1300,mid,1480.35,973.25,338.69,0.00,0.00
-14740,17-3,Architectural and Civil Drafters,Architecture and Engineering,1300,mid,1134.48,745.86,259.56,0.00,0.00
-14740,27-1,Graphic Designers,"Arts, Design, Entertainment, Sports, Media",2600,mid,5.93,0.00,0.00,0.00,0.00
-14740,33-9,Security Guards,Protective Service,3700,mid,171.27,140.15,91.79,47.35,6.35
-14740,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,mid,35.59,0.00,0.00,0.00,0.00
-14740,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,mid,91.48,0.00,0.00,0.00,0.00
-14740,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,mid,66.66,0.00,0.00,0.00,0.00
-14740,37-3,Landscaping and Groundskeeping Workers,Building and Grounds Cleaning and Maintenance,4200,mid,30.31,0.00,0.00,0.00,0.00
-14740,47-2,Construction Laborers,Construction and Extraction,6200,mid,2122.63,1903.24,1564.11,1254.39,970.41
-14740,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,1158.22,1009.30,783.09,580.81,399.04
+14740,15-1,Software Developers,Computer and Mathematical,1000,mid,368.10,162.81,0.00,0.00,0.00
+14740,17-2,Mechanical Engineers,Architecture and Engineering,1300,mid,1478.59,971.49,336.92,0.00,0.00
+14740,17-3,Architectural and Civil Drafters,Architecture and Engineering,1300,mid,1133.14,744.51,258.21,0.00,0.00
+14740,27-1,Graphic Designers,"Arts, Design, Entertainment, Sports, Media",2600,mid,3.96,0.00,0.00,0.00,0.00
+14740,33-9,Security Guards,Protective Service,3700,mid,168.99,137.86,89.50,45.05,4.04
+14740,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,mid,31.23,0.00,0.00,0.00,0.00
+14740,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,mid,80.27,0.00,0.00,0.00,0.00
+14740,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,mid,57.74,0.00,0.00,0.00,0.00
+14740,37-3,Landscaping and Groundskeeping Workers,Building and Grounds Cleaning and Maintenance,4200,mid,26.26,0.00,0.00,0.00,0.00
+14740,47-2,Construction Laborers,Construction and Extraction,6200,mid,2103.76,1884.30,1545.05,1235.23,951.16
+14740,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,1151.62,1002.69,776.44,574.13,392.33
 14860,11-1,General and Operations Managers,Management,10,mid,425.13,0.00,0.00,0.00,0.00
 14860,11-2,Marketing Managers,Management,10,mid,184.43,0.00,0.00,0.00,0.00
 14860,11-3,Financial Managers,Management,10,mid,463.51,0.00,0.00,0.00,0.00
@@ -6249,7 +6253,7 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 19820,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,4825.63,3747.72,2074.71,539.25,0.00
 19820,53-6,Parking Attendants,Transportation and Material Moving,9000,mid,277.07,215.18,119.12,30.96,0.00
 19820,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,8508.00,6607.56,3657.90,950.75,0.00
-20020,41-2,Retail Salespersons,Sales and Related,4700,mid,180.17,0.00,0.00,0.00,0.00
+20020,41-2,Retail Salespersons,Sales and Related,4700,mid,87.07,0.00,0.00,0.00,0.00
 20100,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,285.45,205.51,85.88,0.00,0.00
 20100,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,129.36,24.99,0.00,0.00,0.00
 20100,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,mid,47.04,9.09,0.00,0.00,0.00
@@ -7270,25 +7274,22 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 31180,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,mid,113.96,66.03,0.00,0.00,0.00
 31180,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,mid,229.74,167.55,71.66,0.00,0.00
 31180,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,mid,596.20,434.81,185.96,0.00,0.00
-31340,11-1,General and Operations Managers,Management,10,mid,237.17,0.00,0.00,0.00,0.00
-31340,11-3,Financial Managers,Management,10,mid,99.61,0.00,0.00,0.00,0.00
-31340,11-9,"Managers, All Other",Management,10,mid,140.95,0.00,0.00,0.00,0.00
-31340,15-1,Software Developers,Computer and Mathematical,1000,mid,235.91,103.53,0.00,0.00,0.00
-31340,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,1345.62,1191.67,961.37,759.21,580.73
-31340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,1151.81,1007.99,786.43,584.92,400.88
-31340,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,mid,422.45,369.70,288.44,214.53,147.03
-31340,27-2,Producers and Directors,"Arts, Design, Entertainment, Sports, Media",2600,mid,43.76,20.56,0.00,0.00,0.00
-31340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,327.36,0.00,0.00,0.00,0.00
-31340,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,157.50,0.00,0.00,0.00,0.00
-31340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,704.43,623.31,497.93,383.44,278.47
-31340,41-1,First-Line Supervisors of Retail Sales Workers,Sales and Related,4700,mid,3.31,0.00,0.00,0.00,0.00
-31340,41-2,Retail Salespersons,Sales and Related,4700,mid,18.46,0.00,0.00,0.00,0.00
-31340,41-3,"Sales Representatives of Services, Except Advertising, Insurance, Financial Services, and Travel",Sales and Related,4700,mid,3.65,0.00,0.00,0.00,0.00
-31340,47-2,Construction Laborers,Construction and Extraction,6200,mid,384.26,269.62,92.38,0.00,0.00
-31340,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,367.30,263.10,104.76,0.00,0.00
-31340,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,578.69,535.50,468.42,406.78,349.94
-31340,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,mid,819.53,758.37,663.37,576.07,495.58
-31340,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,889.83,823.43,720.27,625.49,538.09
+31340,11-1,General and Operations Managers,Management,10,mid,151.79,0.00,0.00,0.00,0.00
+31340,11-3,Financial Managers,Management,10,mid,63.75,0.00,0.00,0.00,0.00
+31340,11-9,"Managers, All Other",Management,10,mid,90.21,0.00,0.00,0.00,0.00
+31340,15-1,Software Developers,Computer and Mathematical,1000,mid,176.05,43.62,0.00,0.00,0.00
+31340,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,1306.31,1152.35,922.01,719.81,541.29
+31340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,1067.25,923.38,701.74,500.15,316.04
+31340,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,mid,391.43,338.66,257.37,183.44,115.91
+31340,27-2,Producers and Directors,"Arts, Design, Entertainment, Sports, Media",2600,mid,31.12,7.91,0.00,0.00,0.00
+31340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,241.01,0.00,0.00,0.00,0.00
+31340,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,115.96,0.00,0.00,0.00,0.00
+31340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,693.19,612.05,486.63,372.11,267.11
+31340,47-2,Construction Laborers,Construction and Extraction,6200,mid,371.30,256.62,79.32,0.00,0.00
+31340,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,358.76,254.53,96.15,0.00,0.00
+31340,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,574.25,531.05,463.95,402.29,345.43
+31340,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,mid,813.25,752.07,657.04,569.72,489.20
+31340,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,883.01,816.59,713.40,618.60,531.17
 31460,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,210.94,153.06,63.88,0.00,0.00
 31460,45-2,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse","Farming, Fishing, and Forestry",6000,mid,4999.14,4782.72,4453.87,4159.72,3895.33
 31900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,597.84,524.50,411.51,308.73,214.85
@@ -7608,7 +7609,7 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 33860,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,1162.59,1090.66,978.93,876.27,781.61
 33860,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,280.24,167.93,0.00,0.00,0.00
 33860,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,547.38,328.00,0.00,0.00,0.00
-34580,47-2,Construction Laborers,Construction and Extraction,6200,mid,615.42,572.85,507.05,446.96,391.88
+34580,47-2,Construction Laborers,Construction and Extraction,6200,mid,561.40,518.67,452.64,392.34,337.06
 34620,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,648.60,587.92,494.44,409.41,331.75
 34620,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,321.19,0.00,0.00,0.00,0.00
 34620,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,mid,316.78,261.53,176.34,98.77,27.86
@@ -8334,14 +8335,14 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 38300,53-1,"First-Line Supervisors of Transportation and Material Moving Workers, Except Aircraft Cargo Handling Supervisors",Transportation and Material Moving,9000,mid,321.91,260.20,164.41,76.50,0.00
 38300,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,3396.89,2745.67,1734.90,807.22,0.00
 38300,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,4052.81,3275.84,2069.90,963.09,0.00
-38340,11-1,General and Operations Managers,Management,10,mid,603.89,60.67,0.00,0.00,0.00
-38340,11-3,Financial Managers,Management,10,mid,303.02,30.44,0.00,0.00,0.00
-38340,11-9,"Managers, All Other",Management,10,mid,398.43,40.03,0.00,0.00,0.00
-38340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,1123.29,1040.41,912.76,796.68,690.68
-38340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,816.69,288.27,0.00,0.00,0.00
-38340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,578.09,533.05,463.46,399.92,341.67
-38340,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,mid,351.20,301.89,225.87,156.67,93.41
-38340,47-2,Construction Laborers,Construction and Extraction,6200,mid,575.53,508.49,404.86,310.22,223.44
+38340,11-1,General and Operations Managers,Management,10,mid,547.67,4.42,0.00,0.00,0.00
+38340,11-3,Financial Managers,Management,10,mid,274.81,2.22,0.00,0.00,0.00
+38340,11-9,"Managers, All Other",Management,10,mid,361.34,2.91,0.00,0.00,0.00
+38340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,1070.87,987.97,860.27,744.15,638.11
+38340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,749.97,221.51,0.00,0.00,0.00
+38340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,571.18,526.13,456.52,392.96,334.70
+38340,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,mid,345.42,296.10,220.06,150.84,87.56
+38340,47-2,Construction Laborers,Construction and Extraction,6200,mid,568.18,501.13,397.47,302.80,216.00
 38860,11-1,General and Operations Managers,Management,10,mid,894.69,0.00,0.00,0.00,0.00
 38860,11-2,Marketing Managers,Management,10,mid,338.13,0.00,0.00,0.00,0.00
 38860,11-3,Financial Managers,Management,10,mid,546.94,0.00,0.00,0.00,0.00
@@ -8757,17 +8758,17 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 40420,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,2574.00,2453.20,2265.56,2093.18,1934.25
 40420,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,622.49,541.44,415.64,300.20,193.85
 40420,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,1736.14,1510.09,1159.24,837.26,540.67
-40580,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,411.80,351.30,258.09,173.30,95.86
-40580,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,159.13,0.00,0.00,0.00,0.00
-40580,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,103.82,0.00,0.00,0.00,0.00
-40580,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,439.22,386.62,305.32,231.09,163.03
-40580,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,mid,84.25,0.00,0.00,0.00,0.00
-40580,41-2,Retail Salespersons,Sales and Related,4700,mid,11.00,0.00,0.00,0.00,0.00
-40580,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,56.53,0.00,0.00,0.00,0.00
-40580,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,1112.78,1058.36,973.84,896.19,824.59
-40580,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,1299.23,1235.69,1137.01,1046.35,962.76
-40580,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,313.56,266.87,194.39,127.88,66.61
-40580,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,643.59,547.75,399.00,262.48,136.72
+40580,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,409.68,349.18,255.95,171.16,93.71
+40580,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,155.97,0.00,0.00,0.00,0.00
+40580,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,101.76,0.00,0.00,0.00,0.00
+40580,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,435.41,382.80,301.48,227.22,159.14
+40580,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,mid,75.05,0.00,0.00,0.00,0.00
+40580,41-2,Retail Salespersons,Sales and Related,4700,mid,3.02,0.00,0.00,0.00,0.00
+40580,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,51.73,0.00,0.00,0.00,0.00
+40580,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,1108.83,1054.40,969.84,892.17,820.54
+40580,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,1294.62,1231.07,1132.35,1041.65,958.03
+40580,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,308.30,261.58,189.07,122.52,61.21
+40580,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,632.79,536.90,388.07,251.47,125.64
 40900,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,mid,7505.23,6764.11,5596.97,4506.80,3485.49
 40900,13-2,Accountants and Auditors,Business and Financial Operations,500,mid,2828.75,2549.42,2109.52,1698.63,1313.70
 40900,15-1,Software Developers,Computer and Mathematical,1000,mid,10998.39,9287.66,6664.11,4290.90,2134.70
@@ -9253,21 +9254,22 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 42220,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,258.42,216.19,150.61,90.35,34.80
 42220,51-3,Bakers,Production,7700,mid,260.80,218.19,152.00,91.19,35.12
 42220,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,616.10,515.43,359.06,215.42,82.96
-42540,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,2327.23,2044.33,1621.09,1249.56,921.56
-42540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,2611.37,939.83,0.00,0.00,0.00
-42540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,1673.22,602.19,0.00,0.00,0.00
-42540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,1062.38,894.21,634.27,396.89,179.26
-42540,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,mid,84.66,7.68,0.00,0.00,0.00
-42540,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,mid,197.02,17.87,0.00,0.00,0.00
-42540,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,mid,182.14,82.95,0.00,0.00,0.00
-42540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,328.59,149.65,0.00,0.00,0.00
-42540,51-1,First-Line Supervisors of Production and Operating Workers,Production,7700,mid,449.15,413.90,359.12,308.80,262.40
-42540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,1015.25,935.56,811.76,698.01,593.12
-42540,51-3,Bakers,Production,7700,mid,536.84,494.70,429.24,369.09,313.63
-42540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,mid,951.86,877.14,761.07,654.42,556.08
-42540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,1430.39,1318.11,1143.68,983.43,835.64
-42540,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,1876.89,1722.21,1482.15,1261.85,1058.91
-42540,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,4631.55,4249.85,3657.46,3113.82,2613.05
+42540,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,2323.02,2040.11,1616.85,1245.31,917.28
+42540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,2600.19,928.61,0.00,0.00,0.00
+42540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,1666.06,595.00,0.00,0.00,0.00
+42540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,1047.30,879.07,619.05,381.59,163.89
+42540,35-1,First-Line Supervisors of Food Preparation and Serving Workers,Food Preparation and Serving,4000,mid,32.49,0.00,0.00,0.00,0.00
+42540,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,mid,74.80,0.00,0.00,0.00,0.00
+42540,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,mid,174.09,0.00,0.00,0.00,0.00
+42540,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,mid,174.00,74.77,0.00,0.00,0.00
+42540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,313.90,134.89,0.00,0.00,0.00
+42540,51-1,First-Line Supervisors of Production and Operating Workers,Production,7700,mid,445.14,409.87,355.07,304.72,258.29
+42540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,1006.19,926.45,802.58,688.78,583.83
+42540,51-3,Bakers,Production,7700,mid,532.05,489.89,424.39,364.21,308.72
+42540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,mid,943.36,868.60,752.47,645.77,547.37
+42540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,1417.62,1305.28,1130.76,970.42,822.56
+42540,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,1860.32,1705.57,1465.39,1244.98,1041.95
+42540,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,4590.65,4208.78,3616.10,3072.20,2571.19
 42660,11-1,General and Operations Managers,Management,10,mid,2592.72,0.00,0.00,0.00,0.00
 42660,11-2,Marketing Managers,Management,10,mid,1249.21,0.00,0.00,0.00,0.00
 42660,11-3,Financial Managers,Management,10,mid,3141.02,0.00,0.00,0.00,0.00
@@ -9348,15 +9350,15 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 43340,47-5,"Service Unit Operators, Oil and Gas",Construction and Extraction,6200,mid,291.02,237.12,153.80,77.70,7.91
 43340,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,mid,286.00,223.21,127.79,42.44,0.00
 43340,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,608.61,474.98,271.94,90.32,0.00
-43900,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,146.72,13.35,0.00,0.00,0.00
-43900,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,232.59,135.45,0.00,0.00,0.00
-43900,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,mid,234.57,153.04,29.14,0.00,0.00
-43900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,510.70,333.19,63.44,0.00,0.00
-43900,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,3668.75,3459.85,3135.34,2837.22,2562.32
-43900,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,mid,1059.33,999.02,905.32,819.24,739.86
-43900,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,1273.70,1201.18,1088.52,985.01,889.57
-43900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,578.64,463.86,285.70,122.19,0.00
-43900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,1155.42,926.22,570.48,243.98,0.00
+43900,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,99.67,0.00,0.00,0.00,0.00
+43900,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,220.29,123.13,0.00,0.00,0.00
+43900,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,mid,230.09,148.55,24.63,0.00,0.00
+43900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,500.95,323.42,53.63,0.00,0.00
+43900,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,3656.41,3447.48,3122.93,2824.76,2549.82
+43900,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,mid,1055.77,995.45,901.73,815.64,736.25
+43900,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,1269.42,1196.88,1084.21,980.69,885.24
+43900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,568.26,453.45,275.26,111.70,0.00
+43900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,1134.69,905.44,549.63,223.05,0.00
 44060,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,mid,676.38,509.00,245.40,0.00,0.00
 44060,13-2,Accountants and Auditors,Business and Financial Operations,500,mid,284.24,213.90,103.13,0.00,0.00
 44060,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,2387.99,2015.26,1457.62,968.07,535.84
@@ -9550,15 +9552,15 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 45780,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,3051.29,2909.16,2688.38,2485.56,2298.54
 45780,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,3288.87,3086.84,2773.30,2485.57,2220.55
 45780,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,6320.12,5931.88,5329.36,4776.45,4267.16
-45820,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,858.05,723.47,522.13,345.37,189.30
-45820,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,642.58,523.40,339.79,172.78,20.25
-45820,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,mid,330.84,269.48,174.94,88.96,10.43
-45820,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,420.47,340.61,217.17,104.43,1.07
-45820,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,mid,294.37,258.64,203.12,152.09,105.01
-45820,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,mid,50.00,0.00,0.00,0.00,0.00
-45820,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,91.15,0.00,0.00,0.00,0.00
-45820,51-3,Bakers,Production,7700,mid,380.07,342.29,283.61,229.68,179.95
-45820,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,702.81,632.95,524.43,424.72,332.76
+45820,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,856.10,721.52,520.17,343.40,187.33
+45820,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,639.09,519.90,336.28,169.26,16.71
+45820,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,mid,329.05,267.68,173.14,87.14,8.60
+45820,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,414.52,334.64,211.16,98.40,0.00
+45820,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,mid,291.86,256.13,200.60,149.55,102.47
+45820,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,mid,46.48,0.00,0.00,0.00,0.00
+45820,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,84.74,0.00,0.00,0.00,0.00
+45820,51-3,Bakers,Production,7700,mid,376.45,338.66,279.95,226.00,176.25
+45820,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,696.11,626.23,517.66,417.91,325.91
 45940,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,mid,358.13,238.47,50.03,0.00,0.00
 45940,13-2,Accountants and Auditors,Business and Financial Operations,500,mid,138.14,91.98,19.30,0.00,0.00
 45940,15-1,Software Developers,Computer and Mathematical,1000,mid,3128.99,2784.85,2257.14,1779.83,1346.22
@@ -9701,26 +9703,26 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 46520,49-2,"Telecommunications Equipment Installers and Repairers, Except Line Installers","Installation, Maintenance, and Repair",7000,mid,398.99,339.91,250.17,169.91,97.79
 46520,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,mid,1142.32,973.18,716.24,486.47,279.97
 46520,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,2368.56,2017.86,1485.10,1008.67,580.52
-46540,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,mid,564.46,509.02,421.71,340.16,263.76
-46540,13-2,Accountants and Auditors,Business and Financial Operations,500,mid,316.17,285.11,236.21,190.53,147.74
-46540,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,1405.83,1250.17,1017.29,812.88,632.42
-46540,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,1690.37,1536.39,1299.21,1083.50,886.50
-46540,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,mid,794.96,722.54,611.00,509.55,416.91
-46540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,2000.26,1030.81,0.00,0.00,0.00
-46540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,1145.24,590.19,0.00,0.00,0.00
-46540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,836.57,745.32,604.28,475.50,357.43
-46540,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,mid,1300.82,1233.89,1129.89,1034.33,946.18
-46540,39-9,Childcare Workers,Personal Care and Service,4300,mid,324.21,37.57,0.00,0.00,0.00
-46540,41-2,Retail Salespersons,Sales and Related,4700,mid,796.90,0.00,0.00,0.00,0.00
-46540,43-3,"Bookkeeping, Accounting, and Auditing Clerks",Office and Administrative Support,5000,mid,9.54,0.00,0.00,0.00,0.00
-46540,43-4,Customer Service Representatives,Office and Administrative Support,5000,mid,12.54,0.00,0.00,0.00,0.00
-46540,43-5,"Shipping, Receiving, and Inventory Clerks",Office and Administrative Support,5000,mid,6.57,0.00,0.00,0.00,0.00
-46540,43-6,"Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",Office and Administrative Support,5000,mid,8.53,0.00,0.00,0.00,0.00
-46540,43-9,"Office Clerks, General",Office and Administrative Support,5000,mid,8.00,0.00,0.00,0.00,0.00
-46540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,268.67,176.01,35.20,0.00,0.00
-46540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,243.84,208.13,152.64,101.66,54.64
-46540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,mid,246.72,210.59,154.45,102.86,55.29
-46540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,272.81,232.85,170.78,113.74,61.13
+46540,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,mid,560.88,505.43,418.11,336.55,260.14
+46540,13-2,Accountants and Auditors,Business and Financial Operations,500,mid,314.16,283.10,234.19,188.51,145.71
+46540,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,1404.36,1248.68,1015.80,811.39,630.92
+46540,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,1687.28,1533.30,1296.10,1080.38,883.37
+46540,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,mid,793.51,721.09,609.54,508.09,415.44
+46540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,1996.17,1026.72,0.00,0.00,0.00
+46540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,1142.90,587.84,0.00,0.00,0.00
+46540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,831.31,740.04,598.98,470.17,352.08
+46540,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,mid,1298.04,1231.10,1127.09,1031.51,943.36
+46540,39-9,Childcare Workers,Personal Care and Service,4300,mid,319.19,32.54,0.00,0.00,0.00
+46540,41-2,Retail Salespersons,Sales and Related,4700,mid,785.89,0.00,0.00,0.00,0.00
+46540,43-3,"Bookkeeping, Accounting, and Auditing Clerks",Office and Administrative Support,5000,mid,4.25,0.00,0.00,0.00,0.00
+46540,43-4,Customer Service Representatives,Office and Administrative Support,5000,mid,5.58,0.00,0.00,0.00,0.00
+46540,43-5,"Shipping, Receiving, and Inventory Clerks",Office and Administrative Support,5000,mid,2.92,0.00,0.00,0.00,0.00
+46540,43-6,"Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",Office and Administrative Support,5000,mid,3.80,0.00,0.00,0.00,0.00
+46540,43-9,"Office Clerks, General",Office and Administrative Support,5000,mid,3.56,0.00,0.00,0.00,0.00
+46540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,263.62,170.94,30.10,0.00,0.00
+46540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,240.50,204.77,149.26,98.26,51.22
+46540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,mid,243.34,207.19,151.03,99.42,51.83
+46540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,269.07,229.10,167.00,109.93,57.31
 46700,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,mid,298.07,194.30,30.88,0.00,0.00
 46700,13-2,Accountants and Auditors,Business and Financial Operations,500,mid,76.16,49.64,7.89,0.00,0.00
 46700,21-1,Social and Human Service Assistants,Community and Social Service,2000,mid,1639.27,1404.86,1054.16,746.30,474.49
@@ -9849,18 +9851,17 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 47900,49-2,"Telecommunications Equipment Installers and Repairers, Except Line Installers","Installation, Maintenance, and Repair",7000,mid,533.75,304.39,0.00,0.00,0.00
 47900,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,mid,1762.52,1005.15,0.00,0.00,0.00
 47900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,3536.63,2016.91,0.00,0.00,0.00
-48140,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,mid,743.54,701.89,636.29,575.02,517.62
-48140,13-2,Accountants and Auditors,Business and Financial Operations,500,mid,332.58,313.95,284.61,257.20,231.53
-48140,15-1,Software Developers,Computer and Mathematical,1000,mid,10.69,0.00,0.00,0.00,0.00
-48140,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,375.25,301.91,188.92,86.14,0.00
-48140,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,704.84,134.91,0.00,0.00,0.00
-48140,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,305.68,58.51,0.00,0.00,0.00
-48140,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,243.36,201.53,136.87,77.83,23.70
-48140,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,375.18,310.93,213.31,126.01,47.54
-48140,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,778.48,739.26,678.34,622.37,570.76
-48140,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,852.97,810.00,743.24,681.92,625.37
-48140,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,164.42,109.64,24.62,0.00,0.00
-48140,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,227.37,151.62,34.05,0.00,0.00
+48140,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,mid,716.18,674.50,608.87,547.56,490.14
+48140,13-2,Accountants and Auditors,Business and Financial Operations,500,mid,320.34,301.70,272.34,244.92,219.24
+48140,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,mid,341.55,268.18,155.15,52.35,0.00
+48140,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,mid,668.42,98.47,0.00,0.00,0.00
+48140,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,mid,289.88,42.70,0.00,0.00,0.00
+48140,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,239.25,197.41,132.75,73.69,19.56
+48140,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,mid,372.51,308.25,210.62,123.31,44.84
+48140,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,mid,776.59,737.36,676.43,620.46,568.85
+48140,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,mid,850.89,807.91,741.15,679.82,623.27
+48140,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,mid,159.77,104.99,19.95,0.00,0.00
+48140,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,mid,220.95,145.18,27.59,0.00,0.00
 48300,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,mid,125.02,86.32,26.52,0.00,0.00
 48300,45-2,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse","Farming, Fishing, and Forestry",6000,mid,3975.31,3801.45,3537.28,3300.98,3088.58
 48620,17-2,Mechanical Engineers,Architecture and Engineering,1300,mid,796.91,0.00,0.00,0.00,0.00
@@ -10055,6 +10056,8 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 10420,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,3093.81,2915.64,2638.87,2384.60,2150.13
 10420,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,1526.02,1340.00,1051.28,786.30,542.21
 10420,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,2862.41,2513.48,1971.92,1474.90,1017.03
+10540,41-2,Retail Salespersons,Sales and Related,4700,high,72.44,0.00,0.00,0.00,0.00
+10540,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,278.41,245.80,195.19,148.74,105.94
 10580,11-1,General and Operations Managers,Management,10,high,83.01,0.00,0.00,0.00,0.00
 10580,11-2,Marketing Managers,Management,10,high,20.12,0.00,0.00,0.00,0.00
 10580,11-3,Financial Managers,Management,10,high,69.29,0.00,0.00,0.00,0.00
@@ -10569,17 +10572,18 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 13820,53-1,"First-Line Supervisors of Transportation and Material Moving Workers, Except Aircraft Cargo Handling Supervisors",Transportation and Material Moving,9000,high,239.40,183.25,96.09,16.10,0.00
 13820,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,1425.53,1091.16,572.18,95.88,0.00
 13820,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,2220.35,1699.55,891.22,149.35,0.00
-13900,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,27.63,0.00,0.00,0.00,0.00
-13900,13-2,Accountants and Auditors,Business and Financial Operations,500,high,17.15,0.00,0.00,0.00,0.00
-13900,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,642.39,554.76,423.66,308.58,206.97
-13900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,88.80,14.55,0.00,0.00,0.00
-13900,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,44.39,7.27,0.00,0.00,0.00
-13900,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,1599.48,859.39,0.00,0.00,0.00
-13900,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,high,432.68,128.64,0.00,0.00,0.00
-13900,39-9,Childcare Workers,Personal Care and Service,4300,high,318.38,141.02,0.00,0.00,0.00
-13900,47-2,Construction Laborers,Construction and Extraction,6200,high,271.13,187.15,57.30,0.00,0.00
-13900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,140.93,87.56,4.72,0.00,0.00
-13900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,179.07,111.26,6.00,0.00,0.00
+13900,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,24.39,0.00,0.00,0.00,0.00
+13900,13-2,Accountants and Auditors,Business and Financial Operations,500,high,15.13,0.00,0.00,0.00,0.00
+13900,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,641.10,553.46,422.36,307.27,205.66
+13900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,85.89,11.63,0.00,0.00,0.00
+13900,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,42.93,5.81,0.00,0.00,0.00
+13900,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,1595.44,855.34,0.00,0.00,0.00
+13900,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,high,426.53,122.47,0.00,0.00,0.00
+13900,39-9,Childcare Workers,Personal Care and Service,4300,high,314.83,137.46,0.00,0.00,0.00
+13900,47-2,Construction Laborers,Construction and Extraction,6200,high,259.03,175.00,45.08,0.00,0.00
+13900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,358.31,304.59,222.97,149.98,84.38
+13900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,133.72,80.32,0.00,0.00,0.00
+13900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,169.91,102.07,0.00,0.00,0.00
 13980,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,1039.51,901.41,694.82,513.48,353.37
 13980,25-1,"Postsecondary Teachers, All Other","Education, Training, and Library",2200,high,1194.25,1095.77,944.08,806.13,680.15
 13980,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,1247.41,1144.55,986.11,842.02,710.43
@@ -10692,19 +10696,18 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 14460,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,411.38,0.00,0.00,0.00,0.00
 14460,53-6,Parking Attendants,Transportation and Material Moving,9000,high,43.47,0.00,0.00,0.00,0.00
 14460,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,611.12,0.00,0.00,0.00,0.00
-14740,15-1,Software Developers,Computer and Mathematical,1000,high,620.07,406.32,78.47,0.00,0.00
-14740,17-2,Mechanical Engineers,Architecture and Engineering,1300,high,1550.23,1030.86,380.93,0.00,0.00
-14740,17-3,Architectural and Civil Drafters,Architecture and Engineering,1300,high,1188.04,790.01,291.93,0.00,0.00
-14740,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,4.40,0.00,0.00,0.00,0.00
-14740,27-1,Graphic Designers,"Arts, Design, Entertainment, Sports, Media",2600,high,44.20,15.44,0.00,0.00,0.00
-14740,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,0.23,0.00,0.00,0.00,0.00
-14740,33-9,Security Guards,Protective Service,3700,high,210.33,178.25,128.39,82.56,40.29
-14740,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,high,80.74,32.73,0.00,0.00,0.00
-14740,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,high,207.52,84.12,0.00,0.00,0.00
-14740,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,high,138.58,0.00,0.00,0.00,0.00
-14740,37-3,Landscaping and Groundskeeping Workers,Building and Grounds Cleaning and Maintenance,4200,high,63.01,0.00,0.00,0.00,0.00
-14740,47-2,Construction Laborers,Construction and Extraction,6200,high,2313.70,2088.83,1741.23,1423.77,1132.70
-14740,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,1231.87,1079.87,848.98,642.52,456.99
+14740,15-1,Software Developers,Computer and Mathematical,1000,high,612.91,399.14,71.28,0.00,0.00
+14740,17-2,Mechanical Engineers,Architecture and Engineering,1300,high,1548.48,1029.10,379.17,0.00,0.00
+14740,17-3,Architectural and Civil Drafters,Architecture and Engineering,1300,high,1186.70,788.66,290.58,0.00,0.00
+14740,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,2.15,0.00,0.00,0.00,0.00
+14740,27-1,Graphic Designers,"Arts, Design, Entertainment, Sports, Media",2600,high,42.24,13.47,0.00,0.00,0.00
+14740,33-9,Security Guards,Protective Service,3700,high,208.06,175.96,126.09,80.26,37.98
+14740,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,high,76.38,28.35,0.00,0.00,0.00
+14740,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,high,196.32,72.88,0.00,0.00,0.00
+14740,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,high,129.65,0.00,0.00,0.00,0.00
+14740,37-3,Landscaping and Groundskeeping Workers,Building and Grounds Cleaning and Maintenance,4200,high,58.96,0.00,0.00,0.00,0.00
+14740,47-2,Construction Laborers,Construction and Extraction,6200,high,2294.83,2069.88,1722.17,1404.61,1113.45
+14740,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,1225.28,1073.26,842.33,635.84,450.28
 14860,11-1,General and Operations Managers,Management,10,high,831.50,0.00,0.00,0.00,0.00
 14860,11-2,Marketing Managers,Management,10,high,360.73,0.00,0.00,0.00,0.00
 14860,11-3,Financial Managers,Management,10,high,906.56,0.00,0.00,0.00,0.00
@@ -11484,7 +11487,7 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 19820,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,5017.46,3934.63,2253.99,711.52,0.00
 19820,53-6,Parking Attendants,Transportation and Material Moving,9000,high,288.08,225.91,129.42,40.85,0.00
 19820,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,8846.22,6937.10,3973.97,1254.48,0.00
-20020,41-2,Retail Salespersons,Sales and Related,4700,high,191.59,0.00,0.00,0.00,0.00
+20020,41-2,Retail Salespersons,Sales and Related,4700,high,98.49,0.00,0.00,0.00,0.00
 20100,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,317.84,236.18,114.00,6.71,0.00
 20100,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,191.60,85.28,0.00,0.00,0.00
 20100,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,69.68,31.01,0.00,0.00,0.00
@@ -12566,22 +12569,22 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 31180,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,high,754.57,588.30,331.93,98.52,0.00
 31180,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,0.95,0.00,0.00,0.00,0.00
 31180,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,1.50,0.00,0.00,0.00,0.00
-31340,11-1,General and Operations Managers,Management,10,high,305.30,0.00,0.00,0.00,0.00
-31340,11-3,Financial Managers,Management,10,high,128.23,0.00,0.00,0.00,0.00
-31340,11-9,"Managers, All Other",Management,10,high,181.44,0.00,0.00,0.00,0.00
-31340,15-1,Software Developers,Computer and Mathematical,1000,high,340.28,204.29,0.00,0.00,0.00
-31340,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,1415.59,1257.94,1022.11,815.09,632.32
-31340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,1169.90,1025.51,803.09,600.78,416.02
-31340,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,429.08,376.12,294.54,220.35,152.58
-31340,27-2,Producers and Directors,"Arts, Design, Entertainment, Sports, Media",2600,high,52.92,29.53,0.00,0.00,0.00
-31340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,413.38,0.00,0.00,0.00,0.00
-31340,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,198.89,0.00,0.00,0.00,0.00
-31340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,811.83,727.61,597.44,478.57,369.60
-31340,47-2,Construction Laborers,Construction and Extraction,6200,high,411.74,296.31,117.85,0.00,0.00
-31340,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,383.41,278.54,119.17,0.00,0.00
-31340,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,575.02,531.93,464.99,403.48,346.76
-31340,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,high,814.34,753.31,658.51,571.40,491.07
-31340,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,884.20,817.94,715.00,620.42,533.20
+31340,11-1,General and Operations Managers,Management,10,high,219.93,0.00,0.00,0.00,0.00
+31340,11-3,Financial Managers,Management,10,high,92.37,0.00,0.00,0.00,0.00
+31340,11-9,"Managers, All Other",Management,10,high,130.70,0.00,0.00,0.00,0.00
+31340,15-1,Software Developers,Computer and Mathematical,1000,high,280.42,144.39,0.00,0.00,0.00
+31340,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,1376.28,1218.61,982.74,775.68,592.89
+31340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,1085.34,940.90,718.39,516.01,331.17
+31340,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,398.06,345.09,263.48,189.25,121.46
+31340,27-2,Producers and Directors,"Arts, Design, Entertainment, Sports, Media",2600,high,40.28,16.88,0.00,0.00,0.00
+31340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,327.03,0.00,0.00,0.00,0.00
+31340,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,157.34,0.00,0.00,0.00,0.00
+31340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,800.59,716.35,586.14,467.24,358.24
+31340,47-2,Construction Laborers,Construction and Extraction,6200,high,398.78,283.32,104.80,0.00,0.00
+31340,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,374.87,269.97,110.57,0.00,0.00
+31340,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,570.59,527.48,460.52,398.99,342.25
+31340,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,high,808.06,747.01,652.18,565.05,484.70
+31340,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,877.38,811.10,708.13,613.52,526.28
 31460,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,237.46,178.75,88.29,6.01,0.00
 31460,45-2,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse","Farming, Fishing, and Forestry",6000,high,4985.18,4769.33,4441.36,4147.99,3884.30
 31900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,612.90,539.08,425.37,321.93,227.46
@@ -12924,7 +12927,7 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 33860,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,1186.91,1114.37,1001.70,898.18,802.72
 33860,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,344.58,230.61,53.71,0.00,0.00
 33860,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,673.04,450.43,104.91,0.00,0.00
-34580,47-2,Construction Laborers,Construction and Extraction,6200,high,652.66,609.01,541.56,479.97,423.51
+34580,47-2,Construction Laborers,Construction and Extraction,6200,high,598.63,554.84,487.16,425.35,368.69
 34620,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,662.52,601.40,507.24,421.61,343.39
 34620,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,354.64,0.00,0.00,0.00,0.00
 34620,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,high,330.35,274.68,188.85,110.69,39.24
@@ -13680,14 +13683,14 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 38300,53-1,"First-Line Supervisors of Transportation and Material Moving Workers, Except Aircraft Cargo Handling Supervisors",Transportation and Material Moving,9000,high,342.22,279.99,183.39,94.74,13.07
 38300,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,3611.23,2954.51,1935.20,999.70,137.89
 38300,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,4308.54,3525.01,2308.88,1192.74,164.51
-38340,11-1,General and Operations Managers,Management,10,high,652.11,100.42,0.00,0.00,0.00
-38340,11-3,Financial Managers,Management,10,high,327.21,50.39,0.00,0.00,0.00
-38340,11-9,"Managers, All Other",Management,10,high,430.25,66.25,0.00,0.00,0.00
-38340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,1173.94,1089.48,959.40,841.10,733.08
-38340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,876.75,338.01,0.00,0.00,0.00
-38340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,619.36,573.14,501.70,436.48,376.69
-38340,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,high,380.89,330.67,253.24,182.76,118.33
-38340,47-2,Construction Laborers,Construction and Extraction,6200,high,604.63,536.75,431.83,336.01,248.15
+38340,11-1,General and Operations Managers,Management,10,high,595.89,44.16,0.00,0.00,0.00
+38340,11-3,Financial Managers,Management,10,high,299.00,22.16,0.00,0.00,0.00
+38340,11-9,"Managers, All Other",Management,10,high,393.15,29.14,0.00,0.00,0.00
+38340,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,1121.52,1037.04,906.91,788.57,680.51
+38340,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,810.02,271.25,0.00,0.00,0.00
+38340,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,612.46,566.22,494.76,429.52,369.72
+38340,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,high,375.11,324.88,247.43,176.92,112.48
+38340,47-2,Construction Laborers,Construction and Extraction,6200,high,597.28,529.39,424.44,328.59,240.71
 38860,11-1,General and Operations Managers,Management,10,high,910.07,0.00,0.00,0.00,0.00
 38860,11-2,Marketing Managers,Management,10,high,343.94,0.00,0.00,0.00,0.00
 38860,11-3,Financial Managers,Management,10,high,556.34,0.00,0.00,0.00,0.00
@@ -14127,17 +14130,17 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 40420,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,2572.99,2452.22,2264.62,2092.28,1933.38
 40420,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,652.45,570.63,443.64,327.10,219.75
 40420,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,1819.71,1591.51,1237.34,912.30,612.90
-40580,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,447.82,386.19,291.25,204.89,126.01
-40580,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,226.13,0.00,0.00,0.00,0.00
-40580,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,147.54,0.00,0.00,0.00,0.00
-40580,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,497.14,442.87,358.99,282.39,212.17
-40580,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,high,118.34,0.00,0.00,0.00,0.00
-40580,41-2,Retail Salespersons,Sales and Related,4700,high,38.41,0.00,0.00,0.00,0.00
-40580,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,87.46,22.58,0.00,0.00,0.00
-40580,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,1122.59,1067.93,983.02,905.03,833.11
-40580,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,1310.68,1246.86,1147.73,1056.67,972.70
-40580,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,350.99,303.34,229.38,161.50,98.97
-40580,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,720.42,622.61,470.80,331.47,203.13
+40580,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,445.70,384.07,289.12,202.75,123.86
+40580,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,222.98,0.00,0.00,0.00,0.00
+40580,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,145.48,0.00,0.00,0.00,0.00
+40580,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,493.33,439.05,355.15,278.53,208.29
+40580,37-2,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",Building and Grounds Cleaning and Maintenance,4200,high,109.14,0.00,0.00,0.00,0.00
+40580,41-2,Retail Salespersons,Sales and Related,4700,high,30.42,0.00,0.00,0.00,0.00
+40580,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,82.66,17.76,0.00,0.00,0.00
+40580,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,1118.64,1063.96,979.03,901.00,829.06
+40580,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,1306.08,1242.24,1143.07,1051.97,967.97
+40580,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,345.73,298.05,224.05,156.13,93.57
+40580,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,709.62,611.76,459.87,320.47,192.05
 40900,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,8292.46,7540.01,6355.03,5248.20,4211.28
 40900,13-2,Accountants and Auditors,Business and Financial Operations,500,high,3125.46,2841.86,2395.24,1978.07,1587.25
 40900,15-1,Software Developers,Computer and Mathematical,1000,high,12438.96,10678.39,7978.43,5536.12,3317.18
@@ -14651,21 +14654,22 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 42220,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,258.66,216.43,150.84,90.58,35.01
 42220,51-3,Bakers,Production,7700,high,261.05,218.43,152.23,91.41,35.34
 42220,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,616.69,516.01,359.62,215.95,83.48
-42540,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,2390.64,2104.39,1676.14,1300.21,968.31
-42540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,2742.39,1048.33,0.00,0.00,0.00
-42540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,1757.17,671.71,0.00,0.00,0.00
-42540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,1184.13,1012.44,747.07,504.73,282.56
-42540,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,high,94.57,17.29,0.00,0.00,0.00
-42540,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,high,220.09,40.23,0.00,0.00,0.00
-42540,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,200.90,100.92,0.00,0.00,0.00
-42540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,362.43,182.07,0.00,0.00,0.00
-42540,51-1,First-Line Supervisors of Production and Operating Workers,Production,7700,high,442.33,407.24,352.73,302.65,256.47
-42540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,999.83,920.52,797.31,684.11,579.73
-42540,51-3,Bakers,Production,7700,high,528.69,486.75,421.60,361.74,306.55
-42540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,high,937.39,863.03,747.52,641.39,543.52
-42540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,1408.65,1296.91,1123.33,963.84,816.77
-42540,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,1927.97,1771.98,1529.89,1307.72,1103.07
-42540,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,4757.60,4372.67,3775.26,3227.02,2722.01
+42540,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,2386.44,2100.17,1671.90,1295.95,964.04
+42540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,2731.21,1037.12,0.00,0.00,0.00
+42540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,1750.00,664.53,0.00,0.00,0.00
+42540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,1169.05,997.30,731.85,489.44,267.19
+42540,35-1,First-Line Supervisors of Food Preparation and Serving Workers,Food Preparation and Serving,4000,high,36.80,3.21,0.00,0.00,0.00
+42540,35-2,"Cooks, Restaurant",Food Preparation and Serving,4000,high,84.72,7.39,0.00,0.00,0.00
+42540,35-3,Fast Food and Counter Workers,Food Preparation and Serving,4000,high,197.16,17.20,0.00,0.00,0.00
+42540,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,192.75,92.74,0.00,0.00,0.00
+42540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,347.73,167.31,0.00,0.00,0.00
+42540,51-1,First-Line Supervisors of Production and Operating Workers,Production,7700,high,438.32,403.21,348.68,298.57,252.36
+42540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,990.76,911.41,788.14,674.88,570.44
+42540,51-3,Bakers,Production,7700,high,523.89,481.93,416.75,356.86,301.63
+42540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,high,928.89,854.50,738.92,632.74,534.82
+42540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,1395.88,1284.08,1110.41,950.84,803.69
+42540,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,1911.40,1755.34,1513.13,1290.85,1086.10
+42540,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,4716.70,4331.59,3733.90,3185.40,2680.15
 42660,11-1,General and Operations Managers,Management,10,high,4899.41,0.00,0.00,0.00,0.00
 42660,11-2,Marketing Managers,Management,10,high,2360.60,0.00,0.00,0.00,0.00
 42660,11-3,Financial Managers,Management,10,high,5935.53,0.00,0.00,0.00,0.00
@@ -14757,21 +14761,17 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 43340,47-5,"Service Unit Operators, Oil and Gas",Construction and Extraction,6200,high,324.12,269.27,184.48,107.04,36.02
 43340,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,304.86,241.28,144.67,58.24,0.00
 43340,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,648.74,513.44,307.85,123.94,0.00
-43900,17-2,Mechanical Engineers,Architecture and Engineering,1300,high,7.09,0.00,0.00,0.00,0.00
-43900,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,219.40,82.18,0.00,0.00,0.00
-43900,25-1,"Postsecondary Teachers, All Other","Education, Training, and Library",2200,high,15.47,0.00,0.00,0.00,0.00
-43900,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,75.22,0.00,0.00,0.00,0.00
-43900,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,18.94,0.00,0.00,0.00,0.00
-43900,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,184.53,0.00,0.00,0.00,0.00
-43900,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,86.12,0.00,0.00,0.00,0.00
-43900,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,363.07,262.16,106.18,0.00,0.00
-43900,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,272.40,189.28,62.98,0.00,0.00
-43900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,593.06,412.11,137.12,0.00,0.00
-43900,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,3772.31,3560.83,3232.32,2930.52,2652.22
-43900,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,high,1089.24,1028.17,933.32,846.17,765.82
-43900,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,1309.65,1236.23,1122.18,1017.40,920.79
-43900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,703.12,585.15,402.04,233.98,79.15
-43900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,1403.99,1168.42,802.78,467.20,158.05
+43900,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,172.34,35.10,0.00,0.00,0.00
+43900,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,79.08,0.00,0.00,0.00,0.00
+43900,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,36.90,0.00,0.00,0.00,0.00
+43900,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,350.77,249.84,93.83,0.00,0.00
+43900,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,267.92,184.80,58.48,0.00,0.00
+43900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,583.32,402.33,127.31,0.00,0.00
+43900,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,3759.97,3548.46,3219.91,2918.06,2639.73
+43900,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,high,1085.68,1024.60,929.73,842.58,762.21
+43900,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,1305.37,1231.94,1117.87,1013.08,916.45
+43900,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,692.74,574.74,391.59,223.50,68.64
+43900,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,1383.26,1147.64,781.93,446.27,137.05
 44060,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,1031.78,859.28,587.63,333.90,96.21
 44060,13-2,Accountants and Auditors,Business and Financial Operations,500,high,433.58,361.09,246.94,140.32,40.43
 44060,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,2579.32,2196.47,1623.70,1120.87,676.92
@@ -14962,17 +14962,17 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 45780,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,2997.82,2857.02,2638.31,2437.38,2252.12
 45780,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,3344.02,3140.57,2824.84,2535.10,2268.22
 45780,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,6426.10,6035.14,5428.40,4871.62,4358.77
-45820,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,899.22,762.47,557.87,378.25,219.66
-45820,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,668.21,548.23,363.39,195.26,41.71
-45820,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,344.04,282.26,187.09,100.53,21.47
-45820,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,29.74,0.00,0.00,0.00,0.00
-45820,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,14.22,0.00,0.00,0.00,0.00
-45820,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,486.11,404.35,277.97,162.57,56.76
-45820,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,high,299.19,263.34,207.63,156.43,109.20
-45820,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,63.21,10.48,0.00,0.00,0.00
-45820,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,115.24,19.11,0.00,0.00,0.00
-45820,51-3,Bakers,Production,7700,high,382.39,344.56,285.78,231.78,181.97
-45820,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,707.11,637.15,528.46,428.59,336.49
+45820,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,897.27,760.51,555.91,376.28,217.69
+45820,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,664.73,544.73,359.88,191.74,38.17
+45820,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,342.24,280.46,185.29,98.72,19.65
+45820,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,24.19,0.00,0.00,0.00,0.00
+45820,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,11.57,0.00,0.00,0.00,0.00
+45820,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,480.16,398.38,271.97,156.53,50.70
+45820,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,high,296.68,260.83,205.11,153.90,106.66
+45820,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,59.69,6.95,0.00,0.00,0.00
+45820,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,108.83,12.67,0.00,0.00,0.00
+45820,51-3,Bakers,Production,7700,high,378.78,340.93,282.12,228.09,178.27
+45820,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,700.41,630.42,521.69,421.78,329.65
 45940,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,421.38,300.82,110.94,0.00,0.00
 45940,13-2,Accountants and Auditors,Business and Financial Operations,500,high,162.54,116.03,42.79,0.00,0.00
 45940,15-1,Software Developers,Computer and Mathematical,1000,high,3322.83,2971.98,2433.98,1947.38,1505.33
@@ -15123,28 +15123,26 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 46520,49-2,"Telecommunications Equipment Installers and Repairers, Except Line Installers","Installation, Maintenance, and Repair",7000,high,408.86,349.37,259.00,178.18,105.55
 46520,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,1170.57,1000.25,741.52,510.14,302.21
 46520,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,2427.14,2073.99,1537.51,1057.76,626.62
-46540,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,625.53,569.21,480.52,397.67,320.07
-46540,13-2,Accountants and Auditors,Business and Financial Operations,500,high,350.38,318.83,269.15,222.75,179.28
-46540,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,1522.88,1361.02,1118.89,906.35,718.73
-46540,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,1855.44,1696.31,1451.18,1228.26,1024.67
-46540,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,872.59,797.75,682.47,577.63,481.89
-46540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,2228.04,1219.45,0.00,0.00,0.00
-46540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,1275.65,698.19,0.00,0.00,0.00
-46540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,976.36,881.07,733.80,599.32,476.04
-46540,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,high,1364.19,1295.69,1189.26,1091.46,1001.25
-46540,39-9,Childcare Workers,Personal Care and Service,4300,high,393.68,98.36,0.00,0.00,0.00
-46540,41-2,Retail Salespersons,Sales and Related,4700,high,771.37,0.00,0.00,0.00,0.00
-46540,43-3,"Bookkeeping, Accounting, and Auditing Clerks",Office and Administrative Support,5000,high,50.87,0.00,0.00,0.00,0.00
-46540,43-4,Customer Service Representatives,Office and Administrative Support,5000,high,66.91,0.00,0.00,0.00,0.00
-46540,43-5,"Shipping, Receiving, and Inventory Clerks",Office and Administrative Support,5000,high,35.04,0.00,0.00,0.00,0.00
-46540,43-6,"Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",Office and Administrative Support,5000,high,45.51,0.00,0.00,0.00,0.00
-46540,43-9,"Office Clerks, General",Office and Administrative Support,5000,high,42.65,0.00,0.00,0.00,0.00
-46540,47-2,Construction Laborers,Construction and Extraction,6200,high,3.31,0.00,0.00,0.00,0.00
-46540,47-4,Construction and Building Inspectors,Construction and Extraction,6200,high,1.42,0.00,0.00,0.00,0.00
-46540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,300.43,206.43,63.60,0.00,0.00
-46540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,226.73,191.44,136.62,86.24,39.79
-46540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,high,229.41,193.70,138.23,87.26,40.26
-46540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,253.67,214.18,152.85,96.49,44.51
+46540,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,621.95,565.62,476.92,394.06,316.44
+46540,13-2,Accountants and Auditors,Business and Financial Operations,500,high,348.37,316.82,267.13,220.72,177.25
+46540,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,1521.40,1359.53,1117.40,904.86,717.23
+46540,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,1852.36,1693.22,1448.08,1225.14,1021.54
+46540,25-9,"Teaching Assistants, Except Postsecondary","Education, Training, and Library",2200,high,871.14,796.30,681.01,576.16,480.42
+46540,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,2223.95,1215.36,0.00,0.00,0.00
+46540,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,1273.31,695.85,0.00,0.00,0.00
+46540,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,971.10,875.79,728.49,593.99,470.68
+46540,33-3,Police and Sheriff's Patrol Officers,Protective Service,3700,high,1361.41,1292.90,1186.46,1088.64,998.42
+46540,39-9,Childcare Workers,Personal Care and Service,4300,high,388.66,93.32,0.00,0.00,0.00
+46540,41-2,Retail Salespersons,Sales and Related,4700,high,760.36,0.00,0.00,0.00,0.00
+46540,43-3,"Bookkeeping, Accounting, and Auditing Clerks",Office and Administrative Support,5000,high,45.58,0.00,0.00,0.00,0.00
+46540,43-4,Customer Service Representatives,Office and Administrative Support,5000,high,59.95,0.00,0.00,0.00,0.00
+46540,43-5,"Shipping, Receiving, and Inventory Clerks",Office and Administrative Support,5000,high,31.40,0.00,0.00,0.00,0.00
+46540,43-6,"Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",Office and Administrative Support,5000,high,40.78,0.00,0.00,0.00,0.00
+46540,43-9,"Office Clerks, General",Office and Administrative Support,5000,high,38.21,0.00,0.00,0.00,0.00
+46540,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,295.38,201.36,58.51,0.00,0.00
+46540,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,223.39,188.08,133.24,82.84,36.37
+46540,51-4,"Welders, Cutters, Solderers, and Brazers",Production,7700,high,226.03,190.31,134.81,83.82,36.80
+46540,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,249.93,210.43,149.07,92.69,40.69
 46700,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,407.28,301.93,136.04,0.00,0.00
 46700,13-2,Accountants and Auditors,Business and Financial Operations,500,high,104.06,77.15,34.76,0.00,0.00
 46700,21-1,Social and Human Service Assistants,Community and Social Service,2000,high,1766.69,1525.53,1164.76,848.05,568.44
@@ -15282,18 +15280,18 @@ met2013,soc_code,soc_title,occ_group,occ_group_code,demand_scenario,shortage_2pc
 47900,49-2,"Telecommunications Equipment Installers and Repairers, Except Line Installers","Installation, Maintenance, and Repair",7000,high,569.33,338.48,0.00,0.00,0.00
 47900,49-3,Automotive Service Technicians and Mechanics,"Installation, Maintenance, and Repair",7000,high,1880.01,1117.72,0.00,0.00,0.00
 47900,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,3772.37,2242.78,0.00,0.00,0.00
-48140,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,791.76,749.41,682.72,620.43,562.07
-48140,13-2,Accountants and Auditors,Business and Financial Operations,500,high,354.15,335.21,305.38,277.51,251.41
-48140,15-1,Software Developers,Computer and Mathematical,1000,high,64.51,2.89,0.00,0.00,0.00
-48140,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,401.05,326.90,212.66,108.76,13.86
-48140,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,764.39,184.24,0.00,0.00,0.00
-48140,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,331.51,79.90,0.00,0.00,0.00
-48140,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,275.08,232.33,166.26,105.92,50.61
-48140,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,404.74,339.25,239.76,150.78,70.81
-48140,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,788.01,748.55,687.26,630.96,579.04
-48140,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,863.41,820.18,753.02,691.33,634.44
-48140,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,203.14,147.37,60.81,0.00,0.00
-48140,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,280.91,203.79,84.09,0.00,0.00
+48140,13-1,"Business Operations Specialists, All Other",Business and Financial Operations,500,high,764.39,722.02,655.30,592.98,534.59
+48140,13-2,Accountants and Auditors,Business and Financial Operations,500,high,341.91,322.96,293.11,265.24,239.12
+48140,15-1,Software Developers,Computer and Mathematical,1000,high,41.31,0.00,0.00,0.00,0.00
+48140,25-2,"Elementary School Teachers, Except Special Education","Education, Training, and Library",2200,high,367.34,293.17,178.90,74.97,0.00
+48140,29-1,Registered Nurses,Healthcare Practitioners and Technical,3000,high,727.97,147.79,0.00,0.00,0.00
+48140,29-2,Licensed Practical and Licensed Vocational Nurses,Healthcare Practitioners and Technical,3000,high,315.71,64.09,0.00,0.00,0.00
+48140,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,270.97,228.22,162.13,101.79,46.47
+48140,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,402.07,336.57,237.07,148.08,68.10
+48140,51-2,Miscellaneous Assemblers and Fabricators,Production,7700,high,786.12,746.65,685.36,629.04,577.12
+48140,51-9,"Inspectors, Testers, Sorters, Samplers, and Weighers",Production,7700,high,861.33,818.09,750.93,689.23,632.34
+48140,53-3,Heavy and Tractor-Trailer Truck Drivers,Transportation and Material Moving,9000,high,198.49,142.71,56.14,0.00,0.00
+48140,53-7,"Laborers and Freight, Stock, and Material Movers, Hand",Transportation and Material Moving,9000,high,274.49,197.35,77.63,0.00,0.00
 48300,31-1,Home Health and Personal Care Aides,Healthcare Support,3600,high,165.78,125.91,64.29,8.02,0.00
 48300,45-2,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse","Farming, Fishing, and Forestry",6000,high,4028.03,3852.00,3584.52,3345.27,3130.21
 48300,49-9,"Maintenance and Repair Workers, General","Installation, Maintenance, and Repair",7000,high,2.83,0.00,0.00,0.00,0.00
